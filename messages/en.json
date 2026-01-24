@@ -1,0 +1,1037 @@
+{
+  "Meta": {
+    "homeTitle": "Computer Education | Home",
+    "newsListTitle": "Computer Education | News & Events",
+    "newsDetailTitle": "Computer Education | News Detail",
+    "personnelTitle": "Computer Education | Staff",
+    "aboutTitle": "Computer Education | About",
+    "programsTitle": "Computer Education | Programs",
+    "servicesTitle": "Computer Education | Services",
+    "onlineLearningTitle": "Computer Education | Online Learning Resources",
+    "classroomTitle": "Computer Education | Classroom",
+    "formRequestsTitle": "Computer Education | Form Requests",
+    "contactUsTitle": "Computer Education | Contact Us",
+    "awardsTitle": "Computer Education | Awards & Recognition",
+    "faviconPath": "/favicon.ico"
+  },
+  "Common": {
+    "paginationLabel": "Pagination",
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {current} of {total}"
+  },
+  "Navbar": {
+    "home": "Home",
+    "about": "About",
+    "programs": "Programs",
+    "people": "People",
+    "research": "Research",
+    "newsEvents": "News & Events",
+    "admissions": "Admissions",
+    "campusLife": "Campus Life",
+    "give": "Give",
+    "searchPlaceholder": "Search...",
+    "menu": "Menu",
+    "closeMenu": "Close menu",
+    "close": "Close",
+    "menuItem1": "HOME",
+    "menuItem2": "PERSONNEL",
+    "menuItem3": "ACADEMICS",
+    "menuItem4": "RESEARCH",
+    "menuItem5": "NEWS & EVENTS",
+    "menuItem6": "ABOUT THE DEPARTMENT",
+    "menuItem7": "CONTACT US",
+    "explore": "Explore",
+    "contactDetail": "CONTACT DETAILS",
+    "line1": "Department of Computer Education",
+    "line2": "2nd Floor, Faculty of Technical Education",
+    "line3": "King Mongkut's University of Technology North Bangkok",
+    "tel": "02 555 2000 ext. 3234"
+  },
+  "Footer": {
+    "quickLinksTitle": "Quick Links",
+    "servicesTitle": "Services",
+    "studentsTitle": "For Students",
+    "addressLine1": "Department Of Computer Education",
+    "addressLine2": "2nd floor, Faculty of Technical Education",
+    "addressLine3": "King Mongkut's University of Technology North Bangkok",
+    "rights": "© {year} Department Of Computer Education, All rights reserved.",
+    "links": {
+      "aboutCed": "About CED",
+      "newsEvents": "News & Events",
+      "admissions": "Admissions",
+      "programs": "Programs",
+      "research": "Research",
+      "personnel": "Personnel",
+      "listOfStudents": "List of Students",
+      "timetable": "Timetable",
+      "examSchedule": "Examination Schedule",
+      "academicCalendar": "Academic Calendar",
+      "scholarships": "Scholarships",
+      "studentAlumni": "Student Alumni Association"
+    }
+  },
+  "Breadcrumbs": {
+    "home": "Home",
+    "newsEvents": "News & Events",
+    "personnel": "Personnel",
+    "about": "About",
+    "programs": "Programs",
+    "ced": "B.S.Tech.Ed. (Computer Technology)",
+    "tct": "B.S.Tech.Ed. (Computer Technology)",
+    "services": "Services",
+    "onlineLearning": "Online Learning Resources",
+    "contactUs": "Contact Us"
+  },
+  "Hero": {
+    "admissions": "Admissions",
+    "programs": "Programs",
+    "services": "Services",
+    "qualityAssurance": "Quality Assurance",
+    "olr": "Online Learning Resources",
+    "research": "Research",
+    "academic": "ACADEMICS",
+    "major": "Majors, Minors AND Programs",
+    "deptinfo": "Department Information",
+    "classroom": "CLASSROOM",
+    "studentservices": "Student Services",
+    "lastNew": "LASTEST NEWS",
+    "seeMore": "SEE MORE NEWS",
+    "philosophy": "PHILOSOPHY AND COMMITMENT",
+    "philosophyDesc": "Developing People, Advancing Science and Technology",
+    "onlineService": "ONLINE SERVICES",
+    "icitAccount": "ICIT Account",
+    "mooc": "KMUTNB MOOC",
+    "centralLibrary": "Central Library",
+    "studentAffairs": "Student Affairs",
+    "formRequests": "Form Requests",
+    "headerTitle": "Empowering the Future of Learning",
+    "headerDesc": "Technology is the tool of creation, and teaching is the heart of transformation. The Department of Computer Education empowers future educators through innovation and technology, designing meaningful learning experiences that connect learners to a creative and sustainable digital world.",
+    "aboutDepartment": "About Department",
+    "contactUs": "Contact Department"
+  },
+  "Training": {
+    "title": "Training Events",
+    "subtitle": "Stay informed about upcoming workshops and hands-on learning sessions.",
+    "empty": "No training events available right now.",
+    "seeAll": "SEE ALL TRAINING EVENTS",
+    "readMore": "Learn more"
+  },
+  "News": {
+    "title": "News & Events",
+    "description": "Browse the latest updates from the Department of Computer Education.",
+    "readMore": "READ MORE",
+    "noNews": "No news items are available right now.",
+    "loading": "Loading news...",
+    "fetchError": "Unable to load news at the moment. Please try again later.",
+    "backToHome": "Back to home",
+    "backToList": "Back to News & Events",
+    "publishedOn": "Published on {date}",
+    "categoryLabel": "Category",
+    "authorLabel": "Author",
+    "galleryHeading": "Photo gallery",
+    "noContent": "No additional content has been provided for this story.",
+    "filterTitle": "Filter news",
+    "filterDescription": "Refine the list by category, tag, or keyword.",
+    "filterCategoryAll": "Choose a category",
+    "filterTagLabel": "Tag",
+    "filterTagAll": "Choose a tags",
+    "filterSearchLabel": "Search",
+    "filterSearchPlaceholder": "Search news...",
+    "filterClear": "Clear filters",
+    "categories": {
+      "Workshop": "Workshop",
+      "Community": "Community",
+      "Academics": "Academics",
+      "Alumni": "Alumni",
+      "Research": "Research",
+      "Partnership": "Partnership",
+      "Recognition": "Recognition",
+      "Event": "Event",
+      "Student Life": "Student Life",
+      "Conference": "Conference",
+      "News & Announcements": "News & Announcements",
+      "Activities & Events": "Activities & Events",
+      "Research & Achievements": "Research & Achievements",
+      "Training": "Training"
+    },
+    "tags": {
+      "Partnership": "Partnership",
+      "International": "International",
+      "Collaboration": "Collaboration",
+      "Awards": "Awards",
+      "Faculty": "Faculty",
+      "Recognition": "Recognition",
+      "Students": "Students",
+      "Hackathon": "Hackathon",
+      "Innovation": "Innovation",
+      "Digital Learning": "Digital Learning",
+      "Analytics": "Analytics",
+      "Conference": "Conference",
+      "Department Update": "Department Update",
+      "Admission": "Admission",
+      "Scholarship": "Scholarship",
+      "Curriculum": "Curriculum",
+      "Alumni": "Alumni",
+      "General": "General",
+      "Workshop": "Workshop",
+      "Open House": "Open House",
+      "Student Life": "Student Life",
+      "Competition": "Competition",
+      "Community Service": "Community Service",
+      "Research": "Research",
+      "Publication": "Publication",
+      "Seminar": "Seminar",
+      "Certification": "Certification",
+      "Professional Development": "Professional Development"
+    },
+    "paginationLabel": "News pagination",
+    "paginationPrevious": "Previous",
+    "paginationNext": "Next",
+    "paginationPageInfo": "Page {current} of {total}"
+  },
+  "Personnel": {
+    "title": "Our Personnel",
+    "description": "Meet the dedicated faculty and staff members of the Department of Computer Education."
+  },
+  "AboutPage": {
+    "title": "About the Department",
+    "description": "The Department of Computer Education empowers future educators through technology",
+    "eyebrow": "Who We Are",
+    "tabs": {
+      "history": "Department History",
+      "philosophy": "Philosophy",
+      "symbol": "Symbol"
+    },
+    "symbol": {
+      "title": "Department Symbol",
+      "description": "The Department of Computer Education's symbol is designed to reflect the vision and mission of being a leader in innovation and computer technology education. It combines various elements that convey creativity, progress, and a solid foundation of knowledge.",
+      "meaningTitle": "Meaning of the Symbol",
+      "meanings": {
+        "circle": {
+          "title": "Circle and Gear:",
+          "desc": "Represents unity, ceaseless forward movement, and connection with the industrial sector."
+        },
+        "circuit": {
+          "title": "Circuit Lines:",
+          "desc": "Represents the core of computer technology, digitalization, and cutting-edge innovation."
+        },
+        "ced": {
+          "title": "CED Acronym:",
+          "desc": "Abbreviation for Computer Education Department, creating clear recognition."
+        }
+      },
+      "download": "Download Logo (PNG)",
+      "colorsTitle": "Department Colors",
+      "colors": {
+        "deepForestGreen": "Deep Forest Green",
+        "mutedGreen": "Muted Green/Teal",
+        "brightBlue": "Bright Blue",
+        "orange": "Orange"
+      }
+    },
+    "history": {
+      "highlight": "Department History",
+      "title": "Department of Computer Education",
+      "summary": "The Department of Computer Education was established in 1991. Currently, it has more than 10 qualified faculty members who are experts in various fields and recognized at the national level. The department offers programs ranging from graduate studies in Computer Technology, Master's degrees in Computer Technology (Computer Education and Multimedia Technology branches), to Doctoral degrees in Computer Education. Research areas include AI-based CAI, Multimedia, Computer Graphics, Image Processing, Educational Information Systems, Network Systems, Software Engineering, and Edutainment. The department is well-equipped with academic knowledge and research capabilities, producing high-quality graduates. It collaborates with national and international organizations as well as the business sector. Currently, there are over 2,000 alumni who are key forces in various organizations in Thailand's computer and information systems industry.",
+      "description": "From small beginnings, the Department of Computer Education has expanded to become a center of educational technology knowledge, working with school networks and the private sector nationwide. The timeline below shows the department's significant developments.",
+      "timelineTitle": "Timeline of Department History",
+      "timeline": {
+        "event0": {
+          "year": "1984 - 1987",
+          "title": "The Beginning",
+          "description": "Between 1984 - 1987, a group of Electrical Science faculty members, including Ajarn Prasert Rungrote, Ajarn Pichetpong Vorasangapong, Ajarn Prapas Apipatchaniyakul, and Ajarn Pornjit Songtham, jointly laid the foundation for technology and computer instruction for student teachers to support the increasing demand from schools and the industrial sector."
+        },
+        "event1": {
+          "year": "1991",
+          "title": "First Computer Laboratory",
+          "description": "Established Computer Laboratory Room 205 as the first computer lab for the TCT program. It used basic application programs running on 24 TWC machines (IBMPC CPU Intel 80386SX-16MHz) with 256 KB memory and 5.25-inch disk drives. This was a significant milestone that gave student teachers the opportunity to seriously experience contemporary technology."
+        },
+        "event2": {
+          "year": "1992",
+          "title": "Afternoon TCT Program & Lab Establishment",
+          "description": "The demand for the TCT program increased. The Ministry of University Affairs considered the computer field as a shortage area. The Dean supported opening an afternoon program (3-year curriculum) for the first time, admitting 20 students in the first batch."
+        },
+        "event3": {
+          "year": "1993",
+          "title": "First TCT Graduates",
+          "description": "The first batch of graduates in Industrial Education (Computer Technology) completed their studies on time and received their degrees on October 18, 1993. This paved the way for the TCT name, which was well-received by the labor market, with all graduates finding employment."
+        },
+        "event4": {
+          "year": "1994",
+          "title": "First Curriculum Improvement",
+          "description": "This year saw the first curriculum update to be more modern, including a proposal to separate from the Department of Electrical Education to establish the Department of Computer Education (first name proposed) for better administration and budget management."
+        },
+        "event5": {
+          "year": "1995",
+          "title": "Establishment of the Department",
+          "description": "The project to establish the department was drafted and proposed through the institute's committees, ending at the Ministry of University Affairs. The Dean, Ajarn Samer Rernganant, and I had to clarify with the Ministry's committee several times."
+        },
+        "event6": {
+          "year": "1995 - 1996",
+          "title": "2 Years of Hardware Development",
+          "description": "The policy to mobilize budget for specific departments by the Faculty of Technical Education executives made 1996 a year of development for the Department of Computer Education. Combined with the project to accelerate the production of graduates in shortage areas, the department received a budget of nearly 8 million baht in 1996."
+        },
+        "event7": {
+          "year": "1996 - 1998",
+          "title": "3 Years of Personnel Development",
+          "description": "After the department was established, it was allocated personnel positions from both the normal budget and the accelerated graduate production project. It also received scholarships for faculty to study abroad. This was a good opportunity for many lecturers to study abroad before the economic crisis cut the project short."
+        },
+        "event8": {
+          "year": "1998",
+          "title": "Entering Information Systems",
+          "description": "With budget support from the Faculty, the department designed and installed the Faculty's computer network, named TechEd Net, in Room 207. This allowed full use of Intranet/Internet for information tasks. The department also joined the project to accept outstanding students from technical colleges nationwide into the TCT program without entrance exams."
+        },
+        "event9": {
+          "year": "1999",
+          "title": "First MTCT Students",
+          "description": "In the 1999 academic year, the department admitted the first batch of Master's students (MTCT) in Multimedia Technology and Computer Education. There were 21 students, some alumni and some from outside. The undergraduate TCT program continued to admit the same number of students, bringing the total to about 350."
+        },
+        "event10": {
+          "year": "2000",
+          "title": "10th Anniversary",
+          "description": "In early 2000, Computer Laboratory 511 was established for graduate students. It was considered the best computer lab in the faculty, equipped with complete audiovisual systems, costing nearly 2 million baht. About 130 TCT graduates completed their studies on time this year."
+        },
+        "event11": {
+          "year": "2001",
+          "title": "Entering the 2nd Decade",
+          "description": "The Department of Computer Education entered its second decade firmly with quality personnel and long teaching experience. The department focused on continuous curriculum and research development to align with IT changes and digital labor market demands."
+        },
+        "event12": {
+          "year": "2011",
+          "title": "First CED Students",
+          "description": "The department admitted the first batch of Bachelor's students in Computer Education (CED) to produce graduates capable of applying IT in education and teaching. The first batch had 50 students, responding to the increasing demand in the educational technology labor market."
+        }
+      }
+    },
+    "philosophy": {
+      "sections": {
+        "philosophy": {
+          "title": "Philosophy & Mission",
+          "body": "We believe people and technology must grow together. Our curriculum balances pedagogy, communication, and technological fluency with a strong sense of social responsibility."
+        },
+        "vision": {
+          "title": "Vision",
+          "body": "To produce graduates who elevate communities and to build a knowledge organization that keeps Thailand at the forefront of science and technology."
+        },
+        "mission": {
+          "title": "Mission",
+          "body": "To educate undergraduates and graduates with strong values, conduct research and outreach that can be applied in real contexts, and preserve the nation’s art and culture."
+        }
+      },
+      "objectives": {
+        "title": "Objectives",
+        "items": {
+          "item1": "Produce computer-technology graduates who can teach and innovate across theory and practice.",
+          "item2": "Develop graduate specialists across multimedia, computer education, and e-commerce technology.",
+          "item3": "Support teachers, trainers, and scholars with advanced academic development and a national knowledge network.",
+          "item4": "Promote research and development that translates computer technology into tangible societal benefit."
+        }
+      }
+    }
+  },
+  "ProgramsPage": {
+    "title": "Programs",
+    "description": "Discover academic journeys that integrate teaching practice.",
+    "eyebrow": "What You Can Study",
+    "programs": {
+      "undergraduateTitle": "Bachelor of Education in Computer Education",
+      "undergraduateBody": "Develop classroom-ready skills across programming, instructional design, and emerging educational technologies.",
+      "graduateTitle": "Graduate Studies",
+      "graduateBody": "Advance your research and leadership in educational technology through tailored thesis and coursework options.",
+      "professionalTitle": "Professional & Short Courses",
+      "professionalBody": "Upskill with focused modules on AI for educators, digital assessment, and online learning design."
+    },
+    "highlightsTitle": "Why Study With Us?",
+    "highlights": {
+      "mentorship": "Mentorship from faculty practitioners and school partners",
+      "labs": "Specialised labs for robotics, AR/VR, and learning analytics",
+      "community": "Collaborative projects with local and international schools"
+    },
+    "ctaLabel": "Contact admissions"
+  },
+  "FormRequestsPage": {
+    "title": "Form Requests & Documents",
+    "description": "Download essential administrative forms, petitions, and submission templates in one place.",
+    "eyebrow": "Documents & Forms",
+    "categories": {
+      "academic": "Academic Services",
+      "coop": "Cooperative Education"
+    },
+    "sections": {
+      "departmentForms": "Department Forms",
+      "universityRegulations": "University Regulations",
+      "coopDocs": "Cooperative Education Documents"
+    },
+    "documents": {
+      "thesisFormat": "Thesis Format Regulations KMUTNB",
+      "defenseRequest": "ComEdu-01 Thesis Defense Request",
+      "generalRequest": "General Request Form",
+      "parentConsent": "Parent Consent Form",
+      "internshipEvaluation": "Summer Internship Evaluation Form",
+      "thesisSummary": "Graduate Thesis Summary Details",
+      "documentRequest": "Student Document Request Form",
+      "scholarshipForm": "Academic Scholarship Form",
+      "onlineExamForm": "Online Exam Monitoring Display Form",
+      "projectProposal": "Project Proposal Form Fiscal Year 2023",
+      "expertRequest": "ComEdu-02 Expert Appointment / Data Collection Request",
+      "universityAnnouncement": "University Announcement Re: ...",
+      "coopManual": "Cooperative Education Manual"
+    },
+    "emptyCategory": "No documents available in this category"
+  },
+  "ServicesPage": {
+    "title": "Services",
+    "description": "Explore the range of services offered by the Department of Computer Education to support students, faculty, and the community.",
+    "eyebrow": "Our Services",
+    "paginationLabel": "Services pagination",
+    "paginationPrevious": "Previous",
+    "paginationNext": "Next",
+    "paginationPageInfo": "Page {current} of {total}"
+  },
+  "OnlineLearningPage": {
+    "title": "Online Learning Hub",
+    "description": "Explore a wide range of online courses and learning materials.",
+    "eyebrow": "Start Learning",
+    "categories": {
+      "lms": "Learning Management Systems",
+      "mooc": "MOOCs & Online Courses",
+      "library": "Library & Research",
+      "tools": "Software & Tools",
+      "youtube": "Educational Channels"
+    },
+    "items": {
+      "leb2": {
+        "title": "LEB2",
+        "description": "KMUTNB's official Learning Environment for blended learning."
+      },
+      "teams": {
+        "title": "Microsoft Teams",
+        "description": "Virtual classroom and collaboration platform for real-time learning."
+      },
+      "kmutnbMooc": {
+        "title": "KMUTNB MOOC",
+        "description": "Open online courses from KMUTNB for lifelong learning."
+      },
+      "thaiMooc": {
+        "title": "Thai MOOC",
+        "description": "National platform for massive open online courses."
+      },
+      "library": {
+        "title": "Central Library",
+        "description": "Access e-books, journals, and digital resources."
+      },
+      "tdc": {
+        "title": "ThaiLIS (TDC)",
+        "description": "Thai Digital Collection of theses and research papers."
+      },
+      "office": {
+        "title": "Office 365",
+        "description": "Access Word, Excel, PowerPoint, and more with your university account."
+      },
+      "google": {
+        "title": "Google Workspace",
+        "description": "Google Drive, Docs, Sheets, and Meet for education."
+      },
+      "soradech": {
+        "title": "Ph.D. Soradech Krootjohn",
+        "description": "Educational videos on Programming, Web Technology, and more."
+      },
+      "phuttida": {
+        "title": "Dr. Phuttida Sakunwiriyakitkul",
+        "description": "Insights and educational content on student affairs and computer education."
+      },
+      "visit": "Visit Website"
+    }
+  },
+  "ClassroomPage": {
+    "title": "Classroom Resources",
+    "description": "Access all necessary materials and activities for the classroom.",
+    "eyebrow": "My Classroom",
+    "selectBuilding": "Select Building",
+    "building52": "Building 52",
+    "building44": "Building 44",
+    "building52Desc": "Computer and Information Technology Center",
+    "building44Desc": "General Education and Laboratory Building",
+    "back": "Back",
+    "capacity": "Capacity",
+    "equipment": "Equipment",
+    "gallery": "Gallery",
+    "roomDetail": "Room Details",
+    "computerSpecs": "Computer Specifications",
+    "machineCount": "Capacity",
+    "bookRoom": "Book This Room"
+  },
+  "AwardsPage": {
+    "title": "Awards & Recognition",
+    "description": "Our Pride and Achievements",
+    "eyebrow": "Awards & Achievements"
+  },
+  "ContactUsPage": {
+    "title": "Contact Us",
+    "description": "Contact Department of Computer Education",
+    "eyebrow": "Contact Us",
+    "departmentName": "Department of Computer Education, Faculty of Technical Education",
+    "universityName": "King Mongkut's University of Technology North Bangkok",
+    "tel": "02 555 2000 ext. 3234",
+    "address": "1518 Pracharat 1 Rd., Wongsawang, Bangsue, Bangkok 10800",
+    "complaintTitle": "Suggestion / Complaint",
+    "complaintDescription": "You can file a complaint or suggestion if you are suffering or inconvenienced by our services, including reporting corruption or suggesting guidelines for the work of personnel and units within KMUTNB for further development and improvement.",
+    "complaintButton": "File a Complaint"
+  },
+  "Admin": {
+    "sidebar": {
+      "content": "Content",
+      "dashboard": "Dashboard",
+      "hero": "Hero Carousel",
+      "news": "News & Events",
+      "awards": "Awards",
+      "training": "Training",
+      "people": "People",
+      "personnel": "Personnel",
+      "academic": "Academic & Resources",
+      "programs": "Programs",
+      "classrooms": "Classrooms",
+      "onlineResources": "Online Resources",
+      "services": "Services",
+      "studentServices": "Student Services",
+      "formRequests": "Form Requests",
+      "system": "System",
+      "users": "Users",
+      "loginHistory": "Login History",
+      "settings": "Settings",
+      "myProfile": "My Profile"
+    },
+    "header": {
+      "logout": "Logout",
+      "superAdmin": "Super Admin",
+      "adminUser": "Admin User",
+      "settings": "Settings",
+      "notifications": "Notifications",
+      "profile": "Profile"
+    },
+    "profile": {
+      "title": "Admin Profile",
+      "personalInfo": "Personal Information",
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status"
+    },
+    "pages": {
+      "dashboard": {
+        "title": "Dashboard Overview",
+        "description": "Welcome back, Admin. Here's what's happening today."
+      },
+      "awards": {
+        "title": "Awards",
+        "description": "Manage student and faculty achievements.",
+        "add": "Add Award"
+      },
+      "news": {
+        "title": "News & Events",
+        "description": "Manage all news articles and events.",
+        "add": "Create New"
+      },
+      "personnel": {
+        "title": "Personnel",
+        "description": "Manage faculty and staff profiles.",
+        "add": "Add Person"
+      },
+      "forms": {
+        "title": "Form Requests",
+        "description": "Manage download files and document links.",
+        "add": "Add File"
+      },
+      "hero": {
+        "title": "Hero Carousel",
+        "description": "Manage images displayed on the homepage slider.",
+        "add": "Add Image"
+      },
+      "onlineResources": {
+        "title": "Online Resources",
+        "description": "Manage external links and tools securely.",
+        "add": "Add Resource"
+      },
+      "programs": {
+        "title": "Academic Programs",
+        "description": "View information for Bachelor, Master, and PhD programs.",
+        "add": "Add Program"
+      },
+      "services": {
+        "title": "Student Services",
+        "description": "Manage service links and icons.",
+        "add": "Add Service"
+      },
+      "classrooms": {
+        "title": "Classrooms & Labs",
+        "description": "Manage learning spaces and equipment.",
+        "add": "Add Classroom"
+      },
+      "auditLogs": {
+        "title": "Audit Logs & History",
+        "description": "Monitor system access and administrative actions."
+      },
+      "settings": {
+        "title": "General Settings",
+        "description": "Manage global website configuration and contact info."
+      },
+      "training": {
+        "title": "Training Courses",
+        "description": "Manage training workshops and seminars.",
+        "add": "Add Training"
+      },
+      "users": {
+        "title": "User Management",
+        "description": "Manage admin access and roles.",
+        "add": "Add User"
+      },
+      "guide": {
+        "title": "Admin System Guide",
+        "subtitle": "Documentation and help for managing the CED website.",
+        "systemOverview": {
+          "title": "System Overview",
+          "techStack": {
+            "title": "Technology Stack",
+            "framework": "Framework: Next.js 15 (App Router)",
+            "ui": "UI Library: React 19 & Tailwind CSS",
+            "db": "Database: MongoDB & Mongoose",
+            "auth": "Authentication: NextAuth.js v5"
+          },
+          "features": {
+            "title": "Key Features",
+            "bilingual": "Bilingual Support: Full Thai & English support via next-intl.",
+            "security": "Security: Rate limiting, brute-force protection, and audit logging.",
+            "performance": "Performance: Server-side rendering and image optimization."
+          }
+        },
+        "gettingStarted": {
+          "title": "Getting Started",
+          "intro": "Welcome to the CED Content Management System (CMS). This dashboard allows you to manage the content shown on the public website without needing to write code.",
+          "dashboard": "Dashboard: Your central hub showing system stats and recent activity.",
+          "sidebar": "Sidebar: Use the left navigation menu to access different modules.",
+          "responsive": "Responsive: This admin panel works on Desktop, Tablet, and Mobile."
+        },
+        "managingContent": {
+          "title": "Managing Content",
+          "bilingualGuide": {
+            "title": "Bilingual Content Guide",
+            "desc": "The system supports both Thai (TH) and English (EN) for most content.",
+            "point1": "Auto Translate: Use the \"Auto Translate\" button to quickly generate English text from Thai input.",
+            "point2": "Required Fields: Thai content is usually mandatory, while English can be optional (but recommended)."
+          },
+          "news": {
+            "title": "News & Events",
+            "desc": "Go to Content > News & Events to post updates. Use \"Pin to Homepage\" for important announcements. Images should be approx 16:9 aspect ratio."
+          },
+          "personnel": {
+            "title": "Personnel",
+            "desc": "Manage faculty profiles under People > Personnel. Important: Upload square (1:1) photos for best results."
+          },
+          "services": {
+            "title": "Services & Resources",
+            "desc": "Manage internal/external links in Services. For Online Resources, you can choose between a standard icon or upload a custom logo."
+          },
+          "awards": {
+            "title": "Awards & Training",
+            "desc": "Add academic awards and training courses. Ensure correct dates are set for sorting."
+          }
+        },
+        "systemSecurity": {
+          "title": "System & Security",
+          "userManagement": {
+            "title": "User Management",
+            "desc": "Admins can invite new users. 'Super Admin' has full system access including settings."
+          },
+          "settings": {
+            "title": "General Settings",
+            "desc": "Update global site info (contact, footer) from the Settings page."
+          }
+        }
+      }
+    },
+    "forms": {
+      "common": {
+        "saveAsDraft": "Save as Draft",
+        "publish": "Publish",
+        "saveChanges": "Save Changes",
+        "cancel": "Cancel",
+        "loading": "Loading...",
+        "submitting": "Submitting...",
+        "saving": "Saving...",
+        "autoTranslate": "Auto-translate",
+        "translating": "Translating...",
+        "required": "required",
+        "selectOption": "Select an option",
+        "missingInfoTitle": "Missing Information",
+        "missingInfoText": "Please check the required fields and try again.",
+        "media": "Media",
+        "coverImage": "Cover Image",
+        "galleryImages": "Gallery Images",
+        "addGalleryImage": "Add Gallery Image",
+        "maxImagesReached": "Maximum of {max} images reached. Please remove some images to add more.",
+        "successTitle": "Success",
+        "errorTitle": "Error",
+        "connectionError": "Connection error. Please try again.",
+        "invalidInfoTitle": "Invalid Information",
+        "invalidInfoText": "Please check your input.",
+        "thai": "Thai",
+        "english": "English",
+        "preview": "Preview"
+      },
+      "news": {
+        "details": "News Details",
+        "detailsSubtitle": "Fill in the information below to create or edit a news item.",
+        "titleTh": "Title (Thai)",
+        "titleEn": "Title (English)",
+        "titleThPlaceholder": "หัวข้อข่าว (ภาษาไทย)",
+        "titleEnPlaceholder": "News Headline (English)",
+        "slug": "Slug (URL Friendly)",
+        "slugPlaceholder": "auto-generated-from-title",
+        "slugHint": "Automatically generated from English title, but can be edited manually.",
+        "date": "Date",
+        "category": "Category",
+        "selectCategory": "Select a Category",
+        "tag": "Primary Tag",
+        "selectTag": "Select a Tag",
+        "authorTh": "Author (Thai)",
+        "authorEn": "Author (English)",
+        "authorThPlaceholder": "ชื่อผู้เขียน (ภาษาไทย)",
+        "authorEnPlaceholder": "Author Name (English)",
+        "summaryTh": "Summary (Thai)",
+        "summaryEn": "Summary (English)",
+        "contentTh": "Content (Thai)",
+        "contentEn": "Content (English)",
+        "publishNews": "Publish News",
+        "publishing": "Publishing...",
+        "categories": {
+          "News & Announcements": "News & Announcements",
+          "Activities & Events": "Activities & Events",
+          "Research & Achievements": "Research & Achievements",
+          "Training": "Training"
+        },
+        "tags": {
+          "Department Update": "Department Update",
+          "Admission": "Admission",
+          "Scholarship": "Scholarship",
+          "Curriculum": "Curriculum",
+          "Alumni": "Alumni",
+          "General": "General",
+          "Workshop": "Workshop",
+          "Open House": "Open House",
+          "Student Life": "Student Life",
+          "Competition": "Competition",
+          "Community Service": "Community Service",
+          "Awards": "Awards",
+          "Research": "Research",
+          "Publication": "Publication",
+          "Innovation": "Innovation",
+          "Conference": "Conference",
+          "Seminar": "Seminar",
+          "Certification": "Certification",
+          "Professional Development": "Professional Development"
+        },
+        "summaryThPlaceholder": "Summary (Thai)",
+        "summaryEnPlaceholder": "Summary (English)",
+        "contentThPlaceholder": "Content (Thai)",
+        "contentEnPlaceholder": "Content (English)"
+      },
+      "awards": {
+        "details": "Award Details",
+        "awardTitle": "Award Title",
+        "awardTitlePlaceholderTh": "ชื่อรางวัล",
+        "awardTitlePlaceholderEn": "Award Title",
+        "projectName": "Project Name",
+        "projectNamePlaceholderTh": "ชื่อโครงงาน",
+        "projectNamePlaceholderEn": "Project Name",
+        "participants": "Participants",
+        "teamMembers": "Team Members (One per line)",
+        "teamMembersPlaceholderTh": "ชื่อ-นามสกุล (บรรทัดละ 1 คน)",
+        "teamMembersPlaceholderEn": "Name (One per line)",
+        "advisors": "Advisors (One per line)",
+        "advisorsPlaceholderTh": "ชื่ออาจารย์ที่ปรึกษา",
+        "advisorsPlaceholderEn": "Advisor Name",
+        "additionalInfo": "Additional Info",
+        "year": "Year (B.E.)",
+        "yearPlaceholder": "2568",
+        "fullDate": "Full Date Text (Optional)",
+        "fullDatePlaceholder": "12 January 2025",
+        "awardImage": "Award Image",
+        "saveAward": "Save Award"
+      },
+      "personnel": {
+        "details": "Personnel Details",
+        "basicInfo": "Basic Information",
+        "academicProfile": "Academic Profile",
+        "externalProfiles": "External Profiles & Research",
+        "nameTh": "Name (Thai)",
+        "nameEn": "Name (English)",
+        "nameThPlaceholder": "ชื่อ-นามสกุล (ภาษาไทย)",
+        "nameEnPlaceholder": "Full Name (English)",
+        "position": "Position",
+        "positionTh": "Position (Thai)",
+        "positionEn": "Position (English)",
+        "positionThPlaceholder": "ตำแหน่ง (ภาษาไทย)",
+        "positionEnPlaceholder": "Position (English)",
+        "academicTitle": "Academic Title",
+        "academicRank": "Academic Rank",
+        "email": "Email Address",
+        "phone": "Phone Extension",
+        "room": "Office Room",
+        "image": "Profile Image",
+        "education": "Education History",
+        "addEducation": "Add Education Entry",
+        "degreeLevel": "Degree Level",
+        "majorField": "Major / Field",
+        "university": "University",
+        "courses": "Courses Taught",
+        "addCourse": "Add Course",
+        "courseIdOptional": "Code (Optional)",
+        "thai": "Thai",
+        "english": "English",
+        "scopusUrl": "Scopus Profile URL",
+        "researchProfileUrl": "KMUTNB Research Profile URL",
+        "googleScholarUrl": "Google Scholar Profile URL",
+        "savePersonnel": "Save Personnel Profile"
+      },
+      "services": {
+        "details": "Service Details",
+        "serviceTitle": "Service Title",
+        "titlePlaceholderTh": "Service Title (Thai)",
+        "titlePlaceholderEn": "Service Title (English)",
+        "category": "Category",
+        "categories": {
+          "software": "Software Web App / License",
+          "account": "Account",
+          "network": "Network / Internet",
+          "informationSystem": "Information System",
+          "serviceArea": "Service Area",
+          "other": "Other Services"
+        },
+        "linkUrl": "Link URL",
+        "serviceIcon": "Service Icon",
+        "iconHint": "Upload an icon image for the service",
+        "saveService": "Save Service"
+      },
+      "classrooms": {
+        "details": "Classroom Details",
+        "roomNumber": "Room Number (ID)",
+        "roomNumberPlaceholder": "e.g. 52-205",
+        "roomNumberHint": "This will be used as the unique ID",
+        "capacity": "Capacity",
+        "capacityPlaceholder": "e.g. 40 Students",
+        "roomName": "Room Name",
+        "roomNamePlaceholderTh": "Room Name (Thai)",
+        "roomNamePlaceholderEn": "Room Name (English)",
+        "description": "Description",
+        "descriptionPlaceholderTh": "Room Description (Thai)",
+        "descriptionPlaceholderEn": "Room Description (English)",
+        "equipmentList": "Equipment List",
+        "equipmentPlaceholder": "Equipment name",
+        "addItem": "Add Item",
+        "noEquipment": "No equipment added yet.",
+        "saveClassroom": "Save Classroom",
+        "editClassroom": "Edit Classroom",
+        "newClassroom": "New Classroom"
+      },
+      "training": {
+        "details": "Training Details",
+        "titleTh": "Title (Thai)",
+        "titleEn": "Title (English)",
+        "categoryTh": "Category (Thai)",
+        "categoryEn": "Category (English)",
+        "summaryTh": "Summary (Thai)",
+        "summaryEn": "Summary (English)",
+        "contentTh": "Content (Thai)",
+        "contentEn": "Content (English)",
+        "saveTraining": "Save Training",
+        "slug": "Slug",
+        "date": "Date",
+        "trainingTitle": "Training Title",
+        "titlePlaceholderTh": "Training Title (Thai)",
+        "titlePlaceholderEn": "Training Title (English)",
+        "category": "Category",
+        "categoryPlaceholderTh": "Category (Thai)",
+        "categoryPlaceholderEn": "Category (English)",
+        "summary": "Summary",
+        "summaryPlaceholderTh": "Summary (Thai)",
+        "summaryPlaceholderEn": "Summary (English)",
+        "coverImage": "Cover Image"
+      },
+      "changePassword": {
+        "title": "Change Password",
+        "subtitle": "Ensure your account is using a long, random password to stay secure.",
+        "currentPassword": "Current Password",
+        "currentPasswordRequired": "Current password is required",
+        "newPassword": "New Password",
+        "newPasswordPlaceholder": "At least 8 characters",
+        "newPasswordMinLength": "New password must be at least 8 characters",
+        "confirmPassword": "Confirm New Password",
+        "passwordsDoNotMatch": "Passwords do not match",
+        "newPasswordMustBeDifferent": "New password must be different from current password",
+        "update": "Update Password",
+        "successMessage": "Password updated successfully",
+        "errorMessage": "Failed to update password"
+      },
+      "programs": {
+        "generalInfo": "General Information",
+        "level": "Education Level",
+        "levels": {
+          "bachelor": "Bachelor's Degree",
+          "master": "Master's Degree",
+          "doctoral": "Doctoral Degree"
+        },
+        "coverImage": "Cover Image",
+        "imageAlt": "Image Alt Text",
+        "degreeName": "Degree Name",
+        "degreeNamePlaceholderTh": "Degree Name (Thai)",
+        "degreeNamePlaceholderEn": "Degree Name (English)",
+        "programTitle": "Program Title",
+        "programTitlePlaceholderTh": "Program Title (Thai)",
+        "programTitlePlaceholderEn": "Program Title (English)",
+        "subtitle": "Subtitle",
+        "subtitlePlaceholderTh": "Subtitle (Thai)",
+        "subtitlePlaceholderEn": "Subtitle (English)",
+        "description": "Description",
+        "saveProgram": "Save Program"
+      },
+      "programDetails": {
+        "curriculumInfo": "Curriculum Information",
+        "programName": "Program Name",
+        "degreeFull": "Degree Name (Full)",
+        "degreeShort": "Degree Name (Short)",
+        "programFormat": "Program Format",
+        "gradAttributes": "Admission Qualifications",
+        "sectionTitle": "Section Title",
+        "description": "Description",
+        "major": "Major",
+        "highlights": "Highlights",
+        "highlightItem": "Highlight Item",
+        "removeItem": "Remove",
+        "highlightTitle": "Highlight Title",
+        "addHighlight": "Add Highlight",
+        "suitableFor": "Career Opportunities",
+        "addItem": "Add Item",
+        "documents": "Documents",
+        "docNameTh": "Document Name (Thai)",
+        "docNameEn": "Document Name (English)",
+        "newDocTh": "New Document",
+        "newDocEn": "New Document",
+        "addDocument": "Add Document",
+        "curriculumStructure": "Curriculum Structure",
+        "language": "Language",
+        "admission": "Admission",
+        "careerPaths": "Career Paths",
+        "careerList": "Career List",
+        "careerTh": "Career (Thai)",
+        "careerEn": "Career (English)",
+        "id": "ID",
+        "titleTh": "Title (Thai)",
+        "titleEn": "Title (English)",
+        "credits": "Credits",
+        "bold": "Bold",
+        "addSubItem": "Add Sub-item",
+        "sectionTitleTh": "Section Title (Thai)",
+        "sectionTitleEn": "Section Title (English)",
+        "totalCredits": "Total Credits",
+        "deleteSection": "Delete Section",
+        "itemsInSection": "Items in Section",
+        "addSection": "Add Section",
+        "save": "Save Details",
+        "syncFromGeneral": "Sync from General Info"
+      },
+      "resources": {
+        "details": "Resource Details",
+        "category": "Category",
+        "uniqueKey": "Unique Key",
+        "keyPlaceholder": "e.g. library-access",
+        "linkUrl": "Link URL",
+        "colorClass": "Color Class",
+        "iconName": "Icon Name",
+        "icons": {
+          "book": "Book",
+          "graduationCap": "Graduation Cap",
+          "teacher": "Teacher",
+          "custom": "Custom Image"
+        },
+        "customIcon": "Custom Icon",
+        "resourceName": "Resource Name",
+        "namePlaceholderTh": "Resource Name (Thai)",
+        "namePlaceholderEn": "Resource Name (English)",
+        "description": "Description",
+        "descriptionPlaceholderTh": "Description (Thai)",
+        "descriptionPlaceholderEn": "Description (English)",
+        "saveResource": "Save Resource"
+      },
+      "onlineResource": {
+        "details": "Online Resource Details",
+        "titleTh": "Title (Thai)",
+        "titleEn": "Title (English)",
+        "descriptionTh": "Description (Thai)",
+        "descriptionEn": "Description (English)",
+        "link": "URL Link",
+        "icon": "Icon",
+        "saveOnlineResource": "Save Resource"
+      },
+      "program": {
+        "details": "Program Details",
+        "degreeTh": "Degree Name (Thai)",
+        "degreeEn": "Degree Name (English)",
+        "titleTh": "Program Title (Thai)",
+        "titleEn": "Program Title (English)",
+        "subtitleTh": "Subtitle (Thai)",
+        "subtitleEn": "Subtitle (English)",
+        "descriptionTh": "Description (Thai)",
+        "descriptionEn": "Description (English)",
+        "duration": "Duration (Years)",
+        "saveProgram": "Save Program"
+      },
+      "formRequest": {
+        "details": "Form Request Details",
+        "category": "Category",
+        "section": "Section",
+        "file": "Form File",
+        "fileHint": "PDF, Word, or Excel files only",
+        "name": "Form Name",
+        "namePlaceholderTh": "Form Name (Thai)",
+        "namePlaceholderEn": "Form Name (English)",
+        "save": "Save Form Request"
+      },
+      "resource": {
+        "details": "Online Resource Details",
+        "content": "Content Information",
+        "title": "Title",
+        "titlePlaceholderTh": "Title (Thai)",
+        "titlePlaceholderEn": "Title (English)",
+        "description": "Description",
+        "descriptionPlaceholderTh": "Description (Thai)",
+        "descriptionPlaceholderEn": "Description (English)",
+        "key": "Unique Key",
+        "link": "URL Link",
+        "category": "Category",
+        "catLearning": "Learning Resources",
+        "catSystems": "Systems & Tools",
+        "visual": "Visual Style",
+        "typeIcon": "Icon",
+        "typeImage": "Image",
+        "uploadLogo": "Upload Logo",
+        "colorTheme": "Color Theme",
+        "create": "Create Resource",
+        "update": "Update Resource"
+      },
+      "hero": {
+        "details": "Slide Details",
+        "altTextTh": "Alt Text (Thai)",
+        "altTextEn": "Alt Text (English)",
+        "order": "Display Order",
+        "isActive": "Active Status",
+        "saveSlide": "Save Slide",
+        "heroImage": "Hero Image",
+        "altText": "Alt Text",
+        "altTextPlaceholderTh": "Alt Text (Thai)",
+        "altTextPlaceholderEn": "Alt Text (English)",
+        "saveImage": "Save Image"
+      }
+    }
+  }
+}

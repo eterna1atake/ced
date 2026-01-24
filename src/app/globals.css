@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0f172a;
+    /* slate-900 */
+    --foreground: #f8fafc;
+    /* slate-50 */
+  }
+}
+
+.dark {
+  --background: #0f172a;
+  /* slate-900 */
+  --foreground: #f8fafc;
+  /* slate-50 */
+}
+
+body {
+  background: var(--background);
+  font-family: var(--font-kanit), var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+.animate-slide-down-fade {
+  animation: slideDownFade 0.4s ease-out forwards;
+}
+
+/* SweetAlert2 Dark Mode Overrides */
+.dark .swal2-popup {
+  background: #1e293b !important;
+  /* slate-800 */
+  color: #f8fafc !important;
+  /* slate-50 */
+  border: 1px solid #334155;
+  /* slate-700 */
+}
+
+.dark .swal2-title {
+  color: #f1f5f9 !important;
+  /* slate-100 */
+}
+
+.dark .swal2-html-container {
+  color: #cbd5e1 !important;
+  /* slate-300 */
+}
+
+.dark .swal2-icon.swal2-success {
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+}
+
+.dark .swal2-icon.swal2-error {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+.dark .swal2-icon.swal2-warning {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+.dark .swal2-confirm.swal2-styled {
+  background-color: #0f172a !important;
+  /* slate-900 */
+  color: white !important;
+  border-left: 1px solid #334155 !important;
+}
+
+.dark .swal2-cancel.swal2-styled {
+  background-color: #334155 !important;
+  /* slate-700 */
+  color: #f1f5f9 !important;
+}
+
+.dark .swal2-timer-progress-bar {
+  background-color: #475569 !important;
+  /* slate-600 */
+}
