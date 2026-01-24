@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
+
 import type { ProgramDetailData } from "@/types/program";
 
 interface Props {
@@ -79,6 +79,7 @@ export default function ProgramDetailTemplate({ data, breadcrumbLabel }: Props) 
                                                     <div key={index} className="space-y-3">
                                                         <h3 className="text-lg font-bold text-slate-900 flex items-start gap-2">
                                                             <div className="w-2 h-2 rounded-full bg-primary-main mt-2.5 shrink-0" />
+                                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                                             {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                                         </h3>
                                                         {item.subItems && item.subItems.length > 0 && (
@@ -108,6 +109,7 @@ export default function ProgramDetailTemplate({ data, breadcrumbLabel }: Props) 
                                                     <div key={index} className="space-y-2">
                                                         <h3 className="text-base font-bold text-slate-900 flex items-start gap-2">
                                                             <span className="w-1.5 h-1.5 rounded-full bg-primary-main mt-2 shrink-0"></span>
+                                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                                             {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                                         </h3>
                                                         {item.subItems && item.subItems.length > 0 && (
@@ -138,6 +140,7 @@ export default function ProgramDetailTemplate({ data, breadcrumbLabel }: Props) 
                                                     <div key={index} className="space-y-2">
                                                         <h3 className="text-base font-bold text-slate-900 flex items-start gap-2">
                                                             <span className="w-1.5 h-1.5 rounded-full bg-primary-main mt-2 shrink-0"></span>
+                                                            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                                             {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                                         </h3>
                                                         {item.subItems && item.subItems.length > 0 && (

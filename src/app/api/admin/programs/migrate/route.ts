@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Program from "@/collections/Program";
 import { PROGRAMS_SEED } from "@/data/programs";
@@ -7,7 +7,7 @@ import { auth } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
     const session = await auth();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user = session?.user as any;

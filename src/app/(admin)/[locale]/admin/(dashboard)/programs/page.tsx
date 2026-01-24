@@ -7,12 +7,11 @@ import { AddButton } from "@/components/admin/common/AddButton";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
 import type { ProgramItem } from "@/types/program";
 
 export default function ProgramsListPage() {
     const t = useTranslations("Admin.pages.programs");
-    const router = useRouter();
+
     const [programs, setPrograms] = useState<ProgramItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -66,6 +65,7 @@ export default function ProgramsListPage() {
                     const data = await res.json();
                     throw new Error(data.message || "Failed to delete");
                 }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 Swal.fire("Error", error.message || "Failed to delete program", "error");
             }

@@ -70,6 +70,7 @@ export default function SettingsPage() {
                 throw new Error(data.error || 'Failed to update');
             }
             alert('Settings saved successfully!');
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Failed to save settings:", error);
             alert(`Error saving settings: ${error.message}`);

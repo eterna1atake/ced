@@ -27,6 +27,7 @@ export async function generateMetadata({
 
     const lang = locale === 'th' ? 'th' : 'en';
     return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         title: (program as any)[lang]?.title || "Program Detail",
     };
 }
@@ -50,6 +51,7 @@ export default async function ProgramDetailPage({ params }: PageParams) {
     return (
         <ProgramDetailTemplate
             data={plainDetail}
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             breadcrumbLabel={(program as any)[lang]?.title || "Program Detail"}
         />
     );

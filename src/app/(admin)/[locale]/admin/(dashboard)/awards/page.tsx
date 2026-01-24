@@ -103,7 +103,7 @@ export default function AwardsListPage() {
                                     } else {
                                         Swal.fire("Error", data.error, "error");
                                     }
-                                } catch (e) {
+                                } catch {
                                     Swal.fire("Error", "Migration failed", "error");
                                 }
                             }
@@ -141,6 +141,7 @@ export default function AwardsListPage() {
                             </tr>
                         ) : (
                             awards.map((item) => {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                 const id = (item as any)._id || item.id;
                                 return (
                                     <tr key={id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">

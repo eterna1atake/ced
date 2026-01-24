@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 
 async function getAdminSession() {
     const session = await auth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user = session?.user as any;
     if (!session || user?.role !== "superuser") {
         return null;
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json(newProgram, { status: 201 });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error("Error creating program:", error);
         return NextResponse.json({

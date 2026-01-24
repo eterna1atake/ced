@@ -25,7 +25,6 @@ export default function Navbar() {
   const menuItems = [
     { label: t("menuItem1") ?? "Menu item 1", href: `/${locale}` },
     { label: t("menuItem2") ?? "Menu item 2", href: `/${locale}/personnel` },
-    { label: t("menuItem3") ?? "Menu item 3", href: "#" },
     { label: t("menuItem4") ?? "Menu item 4", href: "https://research.kmutnb.ac.th" },
     { label: t("menuItem5") ?? "Menu item 5", href: `/${locale}/newsandevents` },
     { label: t("menuItem6") ?? "Menu item 6", href: `/${locale}/about` },

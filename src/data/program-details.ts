@@ -57,8 +57,8 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetailData> = {
         suitableFor: {
             title: { th: "หลักสูตรนี้เหมาะกับใคร", en: "Who is this program for?" },
             items: [
-                { th: "ผู้ที่มีความสนใจทางด้านเทคโนโลยีสารสนเทศ...", en: "Those interested in IT and high-demand careers." },
-                { th: "ผู้ที่ชอบเรียนรู้จากการลงมือปฏิบัติ", en: "Those who prefer hands-on learning." },
+                { title: { th: "ผู้ที่มีความสนใจทางด้านเทคโนโลยีสารสนเทศ...", en: "Those interested in IT and high-demand careers." } },
+                { title: { th: "ผู้ที่ชอบเรียนรู้จากการลงมือปฏิบัติ", en: "Those who prefer hands-on learning." } },
             ],
         },
         curriculum: [
@@ -170,7 +170,7 @@ export const PROGRAM_DETAILS: Record<string, ProgramDetailData> = {
         suitableFor: {
             title: { th: "หลักสูตรนี้เหมาะกับใคร", en: "Who is this program for?" },
             items: [
-                { th: "ผู้ที่จบการศึกษาระดับ ปวส. สายช่างอุตสาหกรรมหรือคอมพิวเตอร์", en: "Graduates with a High Vocational Certificate in Industrial or Computer fields." },
+                { title: { th: "ผู้ที่จบการศึกษาระดับ ปวส. สายช่างอุตสาหกรรมหรือคอมพิวเตอร์", en: "Graduates with a High Vocational Certificate in Industrial or Computer fields." } },
             ],
         },
         curriculum: [

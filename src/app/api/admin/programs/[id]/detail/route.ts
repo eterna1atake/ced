@@ -53,11 +53,13 @@ export async function PUT(
         });
 
         return NextResponse.json(updatedProgram);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error("Error updating program details:", error);
 
         let message = error.message || "Unknown error";
         if (error.name === 'ValidationError') {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             message = Object.values(error.errors).map((err: any) => err.message).join(', ');
         }
 

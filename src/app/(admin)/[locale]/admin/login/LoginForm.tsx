@@ -3,7 +3,7 @@
 import { encryptPassword } from "@/lib/crypto-client";
 
 import { useState, useEffect, Suspense, useRef } from "react";
-import { signIn, signOut } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -87,10 +87,9 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
         if (urlError === "RateLimit") {
             setError("ทำรายการเกินกำหนด กรุณารอสักครู่");
         } else if (urlError === "SessionExpired") {
-            // Force clear session to ensure clean slate
-            signOut({ redirect: false }).then(() => {
-                console.log("Stale session cleared");
-            });
+            // signOut({ redirect: false }).then(() => {
+            //     console.log("Stale session cleared");
+            // });
 
             setError("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
             Swal.fire({
@@ -280,6 +279,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 captchaToken: isTwoFactor ? "" : captchaToken, // Captcha only needed for step 1
                 code: codeToSend,
                 trustDevice: String(trustDevice), // [New] Pass trust flag
+                callbackUrl,
             });
 
             console.log("[DEBUG] Login Result:", result);
@@ -378,7 +378,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         Swal.fire({
                             icon: "error",
                             title: "ข้อผิดพลาด",
-                            text: msg,
+                            text: `${msg} (${result?.error})`,
                             confirmButtonColor: "#d33"
                         });
                     }

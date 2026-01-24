@@ -45,6 +45,7 @@ export default function CreateProgramClient() {
             // Redirect to the edit page of the newly created program
             router.push(`/admin/programs/${created.id}`);
             router.refresh();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             Swal.fire({
                 title: "Error",

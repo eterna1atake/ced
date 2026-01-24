@@ -72,6 +72,7 @@ export default function ProgramPreviewPanel({ data }: ProgramPreviewPanelProps) 
                                 <div key={index} className="space-y-1">
                                     <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary-main mt-1.5 shrink-0" />
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                     </h4>
                                     {item.subItems && item.subItems.length > 0 && (
@@ -98,6 +99,7 @@ export default function ProgramPreviewPanel({ data }: ProgramPreviewPanelProps) 
                                 <div key={index} className="space-y-1">
                                     <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary-main mt-1.5 shrink-0" />
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                     </h4>
                                     {item.subItems && item.subItems.length > 0 && (
@@ -128,6 +130,7 @@ export default function ProgramPreviewPanel({ data }: ProgramPreviewPanelProps) 
                                 <div key={index} className="space-y-1">
                                     <h4 className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-start gap-2">
                                         <div className="w-1.5 h-1.5 rounded-full bg-primary-main mt-1.5 shrink-0" />
+                                        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                                         {item.title ? (item.title as any)[lang] : (item as any)[lang]}
                                     </h4>
                                     {item.subItems && item.subItems.length > 0 && (

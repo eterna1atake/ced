@@ -47,5 +47,6 @@ export default async function ProgramsPage({ params }: PageParams) {
     };
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <ProgramsPageClient initialPrograms={mappedPrograms as any} />;
 }

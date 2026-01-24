@@ -7,7 +7,7 @@ import ProgramForm from "@/components/admin/programs/ProgramForm";
 import ProgramDetailsForm from "@/components/admin/programs/ProgramDetailsForm";
 import ProgramPreviewPanel from "@/components/admin/programs/ProgramPreviewPanel";
 import type { ProgramItem, ProgramDetailData } from "@/types/program";
-import { getProgramDetail } from "@/data/program-details";
+
 import Swal from "sweetalert2";
 
 export default function EditProgramClient({
@@ -57,6 +57,7 @@ export default function EditProgramClient({
                 showConfirmButton: false
             });
             router.refresh();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error updating program:", error);
             Swal.fire("Error", error.message || "Failed to update program", "error");
@@ -96,6 +97,7 @@ export default function EditProgramClient({
                 showConfirmButton: false
             });
             router.refresh();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error updating details:", error);
             Swal.fire("Error", error.message || "Failed to update details", "error");
@@ -173,6 +175,7 @@ export default function EditProgramClient({
                 <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                     <div className="min-w-0">
                         <ProgramDetailsForm
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             initialData={detailsData as any}
                             generalData={initialData}
                             onSubmit={handleDetailSubmit}

@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Award from "@/collections/Award";
 import { awards } from "@/data/awardsData";
 import { auth } from "@/lib/auth";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
     const session = await auth();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user = session?.user as any;
@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
         }
 
         // 2. Prepare data (strip static string IDs)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const awardsToSeed = awards.map(({ id, ...rest }) => ({
             ...rest,
             gallery: rest.gallery || []
@@ -35,6 +36,7 @@ export async function POST(request: NextRequest) {
             insertedCount: result.length
         });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error("Migration error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

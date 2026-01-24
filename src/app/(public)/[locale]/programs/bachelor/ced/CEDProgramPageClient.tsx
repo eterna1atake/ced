@@ -7,6 +7,7 @@ import { notFound } from "next/navigation";
 
 export default function CEDProgramPageClient() {
     const breadcrumb = useTranslations("Breadcrumbs");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [programData, setProgramData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 

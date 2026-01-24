@@ -20,9 +20,11 @@ export const GET = async () => {
         const result = settings.reduce((acc, curr) => {
             acc[curr.key] = curr.value;
             return acc;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         }, {} as Record<string, any>);
 
         return NextResponse.json(result);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error fetching settings:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
@@ -57,6 +59,7 @@ export const PUT = async (req: Request) => {
         await Promise.all(updates);
 
         return NextResponse.json({ success: true });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error updating settings:', error);
         return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

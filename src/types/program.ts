@@ -57,7 +57,8 @@ export interface ProgramDetailData {
     };
     gradAttribute?: {
         title: LocalizedString;
-        items: {
+        description?: LocalizedString;
+        items?: {
             title: LocalizedString;
             subItems?: LocalizedString[];
         }[];

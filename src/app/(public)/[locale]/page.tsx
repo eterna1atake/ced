@@ -40,18 +40,17 @@ export default async function Home({ params }: Props) {
   const itemsA = [
     { id: "admissions", label: t("admissions"), href: "https://admission.kmutnb.ac.th" },
     { id: "programs", label: t("programs"), href: `/${locale}/programs` },
-    { id: "services", label: t("services"), href: `/${locale}/student-services` },
-    { id: "qualityAssurance", label: t("qualityAssurance"), href: `/${locale}/programs` },
+    { id: "Department Information", label: t("deptinfo"), href: `/${locale}/about` },
+    { id: "CLASSROOM", label: t("classroom"), href: `/${locale}/classroom` },
     { id: "olr", label: t("olr"), href: `/${locale}/online-learning-resources` },
     { id: "research", label: t("research"), href: "https://research.kmutnb.ac.th" },
   ];
 
   const itemsB = [
-    { id: "ACADEMICS", label: t("academic"), href: "#" },
     { id: "Majors, Minors AND Programs", label: t("major"), href: `/${locale}/programs` },
-    { id: "Department Information", label: t("deptinfo"), href: `/${locale}/about` },
-    { id: "CLASSROOM", label: t("classroom"), href: `/${locale}/classroom` },
     { id: "Student Services", label: t("studentservices"), href: `/${locale}/student-services` },
+    { id: "Awards", label: t("awards"), href: `/${locale}/awards` },
+    { id: "Form Requests", label: t("formRequests"), href: `/${locale}/form-requests` },
   ];
 
   const newsItems = await getLatestNews();

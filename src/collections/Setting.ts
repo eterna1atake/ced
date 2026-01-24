@@ -3,6 +3,7 @@ import { Schema, model, models, Document } from 'mongoose';
 
 export interface ISetting extends Document {
     key: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any;
     updatedAt: Date;
 }

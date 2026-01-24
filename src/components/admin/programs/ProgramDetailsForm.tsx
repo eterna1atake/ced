@@ -4,10 +4,8 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { ProgramDetailData } from "@/types/program";
 import FileUpload from "@/components/admin/FileUpload";
 import CurriculumEditor from "./CurriculumEditor";
-import HighlightItemEditor from "./HighlightItemEditor";
 import BilingualField, { BilingualFieldProvider } from "./BilingualField";
 import SaveButton from '../common/SaveButton';
-import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 import { useTranslations } from "next-intl";
@@ -128,8 +126,9 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = useCallback((path: string[]) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         setFormData(prev => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const text = path.reduce((acc: any, key) => acc?.[key], prev) || "";
             const key = path.join('.');
             translate(key, text, (translated) => {
@@ -152,13 +151,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
 
     // --- Dynamic List Handlers ---
 
-    const handleHighlightsChange = (newHighlights: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        setFormData(prev => ({ ...prev, highlights: newHighlights }));
-    };
 
-    const handleSuitableForChange = (newSuitable: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
-        setFormData(prev => ({ ...prev, suitableFor: newSuitable }));
-    };
 
     return (
         <BilingualFieldProvider

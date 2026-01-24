@@ -4,9 +4,12 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 type HighlightItemEditorProps = {
     index: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     item: any;
     total: number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     t: any;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onChange: (newItem: any) => void;
     onRemove: () => void;
     onMove: (direction: 'up' | 'down') => void;

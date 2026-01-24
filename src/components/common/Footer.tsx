@@ -15,24 +15,24 @@ import { useLocale, useTranslations } from "next-intl";
 export default function Footer() {
     const t = useTranslations("Footer");
     const locale = useLocale();
-
     const quickLinks = [
         { key: "aboutCed", path: "/about" },
         { key: "newsEvents", path: "/newsandevents" },
-        { key: "admissions", path: "/" },
+        { key: "admissions", path: "https://admission.kmutnb.ac.th/" },
         { key: "programs", path: "/programs" },
-        { key: "research", path: "/" },
-        { key: "personnel", path: "/personnel" },
+        { key: "research", path: "https://research.kmutnb.ac.th/researcher/" },
     ];
 
     const serviceLinks = [
-        { key: "listOfStudents", path: "/" },
-        { key: "timetable", path: "/" },
-        { key: "examSchedule", path: "/" },
-        { key: "academicCalendar", path: "/" },
-        { key: "scholarships", path: "/" },
-        { key: "research", path: "/" },
-        { key: "studentAlumni", path: "/" },
+        { key: "personnel", path: "/personnel" },
+        { key: "research", path: "https://research.kmutnb.ac.th/researcher/" },
+    ];
+
+    const studentLinks = [
+        { key: "timetable", path: "https://reg3.kmutnb.ac.th/registrar/home" },
+        { key: "examSchedule", path: "https://exam.fte.kmutnb.ac.th/" },
+        { key: "academicCalendar", path: "https://acdserv.kmutnb.ac.th/academic-calendar" },
+        { key: "scholarships", path: "https://sa.op.kmutnb.ac.th/scholarship/" },
     ];
 
     const getLocalizedPath = (path: string) => {
@@ -87,7 +87,7 @@ export default function Footer() {
                             {t("servicesTitle")}
                         </h3>
                         <ul className="space-y-2">
-                            {serviceLinks.slice(0, 4).map((link) => (
+                            {serviceLinks.map((link) => (
                                 <li key={link.key}>
                                     <Link
                                         href={getLocalizedPath(link.path)}
@@ -106,7 +106,7 @@ export default function Footer() {
                             {t("studentsTitle")}
                         </h3>
                         <ul className="space-y-2">
-                            {serviceLinks.slice(4).map((link) => (
+                            {studentLinks.map((link) => (
                                 <li key={link.key}>
                                     <Link
                                         href={getLocalizedPath(link.path)}
@@ -152,8 +152,8 @@ export default function Footer() {
                     </div>
 
                     <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-                        
-                     {t("rights", { year: new Date().getFullYear() })}
+
+                        {t("rights", { year: new Date().getFullYear() })}
                     </p>
                 </div>
             </div>

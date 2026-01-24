@@ -23,6 +23,7 @@ export default function EditAwardClient({ initialData }: Props) {
                 ?.split("=")[1];
 
             // Use MongoDB _id if present, otherwise fallback to id
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const awardId = (initialData as any)._id || initialData.id;
 
             const res = await fetch(`/api/admin/awards/${awardId}`, {
@@ -52,6 +53,7 @@ export default function EditAwardClient({ initialData }: Props) {
 
             router.push("/admin/awards");
             router.refresh();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Update error:", error);
             const Swal = (await import("sweetalert2")).default;

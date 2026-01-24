@@ -5,6 +5,7 @@ import HeroBanner from "@/components/common/HeroBanner";
 import { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import ProgramCard from "@/components/programs/ProgramCard";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function ProgramsPageClient({ initialPrograms }: { initialPrograms: any[] }) {
   const locale = useLocale();
   const t = useTranslations("ProgramsPage");
@@ -77,7 +78,9 @@ export default function ProgramsPageClient({ initialPrograms }: { initialProgram
         {/* Content */}
         <div className="flex flex-col gap-8">
           {initialPrograms
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((program: any) => program.level === activeTab)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((program: any, index: number) => (
               <ProgramCard
                 key={index}

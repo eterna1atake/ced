@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 
 export default function SMTCTProgramPageClient() {
     const t = useTranslations("Breadcrumbs");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [programData, setProgramData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
 

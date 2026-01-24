@@ -44,6 +44,7 @@ export default function CreateAwardPage() {
 
             router.push("/admin/awards");
             router.refresh();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Create error:", error);
             const Swal = (await import("sweetalert2")).default;

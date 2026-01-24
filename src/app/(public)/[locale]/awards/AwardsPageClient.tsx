@@ -30,8 +30,6 @@ export default function AwardsPageClient() {
     };
 
     const [awardsList, setAwardsList] = useState<Award[]>(awards);
-    const [isLoadingData, setIsLoadingData] = useState(true);
-
     useEffect(() => {
         const fetchAwards = async () => {
             try {
@@ -44,8 +42,6 @@ export default function AwardsPageClient() {
                 }
             } catch (error) {
                 console.error("Error fetching public awards:", error);
-            } finally {
-                setIsLoadingData(false);
             }
         };
         fetchAwards();
@@ -328,7 +324,7 @@ export default function AwardsPageClient() {
                                     </h3>
                                     <div className="h-1.5 w-12 bg-primary-main rounded-full mb-4 shadow-sm" />
                                     <p className="text-slate-600 text-sm md:text-base font-medium leading-relaxed italic">
-                                        "{sortedAwards[lightboxIndex].project[lang]}"
+                                        &quot;{sortedAwards[lightboxIndex].project[lang]}&quot;
                                     </p>
                                 </div>
 

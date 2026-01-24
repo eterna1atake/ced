@@ -1,5 +1,5 @@
 import { Schema, model, models } from 'mongoose';
-import { ProgramLevel } from '@/types/program';
+
 
 const LocalizedStringSchema = new Schema({
     th: { type: String, default: "" },

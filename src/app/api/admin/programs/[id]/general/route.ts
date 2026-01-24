@@ -69,6 +69,7 @@ export async function PUT(
         });
 
         return NextResponse.json(updatedProgram);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error("Error updating program:", error);
         return NextResponse.json({
@@ -109,6 +110,7 @@ export async function DELETE(
         });
 
         return NextResponse.json({ message: "Program deleted successfully" });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error("Error deleting program:", error);
         return NextResponse.json({

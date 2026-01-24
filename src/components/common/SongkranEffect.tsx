@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 
 const SongkranEffect = () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [particles, setParticles] = useState<any[]>([]);
 
     useEffect(() => {
