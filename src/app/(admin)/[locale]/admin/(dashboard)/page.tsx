@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import {
     Grid,
-    Col,
     Card,
     Text,
     Metric,
@@ -36,7 +35,7 @@ const generateMockTraffic = () => {
 
 export default function AdminDashboardPage() {
     const t = useTranslations("Admin.pages.dashboard");
-    const [trafficData, setTrafficData] = useState<any[]>([]);
+    const [trafficData, setTrafficData] = useState<{ time: string;[key: string]: string | number }[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [dateString, setDateString] = useState("");
 
@@ -62,7 +61,7 @@ export default function AdminDashboardPage() {
         }, 500);
     };
 
-    const categories = [
+    const categories: { title: string; metric: string; sub: string; color: "blue" | "emerald" | "amber" | "indigo" }[] = [
         { title: "News Posts", metric: "24", sub: "+2 this week", color: "blue" },
         { title: "Personnel", metric: "18", sub: "Active Staff", color: "emerald" },
         { title: "Pending Forms", metric: "5", sub: "To Review", color: "amber" },
@@ -106,7 +105,7 @@ export default function AdminDashboardPage() {
             {/* KPI Cards */}
             <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6">
                 {categories.map((item) => (
-                    <Card key={item.title} decoration="top" decorationColor={item.color as any}>
+                    <Card key={item.title} decoration="top" decorationColor={item.color}>
                         <Text>{item.title}</Text>
                         <Metric>{item.metric}</Metric>
                         <Text className="mt-2 text-slate-500">{item.sub}</Text>

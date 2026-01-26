@@ -29,7 +29,7 @@ export default function NewsListPage() {
                 id: item._id || item.id, // Handle both cases
             }));
             // Sort by date desc initially
-            const sortedData = mappedData.sort((a: any, b: any) =>
+            const sortedData = mappedData.sort((a: NewsSeedItem, b: NewsSeedItem) =>
                 new Date(b.date).getTime() - new Date(a.date).getTime()
             );
             setNews(sortedData);
