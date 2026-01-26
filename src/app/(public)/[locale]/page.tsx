@@ -67,46 +67,22 @@ export default async function Home({ params }: Props) {
         <div className="bg-primary-main py-2">
           <nav
             aria-label="Main quick links"
-            className="mx-auto w-full max-w-7xl px-3 md:px-6"
+            className="mx-auto w-full max-w-7xl px-4"
           >
-            <ul
-              className={[
-                // layout
-                "flex items-center md:justify-center md:flex-wrap",
-                // spacing
-                "gap-2 md:gap-0",
-                // mobile horizontal scroll
-                "overflow-x-auto snap-x snap-mandatory md:overflow-visible",
-                // hide scrollbars (cross-browser)
-                "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-                // text
-                "text-white",
-              ].join(" ")}
-            >
+            <ul className="flex items-center gap-2 sm:gap-3 overflow-x-auto py-1 md:justify-center md:gap-0 md:overflow-visible">
               {itemsA.map((item, index) => (
-                <li key={item.id} className="flex items-center shrink-0 snap-start">
+                <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className={[
-                      // mobile chip style
-                      "px-3 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors",
-                      // desktop link style (no chip, underline on hover)
-                      "md:rounded-none md:bg-transparent md:hover:bg-transparent md:px-0 md:py-2 hover:text-",
-                      // type scale
-                      "text-sm md:text-base",
-                      // focus visible
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-main md:focus-visible:ring-offset-0",
-                      // touch target
-                      "min-h-9",
-                    ].join(" ")}
+                    className="whitespace-nowrap rounded-full bg-white/10 px-3 py-1.5 text-xs sm:text-sm font-normal text-white transition-colors hover:bg-white/20 md:rounded-md md:bg-transparent md:px-2 md:py-2 md:text-base lg:text-lg md:hover:bg-white/10"
                   >
                     {item.label}
                   </Link>
 
-                  {/* separator on desktop only */}
+                  {/* Separator on desktop only */}
                   {index !== itemsA.length - 1 && (
-                    <span className="hidden md:flex items-center px-1 lg:px-3">
-                      <PipeIcon className="h-7 w-5 text-white" strokeWidth={6} />
+                    <span className="hidden px-1 text-white/50 md:flex lg:px-2">
+                      <PipeIcon className="h-6 w-4 sm:h-7 md:h-8" strokeWidth={4} />
                     </span>
                   )}
                 </li>
@@ -115,49 +91,25 @@ export default async function Home({ params }: Props) {
           </nav>
         </div>
 
-        <div className="bg-white py-4 border border-b-2 shadow-xl">
+        <div className="border-b bg-white py-4 shadow-sm">
           <nav
-            aria-label="Main quick links"
-            className="mx-auto w-full max-w-7xl px-3 md:px-6"
+            aria-label="Secondary quick links"
+            className="mx-auto w-full max-w-7xl px-4"
           >
-            <ul
-              className={[
-                // layout
-                "flex items-center md:justify-center md:flex-wrap",
-                // spacing
-                "gap-2 md:gap-0",
-                // mobile horizontal scroll
-                "overflow-x-auto snap-x snap-mandatory md:overflow-visible",
-                // hide scrollbars (cross-browser)
-                "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
-                // text
-                "text-white",
-              ].join(" ")}
-            >
+            <ul className="flex items-center gap-2 sm:gap-2 overflow-x-auto py-1 md:justify-center md:gap-0 md:overflow-visible">
               {itemsB.map((item, index) => (
-                <li key={item.id} className="flex items-center shrink-0 snap-start">
+                <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className={[
-                      // mobile chip style
-                      "px-3 py-2 rounded-full bg-white/10 hover:bg-white/15 transition-colors",
-                      // desktop link style (no chip, color change on hover)
-                      "md:rounded-none md:bg-transparent md:hover:bg-transparent md:px-0 md:py-2 hover:text-primary-main",
-                      // type scale
-                      "text-base md:text-base lg:text-lg text-black",
-                      // focus visible
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-primary-main md:focus-visible:ring-offset-0",
-                      // touch target
-                      "min-h-9",
-                    ].join(" ")}
+                    className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-2 text-sm sm:text-base font-normal text-slate-700 transition-colors hover:bg-slate-200 md:rounded-none md:bg-transparent md:px-2 md:py-2 md:text-base lg:text-lg md:text-slate-800 md:hover:bg-transparent md:hover:text-primary-main"
                   >
                     {item.label}
                   </Link>
 
-                  {/* separator on desktop only */}
+                  {/* Separator on desktop only */}
                   {index !== itemsB.length - 1 && (
-                    <span className="hidden md:flex items-center px-1 lg:px-3">
-                      <PipeIcon className="h-10 w-5 text-zinc-700" strokeWidth={6} />
+                    <span className="hidden px-0 text-slate-300 md:flex lg:px-1">
+                      <PipeIcon className="h-6 w-4 sm:h-7 md:h-8" strokeWidth={4} />
                     </span>
                   )}
                 </li>

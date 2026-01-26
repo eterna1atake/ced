@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faGlobe, faEnvelope, faPhone, faLocationDot, faPalette } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import Swal from 'sweetalert2';
 
 export default function SettingsPage() {
     const t = useTranslations("Admin.pages.settings");
@@ -15,7 +16,12 @@ export default function SettingsPage() {
         footerCopyright: "© 2024 KMUTNB. All rights reserved.",
         contactEmail: "ced@kmutnb.ac.th",
         phoneNumber: "02-555-2000",
-        address: "1518 Pracharat 1 Road, Wongsawang, Bangsue, Bangkok 10800",
+        addressTh: "1518 ถ.ประชาราษฎร์ 1 แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800",
+        addressEn: "1518 Pracharat 1 Road, Wongsawang, Bangsue, Bangkok 10800",
+        facebook: "https://www.facebook.com/CEDKMUTNB",
+        youtube: "https://www.youtube.com/@departmentofcomputereducat9967",
+        tiktok: "https://www.tiktok.com/@computereducation_kmutnb",
+        googlePlus: "mailto:ced@fte.kmutnb.ac.th",
         theme: "default",
         theme_start_date: "",
         theme_end_date: "",
@@ -69,18 +75,30 @@ export default function SettingsPage() {
                 console.error("Server error:", data);
                 throw new Error(data.error || 'Failed to update');
             }
-            alert('Settings saved successfully!');
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
+            Swal.fire({
+                icon: 'success',
+                title: tCommon("success"), // or 'Success' if translation missing, but better to use simple string if not sure about key
+                text: 'Settings saved successfully!',
+                confirmButtonColor: '#35622F',
+                timer: 2000
+            });
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Failed to save settings:", error);
-            alert(`Error saving settings: ${error.message}`);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'Failed to save settings',
+                confirmButtonColor: '#d33'
+            });
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="max-w-4xl">
+        <div>
             <div className="mb-6">
                 <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("title")}</h1>
                 <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
@@ -91,7 +109,7 @@ export default function SettingsPage() {
                     {/* Appearance / Theme */}
                     <section>
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                            <FontAwesomeIcon icon={faPalette} className="text-indigo-500" />
+                            <FontAwesomeIcon icon={faPalette} className="text-primary-main" />
                             Appearance
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -100,7 +118,7 @@ export default function SettingsPage() {
                                 <select
                                     value={settings.theme}
                                     onChange={(e) => handleChange('theme', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                 >
                                     <option value="default">Default</option>
                                     <option value="christmas">Christmas (Snow & Red/Green)</option>
@@ -117,7 +135,7 @@ export default function SettingsPage() {
                                             type="date"
                                             value={settings.theme_start_date}
                                             onChange={(e) => handleChange('theme_start_date', e.target.value)}
-                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                         />
                                     </div>
                                     <div>
@@ -126,7 +144,7 @@ export default function SettingsPage() {
                                             type="date"
                                             value={settings.theme_end_date}
                                             onChange={(e) => handleChange('theme_end_date', e.target.value)}
-                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                            className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                         />
                                     </div>
                                     <div className="col-span-2">
@@ -136,7 +154,7 @@ export default function SettingsPage() {
                                                 checked={settings.theme_force_disable_snow}
                                                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                                                 onChange={(e) => setSettings(prev => ({ ...prev, theme_force_disable_snow: e.target.checked as any }))}
-                                                className="w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 dark:bg-slate-800ダーク:border-slate-700"
+                                                className="w-4 h-4 text-primary-main rounded border-slate-300 focus:ring-primary-main dark:bg-slate-800ダーク:border-slate-700"
                                             />
                                             <span className="text-sm text-slate-700 dark:text-slate-300">Force Disable Snow Effect (Reduce Performance Impact)</span>
                                         </label>
@@ -148,49 +166,10 @@ export default function SettingsPage() {
 
                     <div className="border-t border-slate-100 dark:border-slate-800"></div>
 
-                    {/* Site Information */}
-                    <section>
-                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                            <FontAwesomeIcon icon={faGlobe} className="text-indigo-500" />
-                            Site Information
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Website Name (TH)</label>
-                                <input
-                                    type="text"
-                                    value={settings.siteNameTh}
-                                    onChange={(e) => handleChange('siteNameTh', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                />
-                            </div>
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Website Name (EN)</label>
-                                <input
-                                    type="text"
-                                    value={settings.siteNameEn}
-                                    onChange={(e) => handleChange('siteNameEn', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Footer Copyright</label>
-                                <input
-                                    type="text"
-                                    value={settings.footerCopyright}
-                                    onChange={(e) => handleChange('footerCopyright', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                                />
-                            </div>
-                        </div>
-                    </section>
-
-                    <div className="border-t border-slate-100 dark:border-slate-800"></div>
-
                     {/* Contact Information */}
                     <section>
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-                            <FontAwesomeIcon icon={faEnvelope} className="text-indigo-500" />
+                            <FontAwesomeIcon icon={faEnvelope} className="text-primary-main" />
                             Contact Information
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -202,7 +181,7 @@ export default function SettingsPage() {
                                         type="email"
                                         value={settings.contactEmail}
                                         onChange={(e) => handleChange('contactEmail', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                     />
                                 </div>
                             </div>
@@ -214,21 +193,85 @@ export default function SettingsPage() {
                                         type="tel"
                                         value={settings.phoneNumber}
                                         onChange={(e) => handleChange('phoneNumber', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                     />
                                 </div>
                             </div>
-                            <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address</label>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address (TH)</label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
                                     <textarea
                                         rows={3}
-                                        value={settings.address}
-                                        onChange={(e) => handleChange('address', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                                        value={settings.addressTh}
+                                        onChange={(e) => handleChange('addressTh', e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
                                     ></textarea>
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address (EN)</label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
+                                    <textarea
+                                        rows={3}
+                                        value={settings.addressEn}
+                                        onChange={(e) => handleChange('addressEn', e.target.value)}
+                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div className="border-t border-slate-100 dark:border-slate-800"></div>
+
+                    {/* Social Media */}
+                    <section>
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                            <FontAwesomeIcon icon={faGlobe} className="text-primary-main" />
+                            Social Media Links
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Facebook</label>
+                                <input
+                                    type="url"
+                                    value={settings.facebook}
+                                    onChange={(e) => handleChange('facebook', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    placeholder="https://facebook.com/..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">YouTube</label>
+                                <input
+                                    type="url"
+                                    value={settings.youtube}
+                                    onChange={(e) => handleChange('youtube', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    placeholder="https://youtube.com/..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">TikTok</label>
+                                <input
+                                    type="url"
+                                    value={settings.tiktok}
+                                    onChange={(e) => handleChange('tiktok', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    placeholder="https://tiktok.com/..."
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Google Plus / Email Link</label>
+                                <input
+                                    type="text"
+                                    value={settings.googlePlus}
+                                    onChange={(e) => handleChange('googlePlus', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    placeholder="mailto:..."
+                                />
                             </div>
                         </div>
                     </section>
@@ -246,7 +289,7 @@ export default function SettingsPage() {
                         <button
                             onClick={handleSave}
                             disabled={loading}
-                            className={`px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm hover:shadow transition-all flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className={`px-6 py-2.5 rounded-lg bg-primary-main hover:bg-primary-main/80 text-white font-medium shadow-sm hover:shadow transition-all flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             <FontAwesomeIcon icon={faSave} />
                             {loading ? tCommon("saving") : tCommon("saveChanges")}

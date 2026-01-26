@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import Breadcrumbs from "@/components/common/Breadcrumbs";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import NewsGallery from "@/components/news/NewsGallery";
 // import { getNewsBySlug } from "@/data/newsData"; // Removed
 import { getTranslations } from "next-intl/server";
@@ -87,8 +88,8 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         eyebrow="Latest Updates"
         imageAlt={t("title")}
       />
-      <section className="border-b border-slate-200 bg-slate-50/80">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -97,6 +98,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
       <div className="mx-auto w-full max-w-5xl px-6 py-10 lg:px-8">
         <article className="space-y-8">

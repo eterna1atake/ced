@@ -4,6 +4,7 @@ import HeroBanner from "@/components/common/HeroBanner";
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faChalkboardTeacher,
@@ -87,8 +88,8 @@ export default function OnlineLearningPageClient({ initialResources }: { initial
         eyebrow={t("eyebrow")}
         imageAlt={t("title")}
       />
-      <section className="border-b border-slate-200 bg-white shadow-sm">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -96,6 +97,7 @@ export default function OnlineLearningPageClient({ initialResources }: { initial
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
 
       <div className="mx-auto w-full max-w-7xl px-6 py-12 lg:px-10 space-y-16">

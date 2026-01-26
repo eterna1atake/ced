@@ -31,7 +31,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
     };
 
     return (
-        <div className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <div className="space-y-8 bg-white dark:bg-slate-900">
             <div className="flex justify-between items-center mb-2">
                 <label className="text-xl font-bold text-slate-900 dark:text-slate-100">
                     Education History

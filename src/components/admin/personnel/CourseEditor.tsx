@@ -31,9 +31,12 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-xs mt-1">
                             {idx + 1}
                         </div>
-                        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-3">
+                        <div className="flex-1 grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
                             {!isStaff && (
                                 <div className="md:col-span-2">
+                                    <div className="flex items-center mb-1">
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase">Course ID</span>
+                                    </div>
                                     <input
                                         type="text"
                                         placeholder="รหัส (Optional)"
@@ -43,7 +46,7 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                                     />
                                 </div>
                             )}
-                            <div className="md:col-span-5">
+                            <div className={`md:col-span-${isStaff ? 6 : 5}`}>
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase">Thai</span>
                                     <button
@@ -63,7 +66,7 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                                     className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
                                 />
                             </div>
-                            <div className="md:col-span-5">
+                            <div className={`md:col-span-${isStaff ? 6 : 5}`}>
                                 <div className="flex items-center mb-1">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase">English</span>
                                 </div>

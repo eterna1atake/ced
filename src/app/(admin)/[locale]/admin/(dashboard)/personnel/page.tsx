@@ -24,7 +24,34 @@ export default function PersonnelListPage() {
             const res = await fetch("/api/admin/personnel");
             if (!res.ok) throw new Error("Failed to fetch personnel");
             const data = await res.json();
-            setPersonnel(data);
+            // Helper to determine position weight (lower is higher priority)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const getWeight = (p: any) => {
+                const th = (p.position?.th || "").trim();
+                const en = (p.position?.en || "").toLowerCase();
+
+                // 1. Check Strict Head (Must start with 'หัวหน้าภาค' or be 'head' without deputy terms)
+                // Note: "รองหัวหน้า" starts with "รอง", so it won't match "startsWith('หัวหน้าภาค')"
+                const isHead = th.startsWith("หัวหน้าภาค") || (en.includes("head") && !en.includes("associate") && !en.includes("deputy") && !en.includes("vice"));
+                if (isHead) return 1;
+
+                // 2. Check Deputy / Associate (Starts with 'รอง' or contains deputy terms)
+                const isDeputy = th.startsWith("รอง") || en.includes("associate") || en.includes("deputy") || en.includes("vice");
+                if (isDeputy) return 2;
+
+                return 3; // Others
+            };
+
+            // Sort: Priority Weight -> Alphabetical (TH Name)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sortedData = data.sort((a: any, b: any) => {
+                const weightA = getWeight(a);
+                const weightB = getWeight(b);
+                if (weightA !== weightB) return weightA - weightB;
+                return (a.name?.th || "").localeCompare(b.name?.th || "");
+            });
+
+            setPersonnel(sortedData);
         } catch (error) {
             console.error(error);
             Swal.fire("Error", "Failed to load personnel data", "error");

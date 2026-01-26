@@ -90,7 +90,7 @@ export default function HeroCarousel({
         'relative w-full overflow-hidden',
         // ความสูงตอบสนองตาม breakpoint (ปรับได้ตามดีไซน์)
         // ถ้า caller ส่ง className มา จะ override ตรงนี้ได้
-        className ?? 'h-[280px] sm:h-[360px] md:h-[480px] lg:h-[580px]',
+        className ?? 'h-[170px] sm:h-[280px] md:h-[310px] lg:h-[620px]',
       ].join(' ')}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}

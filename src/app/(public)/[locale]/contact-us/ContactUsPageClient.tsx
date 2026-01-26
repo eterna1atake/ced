@@ -9,11 +9,17 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhone, faLocationDot, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook } from "@fortawesome/free-brands-svg-icons";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
+import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 
 export default function ContactUsPageClient() {
   const locale = useLocale();
   const t = useTranslations("ContactUsPage");
   const breadcrumb = useTranslations("Breadcrumbs");
+  const { settings } = useGlobalSettings();
+
+  const address = locale === 'th' ? settings.contact.address.th : settings.contact.address.en;
+  const siteName = locale === 'th' ? settings.siteName.th : settings.siteName.en;
 
   return (
     <div className="relative">
@@ -26,8 +32,8 @@ export default function ContactUsPageClient() {
           imageAlt={t("title")}
         />
 
-        <section className="border-b border-slate-200 bg-slate-50/80">
-          <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+        <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+          <div className="border-b border-slate-200 bg-slate-50/80 py-4">
             <Breadcrumbs
               items={[
                 { href: `/${locale}`, label: breadcrumb("home") },
@@ -35,6 +41,7 @@ export default function ContactUsPageClient() {
               ]}
             />
           </div>
+          <FloatingBackButton />
         </section>
 
         <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
@@ -57,25 +64,29 @@ export default function ContactUsPageClient() {
                     </div>
                     <div className="h-full">
                       <div className="bg-primary-main/90 p-10 h-full flex flex-col space-y-6">
-                        <h2 className="text-xl font-bold text-white">{t("departmentName")} <br /> {t("universityName")}</h2>
+                        <h2 className="text-xl font-bold text-white">{siteName || t("departmentName")} <br /> {t("universityName")}</h2>
                         <div className="flex flex-col gap-4">
                           <ul className="flex flex-col gap-2 text-gray-50">
                             <li className="flex items-center">
                               <FontAwesomeIcon icon={faPhone} className="mr-3" />
-                              <span className="text-base">{t("tel")}</span>
+                              <span className="text-base">{settings.contact.phone || t("tel")}</span>
                             </li>
                             <li className="flex items-center">
                               <FontAwesomeIcon icon={faLocationDot} className="mr-3" />
-                              <span className="text-base">{t("address")}</span>
+                              <span className="text-base">{address || t("address")}</span>
                             </li>
                             <li className="flex items-center">
                               <FontAwesomeIcon icon={faEnvelope} className="mr-3" />
-                              <span className="text-base">ced@fte.kmutnb.ac.th</span>
+                              <span className="text-base">{settings.contact.email || "ced@fte.kmutnb.ac.th"}</span>
                             </li>
-                            <li className="flex items-center">
-                              <FontAwesomeIcon icon={faFacebook} className="mr-3" />
-                              <span className="text-base">Computer Education</span>
-                            </li>
+                            {settings.socials.facebook && (
+                              <li className="flex items-center">
+                                <FontAwesomeIcon icon={faFacebook} className="mr-3" />
+                                <a href={settings.socials.facebook} target="_blank" rel="noopener noreferrer" className="text-base hover:underline">
+                                  Computer Education
+                                </a>
+                              </li>
+                            )}
                           </ul>
                         </div>
                         <div className="mt-auto pt-6">

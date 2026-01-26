@@ -14,6 +14,7 @@ export default function NewsListPage() {
     const t = useTranslations("Admin.pages.news");
     const [news, setNews] = useState<NewsSeedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
     const fetchNews = async () => {
         setIsLoading(true);
@@ -27,7 +28,11 @@ export default function NewsListPage() {
                 ...item,
                 id: item._id || item.id, // Handle both cases
             }));
-            setNews(mappedData);
+            // Sort by date desc initially
+            const sortedData = mappedData.sort((a: any, b: any) =>
+                new Date(b.date).getTime() - new Date(a.date).getTime()
+            );
+            setNews(sortedData);
         } catch (error) {
             console.error("Error fetching news:", error);
             Swal.fire("Error", "Failed to load news items", "error");
@@ -39,6 +44,19 @@ export default function NewsListPage() {
     useEffect(() => {
         fetchNews();
     }, []);
+
+    const toggleSort = () => {
+        const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+        setSortOrder(newOrder);
+
+        const sortedNews = [...news].sort((a, b) => {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            return newOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+
+        setNews(sortedNews);
+    };
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
@@ -175,7 +193,20 @@ export default function NewsListPage() {
                                     <th className="p-4 font-semibold whitespace-nowrap">Title</th>
                                     <th className="p-4 font-semibold whitespace-nowrap">Category</th>
                                     <th className="p-4 font-semibold whitespace-nowrap">Status</th>
-                                    <th className="p-4 font-semibold whitespace-nowrap">Date</th>
+                                    <th className="p-4 font-semibold whitespace-nowrap cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" onClick={toggleSort}>
+                                        <div className="flex items-center gap-2">
+                                            Date
+                                            {sortOrder === 'desc' ? (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                                                </svg>
+                                            )}
+                                        </div>
+                                    </th>
                                     <th className="p-4 font-semibold text-right whitespace-nowrap">Actions</th>
                                 </tr>
                             </thead>

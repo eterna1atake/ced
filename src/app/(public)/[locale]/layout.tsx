@@ -120,6 +120,6 @@ export default async function LocaleLayout({
           </DynamicThemeProvider>
         </NextIntlClientProvider>
       </body>
-    </html>
+    </html >
   );
 }

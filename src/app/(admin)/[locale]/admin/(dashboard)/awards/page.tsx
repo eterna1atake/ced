@@ -17,7 +17,10 @@ export default function AwardsListPage() {
             const res = await fetch("/api/admin/awards");
             if (!res.ok) throw new Error("Failed to fetch awards");
             const data = await res.json();
-            setAwards(data);
+            // Sort by year descending (latest year first)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sortedData = data.sort((a: any, b: any) => parseInt(b.year) - parseInt(a.year));
+            setAwards(sortedData);
         } catch (error) {
             console.error("Fetch error:", error);
         } finally {
@@ -74,44 +77,7 @@ export default function AwardsListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <div className="flex gap-2">
-                    <button
-                        onClick={async () => {
-                            const Swal = (await import("sweetalert2")).default;
-                            const result = await Swal.fire({
-                                title: "Migrate static data to DB?",
-                                text: "This will move all old awards into the MongoDB database.",
-                                icon: "question",
-                                showCancelButton: true,
-                            });
-                            if (result.isConfirmed) {
-                                try {
-                                    const csrfToken = document.cookie
-                                        .split("; ")
-                                        .find((row) => row.startsWith("ced_csrf_token="))
-                                        ?.split("=")[1];
 
-                                    const res = await fetch("/api/admin/awards/migrate", {
-                                        method: "POST",
-                                        headers: {
-                                            "x-csrf-token": csrfToken || "",
-                                        }
-                                    });
-                                    const data = await res.json();
-                                    if (res.ok) {
-                                        Swal.fire("Success", data.message, "success");
-                                        fetchAwards();
-                                    } else {
-                                        Swal.fire("Error", data.error, "error");
-                                    }
-                                } catch {
-                                    Swal.fire("Error", "Migration failed", "error");
-                                }
-                            }
-                        }}
-                        className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-sm font-medium transition-colors"
-                    >
-                        Migrate Old Data
-                    </button>
                     <AddButton
                         href="/admin/awards/create"
                         label={t("add")}

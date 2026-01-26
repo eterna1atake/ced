@@ -2,6 +2,7 @@
 
 import HeroBanner from "@/components/common/HeroBanner";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import Loading from "@/components/common/Loading";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -143,8 +144,8 @@ export default function ClassroomPageClient() {
         />
 
         {/* Breadcrumbs Navigation */}
-        <section className="border-b border-slate-200 bg-slate-50/80">
-          <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+        <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+          <div className="border-b border-slate-200 bg-slate-50/80 py-4">
             <Breadcrumbs
               items={[
                 { href: `/${locale}`, label: breadcrumb("home") },
@@ -152,6 +153,7 @@ export default function ClassroomPageClient() {
               ]}
             />
           </div>
+          <FloatingBackButton />
         </section>
 
         <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">

@@ -4,6 +4,7 @@ import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
 import Pagination from "@/components/common/Pagination";
 import { useLocale, useTranslations } from "next-intl";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import { awards } from "@/data/awardsData";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
@@ -138,8 +139,8 @@ export default function AwardsPageClient() {
                     imageAlt="Awards"
                 />
 
-                <section className="border-b border-slate-200 bg-slate-50/80">
-                    <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+                <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+                    <div className="border-b border-slate-200 bg-slate-50/80 py-4">
                         <Breadcrumbs
                             items={[
                                 { href: `/${locale}`, label: breadcrumb("home") },
@@ -147,6 +148,7 @@ export default function AwardsPageClient() {
                             ]}
                         />
                     </div>
+                    <FloatingBackButton />
                 </section>
 
                 <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">

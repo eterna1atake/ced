@@ -8,6 +8,7 @@ import Image from "next/image";
 
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 
 export default function AboutPageClient() {
   const t = useTranslations("AboutPage");
@@ -105,8 +106,8 @@ export default function AboutPageClient() {
         imageAlt={t("title")}
       />
 
-      <section className="border-b border-slate-200 bg-slate-50/80">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -114,6 +115,7 @@ export default function AboutPageClient() {
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
 
       <section className="mx-auto w-full max-w-5xl px-6 py-6 text-center lg:px-10">

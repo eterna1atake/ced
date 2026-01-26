@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState, ChangeEvent } from "react";
 import { faMagnifyingGlass, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import HeroBanner from "@/components/common/HeroBanner";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -125,8 +126,9 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
         eyebrow="Latest Updates"
         imageAlt={t("title")}
       />
-      <section className="border-b border-slate-200 bg-slate-50/80">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -134,6 +136,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
       <section className="mx-auto w-full max-w-7xl px-6 pb-6 lg:px-10">
 

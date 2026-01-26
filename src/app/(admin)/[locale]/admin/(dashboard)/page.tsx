@@ -1,104 +1,191 @@
 "use client";
 
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useState } from "react";
 import {
-    faNewspaper,
-    faUsers,
-    faFileLines,
-    faServer,
-    faArrowRight,
-    faClock
-} from "@fortawesome/free-solid-svg-icons";
-
+    Grid,
+    Col,
+    Card,
+    Text,
+    Metric,
+    Title,
+    AreaChart,
+    BarChart,
+    DonutChart,
+    List,
+    ListItem,
+    Badge
+} from "@tremor/react";
 import { useTranslations } from "next-intl";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
+
+// Mock data generator for realtime effect
+const generateMockTraffic = () => {
+    const data = [];
+    const now = new Date();
+    for (let i = 24; i >= 0; i--) {
+        const time = new Date(now.getTime() - i * 60 * 60 * 1000);
+        data.push({
+            time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            "Visitors": Math.floor(Math.random() * 100) + 50,
+            "Page Views": Math.floor(Math.random() * 200) + 100,
+        });
+    }
+    return data;
+};
 
 export default function AdminDashboardPage() {
     const t = useTranslations("Admin.pages.dashboard");
-    const stats = [
-        { label: "Total News", value: "24", icon: faNewspaper, color: "bg-blue-500", change: "+2 this week" },
-        { label: "Active Personnel", value: "18", icon: faUsers, color: "bg-emerald-500", change: "Stable" },
-        { label: "Pending Forms", value: "5", icon: faFileLines, color: "bg-amber-500", change: "-1 from yesterday" },
-        { label: "System Status", value: "Online", icon: faServer, color: "bg-indigo-500", change: "Uptime 99.9%" },
+    const [trafficData, setTrafficData] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [dateString, setDateString] = useState("");
+
+    // Initialize data
+    useEffect(() => {
+        setTrafficData(generateMockTraffic());
+        setDateString(new Date().toLocaleString());
+        setIsLoading(false);
+
+        // Update time every second
+        const interval = setInterval(() => {
+            setDateString(new Date().toLocaleString());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
+    const refreshData = () => {
+        setIsLoading(true);
+        setTimeout(() => {
+            setTrafficData(generateMockTraffic());
+            setIsLoading(false);
+        }, 500);
+    };
+
+    const categories = [
+        { title: "News Posts", metric: "24", sub: "+2 this week", color: "blue" },
+        { title: "Personnel", metric: "18", sub: "Active Staff", color: "emerald" },
+        { title: "Pending Forms", metric: "5", sub: "To Review", color: "amber" },
+        { title: "System Status", metric: "Online", sub: "99.9% Uptime", color: "indigo" },
     ];
 
-    const recentActivity = [
-        { action: "New Event Posted", target: "CED Open House 2024", time: "2 hours ago", user: "Admin" },
-        { action: "Personnel Updated", target: "Dr. Suthep Profile", time: "5 hours ago", user: "Editor" },
-        { action: "Login Failed", target: "Unknown IP (Russia)", time: "1 day ago", user: "System", alert: true },
-        { action: "Service Added", target: "Student ID Card", time: "2 days ago", user: "Admin" },
+    const contentBreakdown = [
+        { name: "News", value: 45 },
+        { name: "Activities", value: 30 },
+        { name: "Announcements", value: 15 },
+        { name: "Others", value: 10 },
+    ];
+
+    const recentLogs = [
+        { action: "Admin Login", user: "superuser", time: "2 mins ago", status: "success" },
+        { action: "Update News", user: "editor", time: "15 mins ago", status: "success" },
+        { action: "Update Personnel", user: "admin", time: "1 hour ago", status: "success" },
+        { action: "Failed Login", user: "unknown", time: "3 hours ago", status: "failed" },
+        { action: "Backup Created", user: "system", time: "1 day ago", status: "success" },
     ];
 
     return (
-        <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("title")}</h1>
-                <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
+        <main className="p-2 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <Title className="text-2xl font-bold dark:text-slate-100">{t("title")}</Title>
+                    <Text className="dark:text-slate-400">Real-time system monitor & analytics</Text>
+                </div>
+                <div className="flex items-center gap-4">
+                    <Text className="font-mono text-sm dark:text-slate-400">{dateString}</Text>
+                    <button
+                        onClick={refreshData}
+                        className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                        title="Refresh Data"
+                    >
+                        <FontAwesomeIcon icon={faRotate} className={`w-4 h-4 text-slate-600 dark:text-slate-300 ${isLoading ? 'animate-spin' : ''}`} />
+                    </button>
+                </div>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
-                    <div key={index} className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 p-6 flex items-start justify-between hover:shadow-md transition-shadow">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{stat.label}</p>
-                            <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{stat.value}</h3>
-                            <p className="text-xs text-slate-400">{stat.change}</p>
-                        </div>
-                        <div className={`${stat.color} text-white p-3 rounded-lg shadow-sm`}>
-                            <FontAwesomeIcon icon={stat.icon} className="w-5 h-5" />
-                        </div>
-                    </div>
+            {/* KPI Cards */}
+            <Grid numItems={1} numItemsSm={2} numItemsLg={4} className="gap-6">
+                {categories.map((item) => (
+                    <Card key={item.title} decoration="top" decorationColor={item.color as any}>
+                        <Text>{item.title}</Text>
+                        <Metric>{item.metric}</Metric>
+                        <Text className="mt-2 text-slate-500">{item.sub}</Text>
+                    </Card>
                 ))}
-            </div>
+            </Grid>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Recent Activity */}
-                <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-semibold text-lg text-slate-800 dark:text-slate-100">Recent Activity</h3>
-                        <Link href="/admin/login-history" className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium flex items-center gap-1">
-                            View All <FontAwesomeIcon icon={faArrowRight} className="w-3 h-3" />
-                        </Link>
-                    </div>
-                    <div className="space-y-4">
-                        {recentActivity.map((item, index) => (
-                            <div key={index} className="flex items-start gap-4 pb-4 border-b dark:border-slate-800 last:border-0 last:pb-0">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${item.alert ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'}`}>
-                                    <FontAwesomeIcon icon={item.alert ? faServer : faClock} className="w-4 h-4" />
+            {/* Dashboard Sections */}
+            <div className="mt-6 space-y-6">
+                {/* Traffic Section */}
+                <Card>
+                    <Title>Website Traffic (Last 24 Hours)</Title>
+                    <Text>Visitors and Page Views trend</Text>
+                    <AreaChart
+                        className="h-72 mt-4"
+                        data={trafficData}
+                        index="time"
+                        categories={["Visitors", "Page Views"]}
+                        colors={["indigo", "cyan"]}
+                        valueFormatter={(number) => Intl.NumberFormat("us").format(number).toString()}
+                        showAnimation={true}
+                    />
+                </Card>
+
+                {/* Content Stats Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card>
+                        <Title>Content Distribution</Title>
+                        <DonutChart
+                            className="mt-6 h-60"
+                            data={contentBreakdown}
+                            category="value"
+                            index="name"
+                            valueFormatter={(number) => `${number}%`}
+                            colors={["slate", "violet", "indigo", "rose"]}
+                        />
+                    </Card>
+                    <Card>
+                        <Title>Engagement by Category</Title>
+                        <BarChart
+                            className="mt-6 h-60"
+                            data={[
+                                { topic: "Academic", "Views": 450 },
+                                { topic: "Events", "Views": 320 },
+                                { topic: "Research", "Views": 210 },
+                                { topic: "General", "Views": 150 },
+                            ]}
+                            index="topic"
+                            categories={["Views"]}
+                            colors={["blue"]}
+                            layout="vertical"
+                            valueFormatter={(number) => Intl.NumberFormat("us").format(number).toString()}
+                        />
+                    </Card>
+                </div>
+
+                {/* System Logs Section */}
+                <Card>
+                    <Title>Recent Activity Logs</Title>
+                    <List className="mt-4">
+                        {recentLogs.map((log, idx) => (
+                            <ListItem key={idx}>
+                                <div className="flex items-center space-x-4">
+                                    <div className="flex flex-col">
+                                        <Text className="font-medium truncate text-slate-900 dark:text-slate-100">{log.action}</Text>
+                                        <Text className="truncate">by {log.user}</Text>
+                                    </div>
                                 </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{item.action}</p>
-                                    <p className="text-xs text-slate-500 dark:text-slate-400">{item.target} • <span className="text-slate-400 dark:text-slate-500">by {item.user}</span></p>
+                                <div className="flex items-center space-x-4">
+                                    <Text>{log.time}</Text>
+                                    <Badge color={log.status === 'success' ? 'emerald' : 'rose'}>
+                                        {log.status}
+                                    </Badge>
                                 </div>
-                                <span className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">{item.time}</span>
-                            </div>
+                            </ListItem>
                         ))}
-                    </div>
-                </div>
-
-                {/* Quick Shortcuts */}
-                <div className="bg-indigo-50 dark:bg-slate-900 rounded-xl border border-indigo-100 dark:border-slate-800 p-6">
-                    <h3 className="font-semibold text-lg text-indigo-900 dark:text-indigo-300 mb-4">Quick Shortcuts</h3>
-                    <div className="space-y-3">
-                        <Link href="/admin/news/create" className="block w-full text-left bg-white dark:bg-slate-800 p-3 rounded-lg border border-indigo-100 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 text-sm font-medium hover:bg-indigo-500 hover:text-white transition-colors shadow-sm">
-                            + Post New Event
-                        </Link>
-                        <Link href="/admin/personnel/create" className="block w-full text-left bg-white dark:bg-slate-800 p-3 rounded-lg border border-indigo-100 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 text-sm font-medium hover:bg-indigo-500 hover:text-white transition-colors shadow-sm">
-                            + Add Personnel
-                        </Link>
-                        <Link href="/admin/news" className="block w-full text-left bg-white dark:bg-slate-800 p-3 rounded-lg border border-indigo-100 dark:border-slate-700 text-indigo-700 dark:text-indigo-300 text-sm font-medium hover:bg-indigo-500 hover:text-white transition-colors shadow-sm">
-                            Manage Content
-                        </Link>
-                    </div>
-
-                    <div className="mt-6 pt-6 border-t border-indigo-200 dark:border-slate-800">
-                        <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-2">Need help?</p>
-                        <Link href="/admin/guide" className="text-sm font-semibold text-indigo-800 dark:text-indigo-300 hover:underline">Read Admin Guide →</Link>
-                    </div>
-                </div>
+                    </List>
+                </Card>
             </div>
-        </div>
+        </main>
     );
 }

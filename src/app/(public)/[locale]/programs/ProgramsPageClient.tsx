@@ -2,6 +2,7 @@
 
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import { useState, useRef, useEffect } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import ProgramCard from "@/components/programs/ProgramCard";
@@ -38,8 +39,8 @@ export default function ProgramsPageClient({ initialPrograms }: { initialProgram
         imageAlt={t("title")}
       />
 
-      <section className="border-b border-slate-200 bg-slate-50/80">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -47,9 +48,10 @@ export default function ProgramsPageClient({ initialPrograms }: { initialProgram
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
         {/* Tab Navigation */}
         <div className="relative mb-10 border-b border-slate-200">
           <div ref={containerRef} className="relative flex flex-wrap gap-0 md:gap-4">

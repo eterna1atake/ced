@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { LocalizedString } from "@/types/common";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 
 import { Service, ServiceCategory } from "@/types/service";
 
@@ -80,8 +81,8 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
                 imageAlt={t("title")}
             />
 
-            <section className="border-b border-slate-200 bg-slate-50/80">
-                <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+            <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+                <div className="border-b border-slate-200 bg-slate-50/80 py-4">
                     <Breadcrumbs
                         items={[
                             { href: `/${locale}`, label: breadcrumb("home") },
@@ -89,9 +90,10 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
                         ]}
                     />
                 </div>
+                <FloatingBackButton />
             </section>
 
-            <section className="mx-auto w-full max-w-5xl px-6 py-6 text-center lg:px-10">
+            <section className="mx-auto w-full max-w-5xl px-6 py-4 text-center lg:px-10">
                 <div className="relative border-b border-slate-200">
                     <div
                         ref={containerRef}

@@ -3,6 +3,7 @@
 import { notFound } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import PersonnelSidebar from "@/components/personnel/detail/PersonnelSidebar";
 import EducationList from "@/components/personnel/detail/EducationList";
 import CourseList from "@/components/personnel/detail/CourseList";
@@ -30,8 +31,8 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                 eyebrow="Latest Updates"
                 imageAlt={t("title")}
             />
-            <section className="border-b border-slate-200 bg-slate-50/80">
-                <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+            <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+                <div className="border-b border-slate-200 bg-slate-50/80 py-4">
                     <Breadcrumbs
                         items={[
                             { href: `/${locale}`, label: breadcrumb("home") },
@@ -40,6 +41,7 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                         ]}
                     />
                 </div>
+                <FloatingBackButton />
             </section>
 
             <section className="mx-auto w-full max-w-6xl px-6 py-12 lg:px-10">

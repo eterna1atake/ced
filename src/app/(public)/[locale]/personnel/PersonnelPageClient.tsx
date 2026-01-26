@@ -4,6 +4,7 @@ import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
 import CompactPersonnelCard from "@/components/personnel/CompactPersonnelCard";
 import { useLocale, useTranslations } from "next-intl";
+import FloatingBackButton from "@/components/common/FloatingBackButton";
 import { LocalizedString } from "@/types";
 import type { IPersonnel } from "@/collections/Personnel";
 
@@ -72,8 +73,8 @@ export default function StaffClient({ allPersonnel }: Props) {
         eyebrow="Introduction"
         imageAlt={t("title")}
       />
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+        <div className="border-b border-slate-200 bg-slate-50/80 py-4">
           <Breadcrumbs
             items={[
               { href: `/${locale}`, label: breadcrumb("home") },
@@ -81,6 +82,7 @@ export default function StaffClient({ allPersonnel }: Props) {
             ]}
           />
         </div>
+        <FloatingBackButton />
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 pt-12 lg:px-10 text-center">

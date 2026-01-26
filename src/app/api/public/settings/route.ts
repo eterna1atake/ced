@@ -12,11 +12,19 @@ export const GET = async () => {
 
         // Fetch all relevant settings at once
         const settings = await Setting.find({
-            key: { $in: ['theme', 'theme_start_date', 'theme_end_date', 'theme_force_disable_snow'] }
+            key: {
+                $in: [
+                    'theme', 'theme_start_date', 'theme_end_date', 'theme_force_disable_snow',
+                    'siteNameTh', 'siteNameEn', 'footerCopyright',
+                    'contactEmail', 'phoneNumber', 'addressTh', 'addressEn',
+                    'facebook', 'youtube', 'tiktok', 'googlePlus'
+                ]
+            }
         });
 
         const getVal = (key: string) => settings.find(s => s.key === key)?.value;
 
+        // Theme Logic
         let theme = getVal('theme') || 'default';
         const startDate = getVal('theme_start_date');
         const endDate = getVal('theme_end_date');
@@ -32,7 +40,6 @@ export const GET = async () => {
                 theme = 'default';
             }
             if (end) {
-                // Set end date to end of day
                 end.setHours(23, 59, 59, 999);
                 if (now > end) {
                     theme = 'default';
@@ -42,7 +49,26 @@ export const GET = async () => {
 
         return NextResponse.json({
             theme,
-            snowEnabled: !forceDisableSnow
+            snowEnabled: !forceDisableSnow,
+            siteName: {
+                th: getVal('siteNameTh') || '',
+                en: getVal('siteNameEn') || ''
+            },
+            footerCopyright: getVal('footerCopyright') || '',
+            contact: {
+                email: getVal('contactEmail') || '',
+                phone: getVal('phoneNumber') || '',
+                address: {
+                    th: getVal('addressTh') || '',
+                    en: getVal('addressEn') || ''
+                }
+            },
+            socials: {
+                facebook: getVal('facebook') || '',
+                youtube: getVal('youtube') || '',
+                tiktok: getVal('tiktok') || '',
+                googlePlus: getVal('googlePlus') || ''
+            }
         });
     } catch (error) {
         console.error('Error fetching public settings:', error);

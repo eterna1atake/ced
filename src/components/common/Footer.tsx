@@ -11,10 +11,13 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
+import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 
 export default function Footer() {
     const t = useTranslations("Footer");
     const locale = useLocale();
+    const { settings } = useGlobalSettings();
+    const address = locale === 'th' ? settings.contact.address.th : settings.contact.address.en;
     const quickLinks = [
         { key: "aboutCed", path: "/about" },
         { key: "newsEvents", path: "/newsandevents" },
@@ -55,10 +58,14 @@ export default function Footer() {
                             height={70}
                             className="h-auto"
                         />
-                        <p className="text-gray-400 text-sm">
-                            {t("addressLine1")}
-                            <br /> {t("addressLine2")}
-                            <br /> {t("addressLine3")}
+                        <p className="text-gray-400 text-sm whitespace-pre-line">
+                            {address || (
+                                <>
+                                    {t("addressLine1")}
+                                    <br /> {t("addressLine2")}
+                                    <br /> {t("addressLine3")}
+                                </>
+                            )}
                         </p>
                     </div>
 
@@ -125,35 +132,49 @@ export default function Footer() {
                 <div className="flex flex-col items-center justify-between gap-6">
 
                     <div className="flex space-x-4">
-                        <a
-                            href="https://www.facebook.com/CEDKMUTNB"
-                            className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-blue-500 hover:bg-blue-500 transition-all duration-300"
-                        >
-                            <FontAwesomeIcon icon={faFacebook} className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="https://www.youtube.com/@departmentofcomputereducat9967"
-                            className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500 hover:bg-red-500 transition-all duration-300"
-                        >
-                            <FontAwesomeIcon icon={faYoutube} className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="mailto:ced@fte.kmutnb.ac.th"
-                            className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-orange-500 hover:bg-orange-500 transition-all duration-300"
-                        >
-                            <FontAwesomeIcon icon={faGooglePlusG} className="w-5 h-5" />
-                        </a>
-                        <a
-                            href="https://www.tiktok.com/@computereducation_kmutnb?is_from_webapp=1&sender_device=pc"
-                            className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-pink-500 hover:bg-pink-500 transition-all duration-300"
-                        >
-                            <FontAwesomeIcon icon={faTiktok} className="w-5 h-5" />
-                        </a>
+                        {settings.socials.facebook && (
+                            <a
+                                href={settings.socials.facebook}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-blue-500 hover:bg-blue-500 transition-all duration-300"
+                            >
+                                <FontAwesomeIcon icon={faFacebook} className="w-5 h-5" />
+                            </a>
+                        )}
+                        {settings.socials.youtube && (
+                            <a
+                                href={settings.socials.youtube}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-red-500 hover:bg-red-500 transition-all duration-300"
+                            >
+                                <FontAwesomeIcon icon={faYoutube} className="w-5 h-5" />
+                            </a>
+                        )}
+                        {settings.socials.googlePlus && (
+                            <a
+                                href={settings.socials.googlePlus}
+                                className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-orange-500 hover:bg-orange-500 transition-all duration-300"
+                            >
+                                <FontAwesomeIcon icon={faGooglePlusG} className="w-5 h-5" />
+                            </a>
+                        )}
+                        {settings.socials.tiktok && (
+                            <a
+                                href={settings.socials.tiktok}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 rounded-full border border-gray-400 flex items-center justify-center text-gray-400 hover:text-white hover:border-pink-500 hover:bg-pink-500 transition-all duration-300"
+                            >
+                                <FontAwesomeIcon icon={faTiktok} className="w-5 h-5" />
+                            </a>
+                        )}
                     </div>
 
                     <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
 
-                        {t("rights", { year: new Date().getFullYear() })}
+                        {settings.footerCopyright || t("rights", { year: new Date().getFullYear() })}
                     </p>
                 </div>
             </div>

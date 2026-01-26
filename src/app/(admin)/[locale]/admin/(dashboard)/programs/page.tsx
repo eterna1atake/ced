@@ -20,7 +20,27 @@ export default function ProgramsListPage() {
             const res = await fetch("/api/admin/programs");
             if (res.ok) {
                 const data = await res.json();
-                setPrograms(data);
+
+                // Sort by Level: Bachelor > Master > Doctoral
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                const sortedData = data.sort((a: any, b: any) => {
+                    const levelOrder: Record<string, number> = {
+                        "bachelor": 1,
+                        "master": 2,
+                        "doctoral": 3
+                    };
+                    const levelA = a.level?.toLowerCase() || "";
+                    const levelB = b.level?.toLowerCase() || "";
+
+                    const weightA = levelOrder[levelA] || 99;
+                    const weightB = levelOrder[levelB] || 99;
+
+                    if (weightA !== weightB) return weightA - weightB;
+                    // Fallback to title if same level
+                    return (a.en?.title || "").localeCompare(b.en?.title || "");
+                });
+
+                setPrograms(sortedData);
             }
         } catch (error) {
             console.error("Failed to fetch programs:", error);
@@ -65,7 +85,7 @@ export default function ProgramsListPage() {
                     const data = await res.json();
                     throw new Error(data.message || "Failed to delete");
                 }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 Swal.fire("Error", error.message || "Failed to delete program", "error");
             }

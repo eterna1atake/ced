@@ -158,7 +158,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
         <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800">
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                    <FontAwesomeIcon icon={faShieldHalved} className="text-indigo-500" />
+                    <FontAwesomeIcon icon={faShieldHalved} className="text-primary-main" />
                     Two-Factor Authentication
                 </h3>
             </div>
@@ -177,7 +177,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                         <button
                             onClick={handleStartSetup}
                             disabled={loading}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-medium transition-colors shadow-sm disabled:opacity-50"
+                            className="bg-primary-main/90 hover:bg-primary-main text-white px-5 py-2 rounded-md font-medium transition-colors shadow-sm disabled:opacity-50"
                         >
                             {loading ? "Loading..." : "Enable 2FA"}
                         </button>
@@ -187,10 +187,10 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 {step === "setup" && (
                     <div className="space-y-6">
                         <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg flex items-start gap-3">
-                            <FontAwesomeIcon icon={faQrcode} className="text-blue-600 dark:text-blue-400 mt-1" />
+                            <FontAwesomeIcon icon={faQrcode} className="text-primary-main dark:text-blue-400 mt-1" />
                             <div>
-                                <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-1">Step 1: Scan QR Code</h4>
-                                <p className="text-blue-600 dark:text-blue-400 text-sm">
+                                <h4 className="font-semibold text-primary-main dark:text-blue-300 mb-1">Step 1: Scan QR Code</h4>
+                                <p className="text-primary-main dark:text-blue-400 text-sm">
                                     Open your authenticator app (e.g., Google Authenticator) and scan this QR code.
                                 </p>
                             </div>
@@ -208,7 +208,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                                     <code className="text-sm font-mono text-slate-700 dark:text-slate-300 font-bold tracking-widest">
                                         {secret}
                                     </code>
-                                    <button onClick={() => copyToClipboard(secret)} className="text-slate-400 hover:text-indigo-500">
+                                    <button onClick={() => copyToClipboard(secret)} className="text-slate-400 hover:text-primary-main">
                                         <FontAwesomeIcon icon={faCopy} />
                                     </button>
                                 </div>
@@ -224,12 +224,12 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                                     placeholder="000 000"
                                     value={otp}
                                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                                    className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-center tracking-[0.5em] font-mono text-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                                    className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg text-center tracking-[0.5em] font-mono text-lg focus:ring-2 focus:ring-primary-main outline-none"
                                 />
                                 <button
                                     onClick={handleVerify}
                                     disabled={loading || otp.length !== 6}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50"
+                                    className="bg-primary-main hover:bg-primary-main/80 text-white px-4 py-2 rounded-lg font-medium disabled:opacity-50"
                                 >
                                     Verify
                                 </button>
@@ -270,7 +270,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                         <div className="flex justify-center">
                             <button
                                 onClick={() => copyToClipboard(backupCodes.join("\n"))}
-                                className="text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-2"
+                                className="text-primary-main hover:text-primary-main/80 font-medium flex items-center gap-2"
                             >
                                 <FontAwesomeIcon icon={faCopy} /> Copy All Codes
                             </button>
