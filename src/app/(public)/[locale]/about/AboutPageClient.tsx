@@ -269,12 +269,12 @@ export default function AboutPageClient() {
             )}
 
             {activeTab === "symbol" && (
-              <div data-aos="fade-up" className="space-y-24 py-12">
+              <div data-aos="fade-up" className="space-y-12 py-12">
 
                 {/* CED Logo Section */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
                   <div className="md:col-span-5 flex flex-col items-center">
-                    <div className="relative w-full max-w-sm aspect-square mb-8">
+                    <div className="relative w-full max-w-sm aspect-square mb-0 md:mb-8">
                       <Image src="/images/logo/logo_1.png" alt={symbolT("title")} layout="fill" objectFit="contain" className="drop-shadow-lg" />
                     </div>
 

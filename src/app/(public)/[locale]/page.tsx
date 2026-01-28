@@ -74,7 +74,7 @@ export default async function Home({ params }: Props) {
                 <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className="whitespace-nowrap rounded-full bg-white/10 px-3 py-1.5 text-xs sm:text-sm font-normal text-white transition-colors hover:bg-white/20 md:rounded-md md:bg-transparent md:px-2 md:py-2 md:text-base lg:text-lg md:hover:bg-white/10"
+                    className="rounded-full bg-white/10 px-3 py-1.5 text-sm sm:text-base font-normal text-white transition-colors hover:bg-white/20 md:rounded-md md:bg-transparent md:px-2 md:py-2 md:text-lg md:hover:bg-white/10"
                   >
                     {item.label}
                   </Link>
@@ -101,7 +101,7 @@ export default async function Home({ params }: Props) {
                 <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className="whitespace-nowrap rounded-full bg-slate-100 px-3 py-2 text-sm sm:text-base font-normal text-slate-700 transition-colors hover:bg-slate-200 md:rounded-none md:bg-transparent md:px-2 md:py-2 md:text-base lg:text-lg md:text-slate-800 md:hover:bg-transparent md:hover:text-primary-main"
+                    className="rounded-full bg-slate-100 px-3 py-2 text-sm sm:text-base font-normal text-slate-700 transition-colors hover:bg-slate-200 md:rounded-none md:bg-transparent md:px-2 md:py-2 md:text-lg md:text-slate-800 md:hover:bg-transparent md:hover:text-primary-main"
                   >
                     {item.label}
                   </Link>

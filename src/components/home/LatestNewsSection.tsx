@@ -33,7 +33,7 @@ export default function LatestNewsSection({
 
 
   return (
-    <section className="px-4 py-8 md:px-6 lg:px-32">
+    <section className="p-8 md:px-6 lg:px-32">
       <h2 className="text-center lg:text-start text-2xl lg:text-3xl font-medium text-black">{title}</h2>
 
       {displayItems.length === 0 ? (

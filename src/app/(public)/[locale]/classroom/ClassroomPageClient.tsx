@@ -102,10 +102,19 @@ export default function ClassroomPageClient() {
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setIsLightboxOpen(true);
+    document.body.style.overflow = "hidden";
   };
 
   const closeLightbox = useCallback(() => {
     setIsLightboxOpen(false);
+    document.body.style.overflow = "auto";
+  }, []);
+
+  // Ensure scroll is restored if component unmounts or lightbox closes externally
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, []);
 
   const nextLightboxImage = useCallback((e?: React.MouseEvent) => {
@@ -158,12 +167,12 @@ export default function ClassroomPageClient() {
 
         <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
           {/* Building Tabs */}
-          <div className="flex justify-center border-b border-slate-200 mb-6">
+          <div className="flex justify-center border-b border-slate-200 mb-4">
             <div ref={containerRef} className="relative flex gap-16">
               <button
                 ref={(el) => { tabsRef.current[0] = el; }}
                 onClick={() => setActiveBuilding("52")}
-                className={`pb-3 text-base font-bold transition-all duration-300 relative ${activeBuilding === "52"
+                className={`pb-3 text-base md:text-lg font-medium transition-all duration-300 relative ${activeBuilding === "52"
                   ? "text-slate-900"
                   : "text-slate-400 hover:text-slate-600"
                   }`}
@@ -173,7 +182,7 @@ export default function ClassroomPageClient() {
               <button
                 ref={(el) => { tabsRef.current[1] = el; }}
                 onClick={() => setActiveBuilding("44")}
-                className={`pb-3 text-base font-bold transition-all duration-300 relative ${activeBuilding === "44"
+                className={`pb-3 text-base md:text-lg font-medium transition-all duration-300 relative ${activeBuilding === "44"
                   ? "text-slate-900"
                   : "text-slate-400 hover:text-slate-600"
                   }`}
@@ -181,7 +190,7 @@ export default function ClassroomPageClient() {
                 <span>{t("building44")}</span>
               </button>
               <span
-                className="absolute bottom-0 block h-1 bg-[#35622F] rounded-t-md transition-all duration-300 ease-in-out"
+                className="absolute bottom-0 block h-1 bg-[#35622F] rounded-t-sm transition-all duration-300 ease-in-out"
                 style={{ left: tabUnderlineLeft, width: tabUnderlineWidth }}
               />
             </div>
@@ -201,7 +210,7 @@ export default function ClassroomPageClient() {
                       <div key={room.id} className="flex items-center">
                         <button
                           onClick={() => setActiveRoomId(room.id)}
-                          className={`text-base font-medium transition-all duration-200 relative px-2 py-1 ${activeRoomId === room.id
+                          className={`text-sm md:text-base font-medium transition-all duration-200 relative px-2 py-1 ${activeRoomId === room.id
                             ? "text-slate-900 font-bold"
                             : "text-slate-400 hover:text-slate-600"
                             }`}
@@ -397,7 +406,6 @@ export default function ClassroomPageClient() {
           {/* Main Image Container */}
           <div
             className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center"
-            onClick={(e) => e.stopPropagation()}
           >
             <div className="relative w-full h-full">
               <Image

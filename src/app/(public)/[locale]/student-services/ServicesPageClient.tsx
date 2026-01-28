@@ -2,7 +2,7 @@
 
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import HeroBanner from "@/components/common/HeroBanner";
-import Pagination from "@/components/common/Pagination";
+
 import { useLocale, useTranslations } from "next-intl";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
@@ -33,8 +33,7 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
     const [selectedCategory, setSelectedCategory] = useState<"all" | ServiceCategory>("all");
     const [tabUnderlineLeft, setTabUnderlineLeft] = useState(0);
     const [tabUnderlineWidth, setTabUnderlineWidth] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 8;
+
 
     const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -63,14 +62,7 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
         ? services
         : services.filter(service => service.category === selectedCategory);
 
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [selectedCategory]);
 
-    const totalPages = Math.ceil(filteredServices.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedServices = filteredServices.slice(startIndex, endIndex);
 
     return (
         <main>
@@ -132,7 +124,7 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
                     </div>
                 ) : (
                     <div className="grid gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-                        {paginatedServices.map((service, index) => (
+                        {filteredServices.map((service, index) => (
                             <div
                                 key={service._id || service.id}
                                 className="group cursor-pointer overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl animate-in fade-in slide-in-from-bottom-4"
@@ -168,14 +160,7 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
                     </div>
                 )}
 
-                {totalPages > 1 && (
-                    <Pagination
-                        className="mt-12 flex justify-center items-center gap-2"
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={setCurrentPage}
-                    />
-                )}
+
             </section>
         </main>
     );

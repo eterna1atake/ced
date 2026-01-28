@@ -115,7 +115,7 @@ export default function Navbar() {
       {/* Sliding Menu */}
       <aside
         className={[
-          "fixed inset-y-0 right-0 z-50 w-80 max-w-full bg-primary-main shadow-2xl transform transition-transform duration-300 ease-out",
+          "fixed inset-y-0 right-0 z-50 w-72 max-w-full bg-primary-main shadow-2xl transform transition-transform duration-300 ease-out",
           isMenuOpen ? "translate-x-0" : "translate-x-full",
         ].join(" ")}
         role="dialog"
@@ -165,14 +165,12 @@ export default function Navbar() {
             <div className="mt-8 pt-4 text-white">
               <span className="text-xl">{t("contactDetail")}</span>
               <div className="mt-4 space-y-4 text-base">
+                {(locale === 'th' ? settings.contactDepartment.th : settings.contactDepartment.en) && (
+                  <div className="whitespace-pre-line font-normal">
+                    {locale === 'th' ? settings.contactDepartment.th : settings.contactDepartment.en}
+                  </div>
+                )}
                 <div>
-                  <span className="whitespace-pre-line">{address || (
-                    <>
-                      {t("line1")}<br />
-                      {t("line2")}<br />
-                      {t("line3")}
-                    </>
-                  )}</span>
                 </div>
                 <div>
                   <span><FontAwesomeIcon icon={faPhone} className="mr-2" />{settings.contact.phone || t("tel")}</span>

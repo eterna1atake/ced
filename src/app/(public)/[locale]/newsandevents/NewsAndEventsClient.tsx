@@ -96,10 +96,31 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
 
 
 
+  // Security: Input Sanitization
+  const sanitizeInput = (input: string) => {
+    // 1. Trim whitespace
+    let sanitized = input;
+
+    // 2. Prevent XSS: Remove key characters used in HTML injection
+    sanitized = sanitized.replace(/[<>]/g, "");
+
+    // 3. Prevent SQL Injection-like patterns (Defense in Depth)
+    // Removing common SQL comment styles and quote manipulation
+    // Note: Since this is client-side filtering, SQLi isn't directly possible here,
+    // but this prevents bad habits and protects if logic moves to server.
+    sanitized = sanitized.replace(/(--|#|\/\*|\*\/)/g, "");
+
+    // 4. Length limit
+    if (sanitized.length > 50) {
+      sanitized = sanitized.slice(0, 50);
+    }
+
+    return sanitized;
+  };
+
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    // Sanitization: Remove characters commonly used in XSS attacks (< >)
-    const sanitizedValue = value.replace(/[<>]/g, "");
+    const sanitizedValue = sanitizeInput(value);
     setSearchTerm(sanitizedValue);
   };
 
@@ -138,7 +159,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
         </div>
         <FloatingBackButton />
       </section>
-      <section className="mx-auto w-full max-w-7xl px-6 pb-6 lg:px-10">
+      <section className="mx-auto w-full max-w-7xl px-8 pb-6 lg:px-10">
 
         <div className="mt-8 border-slate-200 bg-white">
           <div className="mt-6 grid gap-4 md:grid-cols-3">

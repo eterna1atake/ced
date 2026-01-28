@@ -19,7 +19,7 @@ export default function ContactUsPageClient() {
   const { settings } = useGlobalSettings();
 
   const address = locale === 'th' ? settings.contact.address.th : settings.contact.address.en;
-  const siteName = locale === 'th' ? settings.siteName.th : settings.siteName.en;
+  const contactDepartment = locale === 'th' ? settings.contactDepartment.th : settings.contactDepartment.en;
 
   return (
     <div className="relative">
@@ -64,7 +64,7 @@ export default function ContactUsPageClient() {
                     </div>
                     <div className="h-full">
                       <div className="bg-primary-main/90 p-10 h-full flex flex-col space-y-6">
-                        <h2 className="text-xl font-bold text-white">{siteName || t("departmentName")} <br /> {t("universityName")}</h2>
+                        <h2 className="text-xl font-bold text-white">{contactDepartment || t("departmentName")} <br /> {t("universityName")}</h2>
                         <div className="flex flex-col gap-4">
                           <ul className="flex flex-col gap-2 text-gray-50">
                             <li className="flex items-center">

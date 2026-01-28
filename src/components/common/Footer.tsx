@@ -58,15 +58,12 @@ export default function Footer() {
                             height={70}
                             className="h-auto"
                         />
-                        <p className="text-gray-400 text-sm whitespace-pre-line">
-                            {address || (
-                                <>
-                                    {t("addressLine1")}
-                                    <br /> {t("addressLine2")}
-                                    <br /> {t("addressLine3")}
-                                </>
-                            )}
-                        </p>
+                        {/* Site Name */}
+                        {(locale === 'th' ? settings.contactDepartment.th : settings.contactDepartment.en) && (
+                            <p className="text-gray-400 text-base whitespace-pre-line">
+                                {locale === 'th' ? settings.contactDepartment.th : settings.contactDepartment.en}
+                            </p>
+                        )}
                     </div>
 
                     {/* Column 2: Quick Links */}
@@ -79,7 +76,7 @@ export default function Footer() {
                                 <li key={link.key}>
                                     <Link
                                         href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 hover:text-white hover:underline transition-colors duration-300"
+                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
                                     >
                                         {t(`links.${link.key}`)}
                                     </Link>
@@ -98,7 +95,7 @@ export default function Footer() {
                                 <li key={link.key}>
                                     <Link
                                         href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 hover:text-white hover:underline transition-colors duration-300"
+                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
                                     >
                                         {t(`links.${link.key}`)}
                                     </Link>
@@ -117,7 +114,7 @@ export default function Footer() {
                                 <li key={link.key}>
                                     <Link
                                         href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 hover:text-white hover:underline transition-colors duration-300"
+                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
                                     >
                                         {t(`links.${link.key}`)}
                                     </Link>
@@ -173,8 +170,7 @@ export default function Footer() {
                     </div>
 
                     <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-
-                        {settings.footerCopyright || t("rights", { year: new Date().getFullYear() })}
+                        {t("rights", { year: new Date().getFullYear() })}
                     </p>
                 </div>
             </div>

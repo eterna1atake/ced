@@ -120,7 +120,7 @@ export default function NewsCard({
 
 
         {typeof summary === "string" ? (
-          <p className="text-base leading-relaxed text-slate-600 line-clamp-3 flex-1 break-all">{summary}</p>
+          <p className="text-sm md:text-base leading-relaxed text-slate-600 line-clamp-3 flex-1 break-all">{summary}</p>
         ) : (
           <div className="line-clamp-3 flex-1 break-all">{summary}</div>
         )}

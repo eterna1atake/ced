@@ -4,16 +4,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faGlobe, faEnvelope, faPhone, faLocationDot, faPalette } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
-import Swal from 'sweetalert2';
 
 export default function SettingsPage() {
     const t = useTranslations("Admin.pages.settings");
     const tCommon = useTranslations("Admin.forms.common");
     const [loading, setLoading] = useState(false);
     const [settings, setSettings] = useState({
-        siteNameTh: "คณะการศึกษาตลอดชีวิต",
-        siteNameEn: "Center for Life-long Education",
-        footerCopyright: "© 2024 KMUTNB. All rights reserved.",
+        contactDepartmentTh: "ภาควิชาคอมพิวเตอร์ศึกษา ชั้น 2 คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+        contactDepartmentEn: "Department of Computer Education, 2nd Floor, Faculty of Technical Education, King Mongkut's University of Technology North Bangkok",
         contactEmail: "ced@kmutnb.ac.th",
         phoneNumber: "02-555-2000",
         addressTh: "1518 ถ.ประชาราษฎร์ 1 แขวงวงศ์สว่าง เขตบางซื่อ กรุงเทพฯ 10800",
@@ -75,23 +73,11 @@ export default function SettingsPage() {
                 console.error("Server error:", data);
                 throw new Error(data.error || 'Failed to update');
             }
-
-            Swal.fire({
-                icon: 'success',
-                title: tCommon("success"), // or 'Success' if translation missing, but better to use simple string if not sure about key
-                text: 'Settings saved successfully!',
-                confirmButtonColor: '#35622F',
-                timer: 2000
-            });
+            alert('Settings saved successfully!');
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Failed to save settings:", error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: error.message || 'Failed to save settings',
-                confirmButtonColor: '#d33'
-            });
+            alert(`Error saving settings: ${error.message}`);
         } finally {
             setLoading(false);
         }
@@ -166,12 +152,36 @@ export default function SettingsPage() {
 
                     <div className="border-t border-slate-100 dark:border-slate-800"></div>
 
-                    {/* Contact Information */}
+                    {/* Site Information */}
                     <section>
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                             <FontAwesomeIcon icon={faEnvelope} className="text-primary-main" />
                             Contact Information
                         </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Department (TH)</label>
+                                <input
+                                    type="text"
+                                    value={settings.contactDepartmentTh}
+                                    onChange={(e) => handleChange('contactDepartmentTh', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Department (EN)</label>
+                                <input
+                                    type="text"
+                                    value={settings.contactDepartmentEn}
+                                    onChange={(e) => handleChange('contactDepartmentEn', e.target.value)}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                />
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Contact Information */}
+                    <section>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Email</label>
@@ -264,13 +274,13 @@ export default function SettingsPage() {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Google Plus / Email Link</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email Link</label>
                                 <input
                                     type="text"
-                                    value={settings.googlePlus}
-                                    onChange={(e) => handleChange('googlePlus', e.target.value)}
+                                    value={settings.googlePlus.replace(/^mailto:/, '')}
+                                    onChange={(e) => handleChange('googlePlus', `mailto:${e.target.value}`)}
                                     className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
-                                    placeholder="mailto:..."
+                                    placeholder="ced@kmutnb.ac.th"
                                 />
                             </div>
                         </div>

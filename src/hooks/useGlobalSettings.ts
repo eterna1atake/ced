@@ -3,8 +3,7 @@ import { useState, useEffect } from 'react';
 export interface GlobalSettings {
     theme: string;
     snowEnabled: boolean;
-    siteName: { th: string; en: string };
-    footerCopyright: string;
+    contactDepartment: { th: string; en: string };
     contact: {
         email: string;
         phone: string;
@@ -21,8 +20,7 @@ export interface GlobalSettings {
 const defaultSettings: GlobalSettings = {
     theme: 'default',
     snowEnabled: true,
-    siteName: { th: '', en: '' },
-    footerCopyright: '',
+    contactDepartment: { th: '', en: '' },
     contact: {
         email: '',
         phone: '',

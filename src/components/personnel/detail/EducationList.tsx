@@ -26,8 +26,8 @@ export default function EducationList({ education }: EducationListProps) {
                     <li key={index} className="flex items-start gap-3 text-slate-700">
                         <span className="mt-2.5 w-1.5 h-1.5 bg-slate-400 rounded-full flex-shrink-0"></span>
                         <div className="text-base text-slate-800">
-                            <span className="font-semibold">{edu.level[lang]}</span>
-                            {edu.major[lang] && <span> ({edu.major[lang]})</span>}
+                            <span className="font-semibold">{edu.level[lang]}:</span>
+                            {edu.major[lang] && <span> {edu.major[lang]}</span>}
                             {edu.university[lang] && <span>, {edu.university[lang]}</span>}
                         </div>
                     </li>

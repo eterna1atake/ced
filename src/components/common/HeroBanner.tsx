@@ -34,9 +34,9 @@ export default function HeroBanner({
             {eyebrow}
           </span>
         ) : null}
-        <h1 className="mt-4 max-w-2xl text-4xl font-bold text-white md:text-5xl">{title}</h1>
+        <h1 className="mt-4 max-w-2xl text-3xl font-bold text-white md:text-5xl">{title}</h1>
         {description ? (
-          <p className="mt-4 max-w-xl text-base text-slate-100 md:text-lg">{description}</p>
+          <p className="mt-2 max-w-xl text-base text-slate-100 md:text-lg">{description}</p>
         ) : null}
         {actions ? <div className="mt-6 flex flex-wrap items-center gap-3">{actions}</div> : null}
       </div>

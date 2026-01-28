@@ -15,7 +15,7 @@ export const GET = async () => {
             key: {
                 $in: [
                     'theme', 'theme_start_date', 'theme_end_date', 'theme_force_disable_snow',
-                    'siteNameTh', 'siteNameEn', 'footerCopyright',
+                    'contactDepartmentTh', 'contactDepartmentEn',
                     'contactEmail', 'phoneNumber', 'addressTh', 'addressEn',
                     'facebook', 'youtube', 'tiktok', 'googlePlus'
                 ]
@@ -50,11 +50,10 @@ export const GET = async () => {
         return NextResponse.json({
             theme,
             snowEnabled: !forceDisableSnow,
-            siteName: {
-                th: getVal('siteNameTh') || '',
-                en: getVal('siteNameEn') || ''
+            contactDepartment: {
+                th: getVal('contactDepartmentTh') || '',
+                en: getVal('contactDepartmentEn') || ''
             },
-            footerCopyright: getVal('footerCopyright') || '',
             contact: {
                 email: getVal('contactEmail') || '',
                 phone: getVal('phoneNumber') || '',
