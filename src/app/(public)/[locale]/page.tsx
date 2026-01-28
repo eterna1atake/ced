@@ -17,7 +17,7 @@ import { getTrainingItems } from "@/data/training";
 async function getLatestNews() {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/public/news`, { cache: 'no-store' }); // or revalidate
+    const res = await fetch(`${baseUrl}/api/public/news`, { next: { revalidate: 3600 } }); // or revalidate
     if (!res.ok) return [];
     return res.json();
   } catch (error) {
