@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-import crypto from "crypto";
 import argon2 from "argon2";
 import { z } from "zod";
 
@@ -65,36 +64,22 @@ export async function POST(req: NextRequest) {
         // Find user by email
         const user = await db.collection("users").findOne({ email: normalizedEmail });
 
-        if (!user || !user.resetOtpHash || !user.resetOtpExpires) {
+        if (!user) {
             await incrementOtpVerifyLimit(ip, normalizedEmail);
-            // Generic error to prevent enumeration
             return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
         }
 
-        // 3. Check Expiry
-        if (new Date() > new Date(user.resetOtpExpires)) {
-            await incrementOtpVerifyLimit(ip, normalizedEmail);
-            return NextResponse.json({ error: "OTP หมดอายุแล้ว" }, { status: 400 });
+        // [New] Check TOTP (Google Authenticator) instead of Email OTP
+        if (!user.totpEnabled || !user.totpSecret) {
+            return NextResponse.json({ error: "บัญชีนี้ยังไม่ได้เปิดใช้งาน 2FA (TOTP)" }, { status: 400 });
         }
 
-        // 4. Check OTP (Constant Time Comparison)
-        const inputOtpHash = crypto.createHash("sha256").update(otp).digest("hex");
-        const userOtpHash = user.resetOtpHash;
+        const { verifyTotp } = await import("@/lib/totp");
+        const isValidTotp = verifyTotp(otp, user.totpSecret);
 
-        const inputBuffer = Buffer.from(inputOtpHash);
-        const userBuffer = Buffer.from(userOtpHash);
-
-        // Ensure lengths match before comparing to avoid error, BUT if lengths differ it's invalid anyway.
-        // However, SHA256 hashes are fixed length (64 hex chars).
-        // If userOtpHash in DB is malformed/different, we handle it.
-        let isMatch = false;
-        if (inputBuffer.length === userBuffer.length) {
-            isMatch = crypto.timingSafeEqual(inputBuffer, userBuffer);
-        }
-
-        if (!isMatch) {
+        if (!isValidTotp) {
             await incrementOtpVerifyLimit(ip, normalizedEmail);
-            return NextResponse.json({ error: "รหัส OTP ไม่ถูกต้อง" }, { status: 400 });
+            return NextResponse.json({ error: "รหัส Google Authenticator ไม่ถูกต้อง" }, { status: 400 });
         }
 
         // Success: Reset limit
@@ -111,7 +96,7 @@ export async function POST(req: NextRequest) {
                     lastPasswordReset: new Date(), // [New] Invalidate Sessions
                     trustedDevices: [] // [Security] Revoke all trusted devices
                 },
-                $unset: { resetOtpHash: "", resetOtpExpires: "" } // Clear OTP
+                // $unset: { resetOtpHash: "", resetOtpExpires: "" } // No longer dealing with Email OTP fields here
             }
         );
 
@@ -123,10 +108,14 @@ export async function POST(req: NextRequest) {
                 action: "CHANGE_PASSWORD",
                 actorEmail: email,
                 ip,
-                userAgent, // [New] Log User Agent
-                details: "Reset password via OTP",
+                userAgent,
+                details: "Reset password via TOTP (Google Authenticator)",
                 targetId: String(user._id)
             });
+
+            // [New] Notification Email
+            const { sendLoginNotification } = await import("@/lib/mail");
+            sendLoginNotification(email, "SUCCESS", ip, userAgent, "Your password has been reset using Google Authenticator.");
         } catch (e) {
             console.error("Audit log error", e);
         }

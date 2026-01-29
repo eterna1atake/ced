@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-import crypto from "crypto";
+
 
 import { checkRateLimit, incrementRateLimit } from "@/lib/rate-limit";
 
@@ -26,23 +26,16 @@ export async function POST(req: NextRequest) {
 
         const user = await db.collection("users").findOne({ email: email.toLowerCase() });
 
-        if (!user || !user.resetOtpHash || !user.resetOtpExpires) {
-            // Even if invalid user, we should cost a point to prevent enumeration? 
-            // Actually, keep it simple. If we return 400 here, attacker knows user doesn't exist/didn't ask OTP.
-            // But we already have strict allowlist, so enumeration is less of a concern than brute force.
-            // Let's increment limit here too just in case.
+        if (!user || !user.totpEnabled || !user.totpSecret) {
             await incrementRateLimit(ip, email);
-            return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
+            return NextResponse.json({ error: "ไม่พบข้อมูล 2FA ของบัญชีนี้" }, { status: 400 });
         }
 
-        // 1. Check Expiry
-        if (new Date() > new Date(user.resetOtpExpires)) {
-            return NextResponse.json({ error: "OTP หมดอายุและใช้งานไม่ได้แล้ว" }, { status: 400 });
-        }
+        // 1. Verify TOTP
+        const { verifyTotp } = await import("@/lib/totp");
+        const isValid = verifyTotp(otp, user.totpSecret);
 
-        // 2. Check OTP
-        const inputOtpHash = crypto.createHash("sha256").update(otp).digest("hex");
-        if (inputOtpHash !== user.resetOtpHash) {
+        if (!isValid) {
             // [Security] Increment fail count
             await incrementRateLimit(ip, email);
 
@@ -53,15 +46,15 @@ export async function POST(req: NextRequest) {
                     action: "CHANGE_PASSWORD_FAILED",
                     actorEmail: email,
                     ip,
-                    details: "Incorrect OTP Attempt",
+                    details: "Incorrect TOTP Attempt",
                     targetId: String(user._id)
                 });
             } catch { }
 
-            return NextResponse.json({ error: "รหัส OTP ไม่ถูกต้อง" }, { status: 400 });
+            return NextResponse.json({ error: "รหัส Google Authenticator ไม่ถูกต้อง" }, { status: 400 });
         }
 
-        return NextResponse.json({ message: "OTP ถูกต้อง", valid: true });
+        return NextResponse.json({ message: "รหัสถูกต้อง", valid: true });
 
     } catch (error) {
         console.error("Verify OTP Error:", error);

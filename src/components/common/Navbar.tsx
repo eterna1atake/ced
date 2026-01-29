@@ -23,7 +23,6 @@ export default function Navbar() {
   const t = useTranslations('Navbar');
   const locale = useLocale();
   const { settings } = useGlobalSettings();
-  const address = locale === 'th' ? settings.contact.address.th : settings.contact.address.en;
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuItems = [

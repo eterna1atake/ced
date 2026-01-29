@@ -232,6 +232,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             reason: `Rate Limit Exceeded (${blockedSeconds}s)`
                         });
 
+                        import("@/lib/mail").then(({ sendLoginNotification }) => {
+                            sendLoginNotification(email, "BLOCKED", ip, userAgent, `Rate Limit Exceeded (${blockedSeconds}s)`);
+                        });
+
                         throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
                     }
                 } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -256,6 +260,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         userAgent,
                         status: "BLOCKED",
                         reason: `Account Locked (${diff}s remaining)`
+                    });
+
+                    import("@/lib/mail").then(({ sendLoginNotification }) => {
+                        sendLoginNotification(email, "BLOCKED", ip, userAgent, `Account Locked (${diff}s remaining)`);
                     });
 
                     throw new AccountLockedError(diff);
@@ -308,6 +316,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                                 status: "BLOCKED",
                                 reason: `Account Locked (Triggered)`
                             });
+                            import("@/lib/mail").then(({ sendLoginNotification }) => {
+                                sendLoginNotification(email, "BLOCKED", ip, userAgent, "Account Locked (Maximum Attempts Reached)");
+                            });
                             throw new AccountLockedError(30 * 60);
                         }
                     }
@@ -330,6 +341,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             reason: `Rate Limit Exceeded on Failure (${blockedSeconds}s)`
                         });
 
+                        import("@/lib/mail").then(({ sendLoginNotification }) => {
+                            sendLoginNotification(email, "BLOCKED", ip, userAgent, `Rate Limit Exceeded on Failure (${blockedSeconds}s)`);
+                        });
+
                         throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
                     }
 
@@ -340,6 +355,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         userAgent,
                         status: "FAILED",
                         reason: user ? "Invalid Password" : "User Not Found"
+                    });
+
+                    import("@/lib/mail").then(({ sendLoginNotification }) => {
+                        sendLoginNotification(email, "FAILED", ip, userAgent, user ? "Invalid Password" : "User Not Found");
                     });
 
                     throw new InvalidCredentialsError(`InvalidCredentials:${rateLimitResult.remaining}`);
@@ -356,6 +375,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         reason: "Account Inactive"
                     });
 
+                    import("@/lib/mail").then(({ sendLoginNotification }) => {
+                        sendLoginNotification(email, "FAILED", ip, userAgent, "Account Inactive");
+                    });
+
                     throw new InactiveAccountError();
                 }
 
@@ -369,6 +392,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         userAgent,
                         status: "FAILED",
                         reason: "Role Not Superuser"
+                    });
+
+                    import("@/lib/mail").then(({ sendLoginNotification }) => {
+                        sendLoginNotification(email, "FAILED", ip, userAgent, "Role Not Authorized");
                     });
 
                     throw new ForbiddenError();
@@ -592,6 +619,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         userAgent,
                         status: "SUCCESS"
                     }).catch(e => console.warn("[Auth] Failed to log audit:", e));
+                });
+
+                // [Notification] Success - Non-blocking
+                import("@/lib/mail").then(({ sendLoginNotification }) => {
+                    sendLoginNotification(
+                        email,
+                        "SUCCESS",
+                        ip,
+                        userAgent
+                    ).catch(e => console.error("[Auth] Failed to send login notification:", e));
                 });
 
                 if (isDev) console.log("[Auth] Admin login success:", user.email);

@@ -13,13 +13,6 @@ import Loading from "@/components/common/Loading";
 import Swal from "sweetalert2";
 import { z } from "zod";
 
-// Colors from requirements/config
-// Primary: #35622F
-// Secondary: #5BA3AD
-
-// Primary: #35622F
-// Secondary: #5BA3AD
-
 function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
     const router = useRouter();
     const searchParams = useSearchParams();

@@ -19,53 +19,29 @@ export default function ForgotPasswordPage() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [captchaToken, setCaptchaToken] = useState<string | null>(null);
 
-    // Timer States
-    const [timeLeft, setTimeLeft] = useState(0); // seconds
-    const [resendCooldown, setResendCooldown] = useState(0); // seconds
     const recaptchaRef = useRef<ReCAPTCHA>(null);
 
     // Password Visibility
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Countdown Logic
-    useEffect(() => {
-        if (timeLeft > 0) {
-            const timer = setInterval(() => {
-                setTimeLeft((prev) => prev - 1);
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [timeLeft]);
-
-    // Resend Cooldown Logic
-    useEffect(() => {
-        if (resendCooldown > 0) {
-            const timer = setInterval(() => {
-                setResendCooldown((prev) => prev - 1);
-            }, 1000);
-            return () => clearInterval(timer);
-        }
-    }, [resendCooldown]);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
-
-    // Step 1: Request OTP
-    const handleRequestOTP = async (e?: React.FormEvent) => {
+    // Step 1: Check User & 2FA Status
+    const handleCheckUser = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
-
-        if (resendCooldown > 0) return;
-
         setLoading(true);
 
         try {
+            const csrfToken = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("ced_csrf_token="))
+                ?.split("=")[1];
+
             const res = await fetch("/api/auth/forgot-password", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || "",
+                },
                 body: JSON.stringify({ email, captchaToken }),
             });
 
@@ -74,22 +50,20 @@ export default function ForgotPasswordPage() {
             if (res.ok) {
                 await Swal.fire({
                     icon: "success",
-                    title: "ส่ง OTP สำเร็จ",
-                    text: "กรุณาตรวจสอบรหัส OTP 6 หลักในอีเมล (1 นาที)",
+                    title: "พบข้อมูลบัญชี",
+                    text: "กรุณาระบุรหัสจากแอป Google Authenticator",
                     confirmButtonColor: "#35622F",
-                    timer: 2000,
+                    timer: 1500,
                     timerProgressBar: true
                 });
-                setTimeLeft(60); // 1 minute
-                setResendCooldown(60); // 60s cooldown
                 setStep(2);
                 if (recaptchaRef.current) recaptchaRef.current.reset();
                 setCaptchaToken(null);
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "ไม่สามารถส่ง OTP ได้",
-                    text: data.error || "กรุณาตรวจสอบอีเมลอีกครั้ง",
+                    title: "เกิดข้อผิดพลาด",
+                    text: data.error || "ไม่พบบัญชีหรือเงื่อนไขไม่ถูกต้อง",
                     confirmButtonColor: "#d33",
                 });
             }
@@ -111,13 +85,7 @@ export default function ForgotPasswordPage() {
         if (e) e.preventDefault();
         setLoading(true);
 
-        if (timeLeft === 0) {
-            Swal.fire({
-                icon: "error",
-                title: "OTP หมดอายุ",
-                text: "กรุณากดส่งรหัส OTP ใหม่อีกครั้ง",
-                confirmButtonColor: "#d33",
-            });
+        if (otp.length !== 6) {
             setLoading(false);
             return;
         }
@@ -131,15 +99,25 @@ export default function ForgotPasswordPage() {
 
             const data = await res.json();
 
-            if (res.ok) {
+            if (res.ok && data.valid) {
+                await Swal.fire({
+                    icon: "success",
+                    title: "รหัสถูกต้อง",
+                    text: "กรุณาตั้งรหัสผ่านใหม่",
+                    confirmButtonColor: "#35622F",
+                    timer: 1000,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
                 setStep(3); // Go to Password Reset Step
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "OTP ไม่ถูกต้อง",
+                    title: "รหัส OTP ไม่ถูกต้อง",
                     text: data.error,
                     confirmButtonColor: "#d33",
                 });
+                setOtp(""); // Clear invalid OTP
             }
         } catch (error) {
             console.error(error);
@@ -204,6 +182,8 @@ export default function ForgotPasswordPage() {
                 .find((row) => row.startsWith("ced_csrf_token="))
                 ?.split("=")[1];
 
+            // Note: We send the OTP again because the backend needs to verify it before resetting.
+            // If the code rotates in <= 30s, this might fail, but it's standard 2-step TOTP flow risk.
             const res = await fetch("/api/auth/reset-with-otp", {
                 method: "POST",
                 headers: {
@@ -227,9 +207,20 @@ export default function ForgotPasswordPage() {
                 Swal.fire({
                     icon: "error",
                     title: "เกิดข้อผิดพลาด",
-                    text: data.error || "รหัส OTP ไม่ถูกต้องหรือหมดอายุ",
+                    text: data.error || "รหัส OTP หมดอายุหรือเปลี่ยนไปแล้ว กรุณาลองใหม่",
                     confirmButtonColor: "#d33",
                 });
+
+                // If OTP expired, maybe user needs to re-enter OTP?
+                // But usually we just let them try again.
+                // If the error indicates invalid OTP, we might want to go back to step 2?
+                // But let's stay on step 3 for now, user might just need to be faster or new code.
+                // Actually, if OTP is invalid, they can't change it on Step 3 (it's hidden/passed from state).
+                // So we MUST go back to Step 2 if OTP is invalid.
+                if (data.error?.includes("OTP") || data.error?.includes("Authenticator")) {
+                    setStep(2);
+                    setOtp("");
+                }
             }
         } catch (error) {
             console.error(error);
@@ -266,21 +257,21 @@ export default function ForgotPasswordPage() {
                     />
                     <h1 className="text-2xl font-bold text-slate-800">กู้คืนรหัสผ่าน</h1>
                     <p className="text-slate-500 text-sm mt-1">
-                        {step === 1 && "ระบุอีเมลเพื่อรับรหัสยืนยันตัวตน"}
-                        {step === 2 && `กรอกรหัส OTP ที่ส่งไปยัง ${email}`}
+                        {step === 1 && "ระบุอีเมลเพื่อตรวจสอบสิทธิ์"}
+                        {step === 2 && "ระบุรหัส 6 หลักจาก Google Authenticator"}
                         {step === 3 && "ตั้งรหัสผ่านใหม่ของคุณ"}
                     </p>
                 </div>
 
                 {/* Progress Indicators */}
                 <div className="flex justify-center mb-8 space-x-2">
-                    <div className={`h-2 w-12 rounded-full transition-colors ${step >= 1 ? "bg-[#35622F]" : "bg-slate-200"}`} />
-                    <div className={`h-2 w-12 rounded-full transition-colors ${step >= 2 ? "bg-[#35622F]" : "bg-slate-200"}`} />
-                    <div className={`h-2 w-12 rounded-full transition-colors ${step >= 3 ? "bg-[#35622F]" : "bg-slate-200"}`} />
+                    <div className={`h-2 w-16 rounded-full transition-colors ${step >= 1 ? "bg-[#35622F]" : "bg-slate-200"}`} />
+                    <div className={`h-2 w-16 rounded-full transition-colors ${step >= 2 ? "bg-[#35622F]" : "bg-slate-200"}`} />
+                    <div className={`h-2 w-16 rounded-full transition-colors ${step >= 3 ? "bg-[#35622F]" : "bg-slate-200"}`} />
                 </div>
 
                 {step === 1 && (
-                    <form onSubmit={handleRequestOTP} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <form onSubmit={handleCheckUser} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-2">อีเมลผู้ใช้งาน</label>
                             <input
@@ -303,11 +294,10 @@ export default function ForgotPasswordPage() {
 
                         <button
                             type="submit"
-                            disabled={loading || resendCooldown > 0 || !captchaToken}
+                            disabled={loading || !captchaToken}
                             className="w-full bg-[#35622F] text-white py-3 rounded-lg font-semibold hover:bg-[#2e5429] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2"
                         >
-                            {loading ? "กำลังตรวจสอบ..." : "ขอรหัส OTP"}
-                            {resendCooldown > 0 && <span className="text-xs opacity-75">({resendCooldown}s)</span>}
+                            {loading ? "กำลังตรวจสอบ..." : "ถัดไป"}
                         </button>
                         <div className="flex justify-center mt-4">
                             <Link href="/admin/login" className="text-sm text-slate-500 hover:text-[#35622F] font-medium transition-colors">
@@ -319,13 +309,11 @@ export default function ForgotPasswordPage() {
 
                 {step === 2 && (
                     <form onSubmit={handleVerifyOTP} className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <div className="text-center bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-4">
-                            <p className="text-yellow-800 text-sm font-medium">รหัสจะหมดอายุใน</p>
-                            <p className="text-2xl font-mono font-bold text-yellow-900">{formatTime(timeLeft)}</p>
-                        </div>
 
+                        {/* TOTP Input Only */}
                         <div>
-                            <div className="flex justify-center gap-2">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">Google Authenticator Code (6 หลัก)</label>
+                            <div className="flex justify-center gap-2 mb-2">
                                 {[...Array(6)].map((_, index) => (
                                     <input
                                         key={index}
@@ -345,14 +333,12 @@ export default function ForgotPasswordPage() {
 
                                             // Auto-focus next
                                             if (val && index < 5) {
-                                                const nextInput = document.getElementById(`otp-${index + 1}`);
-                                                nextInput?.focus();
+                                                document.getElementById(`otp-${index + 1}`)?.focus();
                                             }
                                         }}
                                         onKeyDown={(e) => {
                                             if (e.key === "Backspace" && !otp[index] && index > 0) {
-                                                const prevInput = document.getElementById(`otp-${index - 1}`);
-                                                prevInput?.focus();
+                                                document.getElementById(`otp-${index - 1}`)?.focus();
                                             }
                                         }}
                                         onPaste={(e) => {
@@ -365,9 +351,9 @@ export default function ForgotPasswordPage() {
                                                 document.getElementById(`otp-${focusIndex}`)?.focus();
                                             }
                                         }}
-                                        className="w-12 h-14 rounded-lg border-2 border-slate-200 text-center text-xl font-bold text-slate-700 shadow-sm focus:border-[#35622F] focus:ring-4 focus:ring-[#35622F]/20 outline-none transition-all placeholder-slate-300"
+                                        className="w-10 h-12 sm:w-12 sm:h-14 rounded-lg border-2 border-slate-200 text-center text-xl font-bold text-slate-700 shadow-sm focus:border-[#35622F] focus:ring-4 focus:ring-[#35622F]/20 outline-none transition-all placeholder-slate-300"
                                         placeholder="•"
-                                        required={index === 0} // Only first required essentially, validation handles rest
+                                        required={index === 0}
                                     />
                                 ))}
                             </div>
@@ -375,22 +361,12 @@ export default function ForgotPasswordPage() {
 
                         <button
                             type="submit"
-                            disabled={loading || timeLeft === 0}
+                            disabled={loading || otp.length !== 6}
                             className="w-full bg-[#35622F] text-white py-3 rounded-lg font-semibold hover:bg-[#2e5429] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                         >
                             {loading ? "กำลังตรวจสอบ..." : "ยืนยันรหัส OTP"}
                         </button>
 
-                        <div className="text-center pt-2">
-                            <button
-                                type="button"
-                                onClick={() => handleRequestOTP()}
-                                disabled={loading || resendCooldown > 0}
-                                className="text-sm text-[#5BA3AD] hover:text-[#35622F] font-medium hover:underline disabled:opacity-50 disabled:text-slate-400 disabled:no-underline"
-                            >
-                                {resendCooldown > 0 ? `ขอรหัสใหม่ได้ใน ${resendCooldown}s` : "ไม่ได้รับรหัส? ขอรหัส OTP ใหม่"}
-                            </button>
-                        </div>
                         <div className="flex justify-center mt-2">
                             <button
                                 type="button"

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
-import crypto from "crypto";
-import { sendOTPEmail } from "@/lib/mail";
 
 export async function POST(req: NextRequest) {
     try {
@@ -66,39 +64,29 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(GENERIC_SUCCESS);
         }
 
-        // 3. Generate 6-digit OTP
-        const otp = crypto.randomInt(100000, 999999).toString();
+        // 3. Authenticate User Existence for TOTP Reset flow
+        // Instead of sending email OTP, we just verify user exists and has TOTP enabled
 
-        // 4. Hash OTP (SHA-256 is enough for short-lived OTP, no need for heavy Argon2 here to keep it fast, but Argon2 is safer. 
-        // Let's use simple hash for OTP token as it expires quickly)
-        // Actually, let's use the same crypto hash as before for simplicity
-        const resetOtpHash = crypto.createHash("sha256").update(otp).digest("hex");
-        const resetOtpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-
-        // 5. Save to DB
-        await db.collection("users").updateOne(
-            { email: email.toLowerCase() },
-            { $set: { resetOtpHash, resetOtpExpires } }
-        );
-
-        // 6. Send Email
-        await sendOTPEmail(email, otp, "RESET");
+        // Check if TOTP is enabled
+        if (!user.totpEnabled || !user.totpSecret) {
+            return NextResponse.json({ error: "บัญชีนี้ไม่ได้เปิดใช้งาน Google Authenticator ไม่สามารถกู้รหัสผ่านได้" }, { status: 400 });
+        }
 
         // 7. Audit Log
         try {
             const { logSystemEvent } = await import("@/lib/audit");
             await logSystemEvent({
-                action: "CHANGE_PASSWORD", // Reusing action or create NEW one like "REQUEST_OTP"
-                actorEmail: email, // Though not logged in, we know who requested
+                action: "REQUEST_RESET",
+                actorEmail: email,
                 ip,
-                details: "Requested Password Reset OTP",
+                details: "Requested Password Reset (TOTP Flow)",
                 targetId: String(user._id)
             });
         } catch (e) {
             console.error("Audit log error", e);
         }
 
-        return NextResponse.json({ message: "ส่งรหัส OTP ไปยังอีเมลแล้ว" });
+        return NextResponse.json({ message: "โปรดระบุรหัสจาก Google Authenticator App" });
 
     } catch (error) {
         console.error("Forgot Password Error:", error);

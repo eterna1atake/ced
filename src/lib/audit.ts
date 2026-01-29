@@ -38,6 +38,7 @@ export type SystemEventType =
     | "UPDATE_CONTENT"
     | "DELETE_CONTENT"
     | "LOGIN_OTP"
+    | "REQUEST_RESET"
     | "OTHER";
 
 export type SystemAuditEntry = {

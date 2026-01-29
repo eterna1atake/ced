@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
         await resetChangePasswordLimit(ip, email);
 
         // 7. Audit Log
+        // 7. Audit Log
         try {
             const { logSystemEvent } = await import("@/lib/audit");
 
@@ -104,8 +105,12 @@ export async function POST(req: NextRequest) {
                 targetId: String(user._id),
                 details: "User changed their own password"
             });
+
+            // [New] Notification Email
+            const { sendLoginNotification } = await import("@/lib/mail");
+            sendLoginNotification(email, "SUCCESS", ip, userAgent, "Your password has been changed successfully.");
         } catch (auditErr) {
-            console.error("Audit log failed:", auditErr);
+            console.error("Audit/Notification log failed:", auditErr);
         }
 
         return NextResponse.json({ message: "เปลี่ยนรหัสผ่านสำเร็จ" });

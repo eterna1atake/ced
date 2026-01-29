@@ -23,7 +23,17 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
     const handleStartSetup = async () => {
         setLoading(true);
         try {
-            const res = await fetch("/api/auth/mfa/setup", { method: "POST" });
+            const csrfToken = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("ced_csrf_token="))
+                ?.split("=")[1];
+
+            const res = await fetch("/api/auth/mfa/setup", {
+                method: "POST",
+                headers: {
+                    "x-csrf-token": csrfToken || "",
+                }
+            });
             const data = await res.json();
 
             if (res.ok) {
@@ -45,9 +55,17 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
         if (otp.length !== 6) return;
         setLoading(true);
         try {
+            const csrfToken = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("ced_csrf_token="))
+                ?.split("=")[1];
+
             const res = await fetch("/api/auth/mfa/enable", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || "",
+                },
                 body: JSON.stringify({ code: otp })
             });
             const data = await res.json();
@@ -88,7 +106,17 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
         if (result.isConfirmed) {
             setLoading(true);
             try {
-                const res = await fetch("/api/auth/mfa/disable", { method: "POST" });
+                const csrfToken = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("ced_csrf_token="))
+                    ?.split("=")[1];
+
+                const res = await fetch("/api/auth/mfa/disable", {
+                    method: "POST",
+                    headers: {
+                        "x-csrf-token": csrfToken || "",
+                    }
+                });
                 const data = await res.json();
 
                 if (res.ok) {

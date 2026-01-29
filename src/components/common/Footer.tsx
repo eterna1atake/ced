@@ -17,7 +17,6 @@ export default function Footer() {
     const t = useTranslations("Footer");
     const locale = useLocale();
     const { settings } = useGlobalSettings();
-    const address = locale === 'th' ? settings.contact.address.th : settings.contact.address.en;
     const quickLinks = [
         { key: "aboutCed", path: "/about" },
         { key: "newsEvents", path: "/newsandevents" },

@@ -3,7 +3,6 @@ import createNextIntlPlugin from 'next-intl/plugin';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const nextConfig: NextConfig = {
-    output: 'standalone',
     images: {
         remotePatterns: [
             {
