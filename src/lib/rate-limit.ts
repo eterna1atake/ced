@@ -333,3 +333,24 @@ export async function incrementChangePasswordLimit(ip: string, email?: string) {
 export async function resetChangePasswordLimit(ip: string, email?: string) {
     return handleLimit(CHANGE_PASSWORD_TIERS, changePasswordLimiters, ip, email, "reset");
 }
+
+// --- Search Rate Limiting ---
+
+const SEARCH_TIERS = [
+    {
+        points: 60, // 60 requests
+        duration: 60, // per 1 minute
+        blockDuration: 60, // Block for 1 minute if exceeded
+        keyPrefix: "search_req",
+    },
+];
+
+const searchLimiters: RateLimiterTier[] = [];
+
+export async function checkSearchLimit(ip: string) {
+    return handleLimit(SEARCH_TIERS, searchLimiters, ip, undefined, "check");
+}
+
+export async function incrementSearchLimit(ip: string) {
+    return handleLimit(SEARCH_TIERS, searchLimiters, ip, undefined, "consume");
+}
