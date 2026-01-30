@@ -64,7 +64,7 @@ export default function ContactUsPageClient() {
                     </div>
                     <div className="h-full">
                       <div className="bg-primary-main/90 p-10 h-full flex flex-col space-y-6">
-                        <h2 className="text-xl font-bold text-white">{contactDepartment || t("departmentName")} <br /> {t("universityName")}</h2>
+                        <h2 className="text-xl font-bold text-white">{contactDepartment || t("departmentName")}</h2>
                         <div className="flex flex-col gap-4">
                           <ul className="flex flex-col gap-2 text-gray-50">
                             <li className="flex items-center">
