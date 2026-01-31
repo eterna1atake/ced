@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
 import { unstable_cache } from "next/cache";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 import "../../globals.css";
 
@@ -119,6 +120,7 @@ export default async function LocaleLayout({
             </HeroCarouselProvider>
           </DynamicThemeProvider>
         </NextIntlClientProvider>
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || ""} />
       </body>
     </html >
   );

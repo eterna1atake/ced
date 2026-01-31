@@ -16,71 +16,114 @@ import {
 } from "@tremor/react";
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRotate } from "@fortawesome/free-solid-svg-icons";
+import { faRotate, faServer } from "@fortawesome/free-solid-svg-icons";
 
-// Mock data generator for realtime effect
-const generateMockTraffic = () => {
-    const data = [];
-    const now = new Date();
-    for (let i = 24; i >= 0; i--) {
-        const time = new Date(now.getTime() - i * 60 * 60 * 1000);
-        data.push({
-            time: time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            "Visitors": Math.floor(Math.random() * 100) + 50,
-            "Page Views": Math.floor(Math.random() * 200) + 100,
-        });
-    }
-    return data;
-};
+// Types matching API response
+interface DashboardStats {
+    stats: {
+        news: number;
+        personnel: number;
+        awards: number;
+        services: number;
+    };
+    logs: {
+        _id: string;
+        action: string;
+        actorEmail: string;
+        timestamp: string;
+        status?: string;
+        details?: string;
+    }[];
+    traffic: {
+        time: string;
+        "Visitors": number;
+        "Page Views": number;
+    }[];
+    engagement: {
+        topic: string;
+        "Views": number;
+    }[];
+}
+
+interface HealthData {
+    database: {
+        status: string;
+        latency: string;
+    };
+    system: {
+        memoryUsage: number;
+        storageUsage: number;
+        uptime: number;
+    };
+}
 
 export default function AdminDashboardPage() {
     const t = useTranslations("Admin.pages.dashboard");
-    const [trafficData, setTrafficData] = useState<{ time: string;[key: string]: string | number }[]>([]);
+    const [data, setData] = useState<DashboardStats | null>(null);
+    const [healthData, setHealthData] = useState<HealthData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [dateString, setDateString] = useState("");
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState("");
+
+    const fetchStats = async () => {
+        try {
+            setIsRefreshing(true);
+            const res = await fetch('/api/admin/dashboard/stats');
+            if (res.ok) {
+                const jsonData = await res.json();
+                setData(jsonData);
+                setLastUpdated(new Date().toLocaleTimeString());
+            }
+
+            // Fetch health data
+            const healthRes = await fetch('/api/admin/dashboard/health');
+            if (healthRes.ok) {
+                const healthJson = await healthRes.json();
+                setHealthData(healthJson);
+            }
+
+        } catch (error) {
+            console.error("Failed to fetch dashboard stats", error);
+        } finally {
+            setIsLoading(false);
+            setIsRefreshing(false);
+        }
+    };
 
     // Initialize data
     useEffect(() => {
-        setTrafficData(generateMockTraffic());
-        setDateString(new Date().toLocaleString());
-        setIsLoading(false);
-
-        // Update time every second
-        const interval = setInterval(() => {
-            setDateString(new Date().toLocaleString());
-        }, 1000);
-
-        return () => clearInterval(interval);
+        fetchStats();
     }, []);
 
     const refreshData = () => {
-        setIsLoading(true);
-        setTimeout(() => {
-            setTrafficData(generateMockTraffic());
-            setIsLoading(false);
-        }, 500);
+        fetchStats();
     };
 
-    const categories: { title: string; metric: string; sub: string; color: "blue" | "emerald" | "amber" | "indigo" }[] = [
-        { title: "News Posts", metric: "24", sub: "+2 this week", color: "blue" },
-        { title: "Personnel", metric: "18", sub: "Active Staff", color: "emerald" },
-        { title: "Pending Forms", metric: "5", sub: "To Review", color: "amber" },
-        { title: "System Status", metric: "Online", sub: "99.9% Uptime", color: "indigo" },
-    ];
-
-    const contentBreakdown = [
-        { name: "News", value: 45 },
-        { name: "Activities", value: 30 },
-        { name: "Announcements", value: 15 },
-        { name: "Others", value: 10 },
-    ];
-
-    const recentLogs = [
-        { action: "Admin Login", user: "superuser", time: "2 mins ago", status: "success" },
-        { action: "Update News", user: "editor", time: "15 mins ago", status: "success" },
-        { action: "Update Personnel", user: "admin", time: "1 hour ago", status: "success" },
-        { action: "Failed Login", user: "unknown", time: "3 hours ago", status: "failed" },
-        { action: "Backup Created", user: "system", time: "1 day ago", status: "success" },
+    const categories = [
+        {
+            title: t("stats.news"),
+            metric: data?.stats.news ?? 0,
+            sub: t("stats.sub.news"),
+            color: "blue"
+        },
+        {
+            title: t("stats.personnel"),
+            metric: data?.stats.personnel ?? 0,
+            sub: t("stats.sub.personnel"),
+            color: "emerald"
+        },
+        {
+            title: t("stats.awards"),
+            metric: data?.stats.awards ?? 0,
+            sub: t("stats.sub.awards"),
+            color: "amber"
+        },
+        {
+            title: t("stats.services"),
+            metric: data?.stats.services ?? 0,
+            sub: t("stats.sub.services"),
+            color: "indigo"
+        },
     ];
 
     return (
@@ -91,7 +134,7 @@ export default function AdminDashboardPage() {
                     <Text className="dark:text-slate-400">Real-time system monitor & analytics</Text>
                 </div>
                 <div className="flex items-center gap-4">
-                    <Text className="font-mono text-sm dark:text-slate-400">{dateString}</Text>
+                    <Text className="font-mono text-sm dark:text-slate-400">{lastUpdated}</Text>
                     <button
                         onClick={refreshData}
                         className="p-2 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 dark:hover:bg-slate-700 transition"
@@ -117,11 +160,11 @@ export default function AdminDashboardPage() {
             <div className="mt-6 space-y-6">
                 {/* Traffic Section */}
                 <Card>
-                    <Title>Website Traffic (Last 24 Hours)</Title>
-                    <Text>Visitors and Page Views trend</Text>
+                    <Title>{t("traffic.title")}</Title>
+                    <Text>{t("traffic.subtitle")}</Text>
                     <AreaChart
                         className="h-72 mt-4"
-                        data={trafficData}
+                        data={data?.traffic || []}
                         index="time"
                         categories={["Visitors", "Page Views"]}
                         colors={["indigo", "cyan"]}
@@ -130,29 +173,58 @@ export default function AdminDashboardPage() {
                     />
                 </Card>
 
-                {/* Content Stats Section */}
+                {/* System Stats Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <Card>
-                        <Title>Content Distribution</Title>
-                        <DonutChart
-                            className="mt-6 h-60"
-                            data={contentBreakdown}
-                            category="value"
-                            index="name"
-                            valueFormatter={(number) => `${number}%`}
-                            colors={["slate", "violet", "indigo", "rose"]}
-                        />
+                        <Title>{t("health.title")}</Title>
+                        <div className="mt-4 space-y-4">
+                            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-3 h-3 rounded-full ${healthData?.database.status === 'Connected' ? 'bg-emerald-500' : 'bg-red-500'}`}></div>
+                                    <div className="flex flex-col">
+                                        <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.database")}</Text>
+                                        <Text className="text-xs">
+                                            {healthData?.database.status === 'Connected' ? t("health.connected") : t("health.disconnected") || healthData?.database.status}
+                                        </Text>
+                                    </div>
+                                </div>
+                                <Badge size="xs" color={healthData?.database.status === 'Connected' ? 'emerald' : 'rose'}>
+                                    {healthData?.database.latency}
+                                </Badge>
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faServer} className="text-slate-400" />
+                                    <div className="flex flex-col">
+                                        <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.storage")}</Text>
+                                        <Text className="text-xs">{healthData?.system.storageUsage}% {t("health.used")}</Text>
+                                    </div>
+                                </div>
+                                <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.storageUsage > 80 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${healthData?.system.storageUsage || 0}%` }}></div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                    <FontAwesomeIcon icon={faServer} className="text-slate-400" />
+                                    <div className="flex flex-col">
+                                        <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.memory")}</Text>
+                                        <Text className="text-xs">{healthData?.system.memoryUsage}% {t("health.used")}</Text>
+                                    </div>
+                                </div>
+                                <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.memoryUsage > 80 ? 'bg-red-500' : 'bg-purple-500'}`} style={{ width: `${healthData?.system.memoryUsage || 0}%` }}></div>
+                                </div>
+                            </div>
+                        </div>
                     </Card>
                     <Card>
-                        <Title>Engagement by Category</Title>
+                        <Title>{t("engagement.title")}</Title>
                         <BarChart
                             className="mt-6 h-60"
-                            data={[
-                                { topic: "Academic", "Views": 450 },
-                                { topic: "Events", "Views": 320 },
-                                { topic: "Research", "Views": 210 },
-                                { topic: "General", "Views": 150 },
-                            ]}
+                            data={data?.engagement || []}
                             index="topic"
                             categories={["Views"]}
                             colors={["blue"]}
@@ -164,24 +236,36 @@ export default function AdminDashboardPage() {
 
                 {/* System Logs Section */}
                 <Card>
-                    <Title>Recent Activity Logs</Title>
+                    <Title>{t("logs.title")}</Title>
                     <List className="mt-4">
-                        {recentLogs.map((log, idx) => (
-                            <ListItem key={idx}>
+                        {data?.logs.map((log) => (
+                            <ListItem key={log._id}>
                                 <div className="flex items-center space-x-4">
                                     <div className="flex flex-col">
-                                        <Text className="font-medium truncate text-slate-900 dark:text-slate-100">{log.action}</Text>
-                                        <Text className="truncate">by {log.user}</Text>
+                                        <Text className="font-medium truncate text-slate-900 dark:text-slate-100">
+                                            {log.action.replace('_', ' ')}
+                                        </Text>
+                                        <Text className="truncate text-xs text-slate-500">
+                                            by {log.actorEmail}
+                                        </Text>
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-4">
-                                    <Text>{log.time}</Text>
-                                    <Badge color={log.status === 'success' ? 'emerald' : 'rose'}>
-                                        {log.status}
+                                    <Text className="text-xs text-slate-400">
+                                        {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Text>
+                                    <Badge size="xs" color={
+                                        log.status === 'SUCCESS' ? 'emerald' :
+                                            log.status === 'FAILED' ? 'rose' : 'blue'
+                                    }>
+                                        {log.status || 'INFO'}
                                     </Badge>
                                 </div>
                             </ListItem>
                         ))}
+                        {(!data?.logs || data.logs.length === 0) && (
+                            <div className="text-center py-4 text-slate-400 text-sm">{t("logs.noActivity")}</div>
+                        )}
                     </List>
                 </Card>
             </div>

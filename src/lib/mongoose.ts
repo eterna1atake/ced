@@ -54,3 +54,7 @@ async function dbConnect() {
 }
 
 export default dbConnect;
+
+export function getConnectionState() {
+    return mongoose.connection.readyState;
+}

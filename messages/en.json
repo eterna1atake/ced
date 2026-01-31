@@ -523,7 +523,39 @@
     "pages": {
       "dashboard": {
         "title": "Dashboard Overview",
-        "description": "Welcome back, Admin. Here's what's happening today."
+        "description": "Welcome back, Admin. Here's what's happening today.",
+        "stats": {
+          "news": "News Posts",
+          "personnel": "Active Personnel",
+          "awards": "Awards",
+          "services": "Services",
+          "sub": {
+            "news": "Total Posts",
+            "personnel": "Active Staff",
+            "awards": "Achievements",
+            "services": "Downloads"
+          }
+        },
+        "traffic": {
+          "title": "Website Traffic (Last 24 Hours)",
+          "subtitle": "Visitors and Page Views trend"
+        },
+        "health": {
+          "title": "System Health",
+          "database": "Database",
+          "storage": "Storage",
+          "memory": "Memory",
+          "connected": "Connected",
+          "disconnected": "Disconnected",
+          "used": "Used"
+        },
+        "logs": {
+          "title": "Recent Activity Logs",
+          "noActivity": "No recent activity"
+        },
+        "engagement": {
+          "title": "Engagement by Category"
+        }
       },
       "awards": {
         "title": "Awards",
