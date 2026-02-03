@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
             targetId: String(newHero._id)
         });
 
-        revalidateTag('hero-carousel');
+        revalidateTag('hero-carousel', 'default');
         return NextResponse.json(newHero, { status: 201 });
     } catch (error: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

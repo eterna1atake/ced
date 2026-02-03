@@ -1,11 +1,11 @@
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect, { getConnectionState } from "@/lib/mongoose";
 import os from "os";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         // Ensure connection
         await dbConnect();

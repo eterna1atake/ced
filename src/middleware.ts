@@ -117,7 +117,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const email = (req.auth?.user as any)?.email as string | undefined;
       const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-      const allowed = role === "superuser" && (!!adminEmail ? email?.toLowerCase() === adminEmail : true);
+      const allowed = role === "superuser" && !!adminEmail && email?.toLowerCase() === adminEmail;
 
       if (!allowed) {
         return applyHeaders(NextResponse.json({ error: "forbidden" }, { status: 403 }));
@@ -148,7 +148,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const email = (req.auth?.user as any)?.email as string | undefined;
       const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-      const allowed = role === "superuser" && (!!adminEmail ? email?.toLowerCase() === adminEmail : true);
+      const allowed = role === "superuser" && !!adminEmail && email?.toLowerCase() === adminEmail;
 
       if (!allowed) {
         // Redirect to login

@@ -25,8 +25,8 @@ const nextConfig: NextConfig = {
             '@fortawesome/free-brands-svg-icons',
             'aos',
         ],
-        reactCompiler: true,
     },
+    reactCompiler: true,
     async headers() {
         return [
             {

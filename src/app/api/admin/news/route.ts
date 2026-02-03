@@ -32,12 +32,7 @@ const NewsSchema = z.object({
     tags: z.array(z.string()).optional().default([]),
 });
 
-// Helper for XSS Sanitization (removing basic tags)
-function sanitize(str: string) {
-    if (!str) return "";
-    return str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-        .replace(/<[^>]*>/g, ""); // Aggressive strip, might want to allow basic HTML if using WYSIWYG later
-}
+import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
 
 // sanitizeObject removed as it was unused and contained explicit any.
 
@@ -67,9 +62,33 @@ export async function GET() {
     }
 }
 
+// Imports cleaned up
+import { incrementAdminWriteLimit } from "@/lib/rate-limit";
+
 export async function POST(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate Limit Check
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const email = session.user?.email || undefined;
+
+    // Check and Consume in one step (increment calls handleLimit with 'consume')
+    // Or prefer 'check' then 'consume' pattern? 
+    // Usually standard is: check -> if ok -> process -> consume. 
+    // But 'handleLimit' in rate-limit.ts returns success:false if limit exceeded on consume too.
+    // Let's use check then increment if we want to separate logic, or just increment.
+    // Looking at search: it does check then increment.
+
+    // Actually, to be strict and fail fast:
+    const limitResult = await incrementAdminWriteLimit(ip, email);
+    if (!limitResult.success) {
+        return NextResponse.json(
+            { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
+            { status: 429 }
+        );
+    }
 
     try {
         await dbConnect();
@@ -82,22 +101,20 @@ export async function POST(request: NextRequest) {
 
         const data = parsed.data;
 
-        // Custom Sanitization
-        // We want to keep HTML in 'content' but strip scripts.
-        // For other fields, we can be more aggressive if we want, but usually simple script stripping is enough.
+        // Secure Sanitization using sanitize-html
         const sanitizedData = {
             ...data,
-            slug: sanitize(data.slug),
-            title: { th: sanitize(data.title.th), en: sanitize(data.title.en) },
-            summary: { th: sanitize(data.summary.th), en: sanitize(data.summary.en) },
-            // Content: Allow HTML tags but remove scripts
+            slug: sanitizeStrict(data.slug),
+            title: { th: sanitizeStrict(data.title.th), en: sanitizeStrict(data.title.en) },
+            summary: { th: sanitizeStrict(data.summary.th), en: sanitizeStrict(data.summary.en) },
+            // Content: Allow Safe HTML tags
             content: {
-                th: data.content.th.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, ""),
-                en: data.content.en.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+                th: sanitizeContent(data.content.th),
+                en: sanitizeContent(data.content.en)
             },
-            author: { th: sanitize(data.author.th), en: sanitize(data.author.en) },
-            category: sanitize(data.category),
-            tags: data.tags.map(t => sanitize(t)),
+            author: { th: sanitizeStrict(data.author.th), en: sanitizeStrict(data.author.en) },
+            category: sanitizeStrict(data.category),
+            tags: data.tags.map(t => sanitizeStrict(t)),
         };
 
         // Check for duplicate slug

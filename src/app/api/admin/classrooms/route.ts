@@ -6,6 +6,7 @@ import { z } from "zod";
 import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
 
 export const dynamic = 'force-dynamic';
 
@@ -28,12 +29,6 @@ const ClassroomSchema = z.object({
     capacity: z.string().trim().optional().default(""),
     equipment: z.array(z.string()).optional().default([]),
 });
-
-// Simple sanitization for XSS
-function sanitize(str: string) {
-    if (!str) return "";
-    return str.replace(/[<>]/g, "");
-}
 
 async function getAdminSession() {
     const session = await auth();
@@ -60,9 +55,24 @@ export async function GET() {
     }
 }
 
+import { incrementAdminWriteLimit } from "@/lib/rate-limit"; // Rate limit
+
 export async function POST(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate Limit Check
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const email = session.user?.email || undefined;
+
+    const limitResult = await incrementAdminWriteLimit(ip, email);
+    if (!limitResult.success) {
+        return NextResponse.json(
+            { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
+            { status: 429 }
+        );
+    }
 
     try {
         await dbConnect();
@@ -84,19 +94,18 @@ export async function POST(request: NextRequest) {
         // XSS Protection
         const sanitizedData = {
             ...data,
-            id: sanitize(data.id),
+            id: sanitizeStrict(data.id),
             name: {
-                th: sanitize(data.name.th),
-                en: sanitize(data.name.en),
+                th: sanitizeStrict(data.name.th),
+                en: sanitizeStrict(data.name.en),
             },
             description: {
-                th: sanitize(data.description.th),
-                en: sanitize(data.description.en),
+                th: sanitizeContent(data.description.th),
+                en: sanitizeContent(data.description.en),
             },
-            capacity: sanitize(data.capacity),
-            equipment: data.equipment.map(e => sanitize(e)),
-            // Images are URLs, less risk but can still be sanitized lightly or validated as URL
-            // Assuming trusted internal upload, but simple sanitize is fine
+            capacity: sanitizeStrict(data.capacity),
+            equipment: data.equipment.map(e => sanitizeStrict(e)),
+            // Images are URLs
         };
 
         const newClassroom = await Classroom.create(sanitizedData);

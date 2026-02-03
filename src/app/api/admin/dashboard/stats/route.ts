@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import clientPromise from "@/lib/mongodb";
 import News from "@/collections/News";
@@ -9,7 +9,7 @@ import { getRealtimeTraffic, getPageEngagement } from "@/lib/analytics";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     try {
         await dbConnect();
 

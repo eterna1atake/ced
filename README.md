@@ -1,109 +1,87 @@
-# CED Web - ภาควิชาคอมพิวเตอร์ศึกษา (Frontend & CMS)
+# ภาพรวมระบบ (System Overview)
 
-ระบบเว็บไซต์หลักและระบบจัดการเนื้อหา (CMS) สำหรับ **ภาควิชาคอมพิวเตอร์ศึกษา (CED)** พัฒนาด้วยเทคโนโลยีสมัยใหม่ รองรับการแสดงผลหลายภาษา (i18n) และการจัดการเนื้อหาที่มีประสิทธิภาพ
-
-## 🚀 เทคโนโลยีที่ใช้ (Tech Stack)
-
-### Core
-- **Next.js 15 (App Router)**: เฟรมเวิร์กหลักสำหรับการพัฒนาแบบ Full-stack และ Server-side Rendering
-- **React 19**: ไลบรารีสำหรับสร้าง User Interface รุ่นล่าสุด
-- **TypeScript**: เพิ่มการตรวจสอบชนิดข้อมูลเพื่อความแม่นยำและบำรุงรักษาง่าย
-- **NextAuth.js (v5 Beta)**: ระบบการยืนยันตัวตนและความปลอดภัยสำหรับการเข้าถึงหน้าแอดมิน
-
-### Styling & UI
-- **Tailwind CSS**: ระบบ Styling แบบ Utility-first เพื่อการออกแบบที่รวดเร็วและยืดหยุ่น
-- **Font Awesome 7**: ไอคอนกราฟิกคุณภาพสูงสำหรับ UI
-- **AOS (Animate On Scroll)**: ระบบแอนิเมชันเพิ่มความสวยงามเมื่อเลื่อนหน้าจอ
-- **SweetAlert2**: กล่องข้อความแจ้งเตือน (Popups/Modals) ที่สวยงามและใช้งานง่าย
-
-### Backend & CMS Integration
-- **Payload CMS (v3)**: ระบบ Headless CMS สำหรับจัดการเนื้อหาระดับองค์กร
-- **MongoDB & Mongoose**: ฐานข้อมูลแบบ NoSQL และ ODM สำหรับจัดการข้อมูล
-- **next-intl**: รองรับการแสดงผล 2 ภาษา (ไทย/อังกฤษ) อย่างเต็มรูปแบบ
+เอกสารนี้อธิบายโครงสร้างเชิงลึกและการทำงานของระบบเว็บไซต์ภาควิชาคอมพิวเตอร์ศึกษา (CED) เพื่อช่วยให้นักพัฒนาเข้าใจภาพรวมของสถาปัตยกรรม ฟีเจอร์หลัก และการไหลของข้อมูล (Data Flow) ภายในระบบ
 
 ---
 
-## 📁 โครงสร้างโปรเจกต์ (Project Structure)
+## 🏗️ สถาปัตยกรรมระบบ (System Architecture)
 
-```text
-├── messages/           # ไฟล์คำแปล (i18n) en.json, th.json
-├── public/             # ทรัพยากรคงที่ (Images, Icons, Fonts)
-├── src/
-│   ├── app/            # Next.js App Router (Pages, Layouts, API)
-│   ├── collections/    # Mongoose Schemas / CMS Collections
-│   ├── components/     # UI Components แบ่งตามกลุ่มการใช้งาน
-│   │   ├── admin/      # สำหรับระบบหลังบ้าน
-│   │   ├── common/     # คอมโพเนนต์ที่ใช้ร่วมกันทั้งเว็บ
-│   │   └── home/       # คอมโพเนนต์เฉพาะหน้าแรก
-│   ├── constants/      # ค่าคงที่และคอนฟิกูเรชันต่างๆ
-│   ├── data/           # ข้อมูลจำลอง (Mock Data) และ Static Data
-│   ├── i18n/           # การตั้งค่า i18n Routing และ Navigation
-│   ├── lib/            # ตรรกะหลัก (Auth, DB Connection, Utilities)
-│   ├── scripts/        # Script สำหรับดูแลระบบ (Seed, Test, Diagnose)
-│   ├── types/          # TypeScript Type & Interface Definitions
-│   └── middleware.ts   # การจัดการ Route และ Authentication
-├── next.config.ts      # การตั้งค่า Next.js
-└── tailwind.config.js  # การตั้งค่า Tailwind CSS
-```
+ระบบถูกพัฒนาด้วย **Next.js 15 (App Router)** ซึ่งเป็นสถาปัตยกรรมแบบ **Full-stack** ที่รวมส่วนติดต่อผู้ใช้ (Frontend) และตรรกะฝั่งเซิร์ฟเวอร์ (Backend) ไว้ในโปรเจกต์เดียวกัน
 
-โปรเจกต์ถูกจัดกลุ่มตามหน้าที่อย่างเป็นระบบเพื่อให้ง่ายต่อการขยายผล:
-
-### 1. ไฟล์การตั้งค่าหลัก (Root Directory)
-- `messages/`: เก็บไฟล์ JSON สำหรับข้อความแปล (en.json, th.json)
-- `public/`: เก็บไฟล์คงที่ เช่น รูปภาพโลโก้ (`/images/logo/`), แบนเนอร์, และ favicon
-- `next.config.ts`: ตั้งค่าคอนฟิกของ Next.js และการรองรับ i18n
-- `tailwind.config.js`: ตั้งค่า Design System ของโปรเจกต์
-
-### 2. โฟลเดอร์ `src/app/` (ระบบ Routing & Pages)
-- `(public)/[locale]/`: หน้าเว็บไซต์สำหรับบุคคลทั่วไป รองรับการเปลี่ยนภาษาผ่าน URL
-    - `layout.tsx`: เลย์เอาต์หลักของหน้าบ้าน (รวม Navbar, Footer, AOS)
-    - `page.tsx`: หน้าแรก (Home)
-    - `news/ [slug]/`: หน้าแสดงรายละเอียดข่าวสาร
-    - `programs/`: หน้าข้อมูลหลักสูตร
-- `admin/`: ส่วนของระบบจัดการหลังบ้าน
-    - `layout.tsx`: Root layout สำหรับระบบแอดมิน (จัดการไอคอนและ session)
-    - `(dashboard)/`: พื้นที่ทำงานของแอดมินหลังจากล็อกอิน
-- `api/`: API Endpoints สำหรับรับส่งข้อมูลกับฐานข้อมูล
-
-### 3. โฟลเดอร์ `src/components/` (คอมโพเนนต์ที่ใช้ซ้ำ)
-- `admin/`: คอมโพเนนต์เฉพาะระบบแอดมิน (Sidebar, ContentTable, Forms)
-- `common/`: คอมโพเนนต์ที่ใช้ร่วมกัน (Navbar, Footer, LanguageSwitch)
-- `home/`: คอมโพเนนต์เฉพาะสำหรับตกแต่งหน้าโฮมเพจ (HeroCarousel, FeaturedNews)
-
-### 4. โฟลเดอร์ `src/lib/` & `src/data/` (ตรรกะและข้อมูล)
-- `lib/`: ฟังก์ชันเสริม (Utilities) เช่น การเชื่อมต่อ MongoDB (`mongoose.ts`), ระบบ Auth, และเครื่องมือจัดการ Metadata
-- `data/`: ไฟล์ข้อมูลจำลอง (Mock Data) สำหรับการพัฒนาเบื้องต้น
+### Tech Stack หลัก
+- **Frontend**: React 19, Tailwind CSS (Styling), Framer Motion / AOS (Animations)
+- **Backend API**: Next.js Route Handlers (`src/app/api/`)
+- **Database**: MongoDB ใช้งานผ่าน Mongoose ODM
+- **Authentication**: NextAuth.js v5 (Beta)
+- **Internationalization**: next-intl (รองรับ TH/EN)
 
 ---
 
-## ✨ ฟีเจอร์ที่น่าสนใจ
+## 🗄️ โครงสร้างฐานข้อมูล (Database & Models)
 
-- **Standardized Favicon**: ใช้โลโก้ภาควิชาฯ ชุดเดียวกันทุกหน้าเพื่อความสวยงามและเป็นอันหนึ่งอันเดียวกัน
-- **Hydration Reliability**: ป้องกันปัญหาการแสดงผลคลาดเคลื่อน (Hydration Error) จากการฉีด Attribute ของเบราว์เซอร์
-- **Bilingual Support**: สลับภาษาได้อย่างรวดเร็วผ่านทาง URL และ Navbar โดยที่ข้อมูลยังคงถูกต้องตาม Locale
-- **Admin Dashboard**: ระบบจัดการข่าวสาร, บุคลากร, หลักสูตร และภาพแบนเนอร์ที่ใช้งานง่าย
+ระบบใช้ **MongoDB** เป็นฐานข้อมูลหลัก โดยมีการกำหนด Schema หรือโครงสร้างข้อมูลผ่าน **Mongoose** ไฟล์ Model ทั้งหมดจะถูกเก็บไว้ที่ `src/collections/`
+
+### Collections หลัก (Key Entities)
+| Model | คำอธิบาย |
+| :--- | :--- |
+| **User** | ผู้ใช้งานระบบ (Admin) มีระดับสิทธิ์การเข้าถึง |
+| **Personnel** | ข้อมูลบุคลากร อาจารย์ และเจ้าหน้าที่ (รองรับ 2 ภาษา) |
+| **News** | ข่าวประชาสัมพันธ์และประกาศต่างๆ |
+| **Award** | รางวัลและความภาคภูมิใจของภาควิชา |
+| **Program** | ข้อมูลหลักสูตรการศึกษา (ตรี/โท/เอก) |
+| **HeroCarousel** | ภาพแบนเนอร์ประชาสัมพันธ์หน้าแรกที่แก้ไขได้ |
+| **Classroom** | ข้อมูลห้องเรียนและแหล่งเรียนรู้ |
+| **FormRequest** | คำร้องและเอกสารดาวน์โหลด |
+
+---
+
+## 🔐 ระบบความปลอดภัยและการยืนยันตัวตน (Security & Auth)
+
+ระบบให้ความสำคัญกับความปลอดภัยในระดับสูงสำหรับการเข้าถึงส่วนผู้ดูแลระบบ (Admin Panel):
+
+1. **Authentication**:
+   - ใช้ **NextAuth.js** จัดการ Session แบบ Server-side Secure Cookies
+   - รองรับการล็อกอินด้วย Email/Password
+   - มีระบบติดตาม Session และบังคับล็อกอินใหม่เมื่อ Session หมดอายุ
+
+2. **Security Measures** (ใน `src/lib/`):
+   - **Rate Limiting**: ป้องกันการโจมตีแบบ Brute Force หรือ DDoS ในหน้า Login และ API
+   - **Password Hashing**: เข้ารหัสรหัสผ่านอย่างปลอดภัย (Argon2)
+   - **TOTP / 2FA**: รองรับระบบรหัสผ่านครั้งเดียว (Time-based One-Time Password)
+   - **Trusted Device**: ตรวจสอบอุปกรณ์ที่เข้าใช้งานเพื่อความปลอดภัยที่มากขึ้น
+   - **Audit Logs**: บันทึกกิจกรรมการใช้งานที่สำคัญในระบบ
 
 ---
 
-## 🛠️ วิธีการติดตั้งและรันโปรเจกต์
+## 🌍 ระบบหลายภาษา (Internationalization - i18n)
 
-1. **ติดตั้ง Dependencies**:
-   ```bash
-   npm install
-   ```
+ระบบถูกออกแบบให้รองรับ 2 ภาษา (ไทย/อังกฤษ) อย่างสมบูรณ์ (Fully Bilingual):
 
-2. **ตั้งค่า Environment Variables**:
-   คัดลอกไฟล์ `.env.example` เป็น `.env.local` และกำหนดค่าต่างๆ เช่น `MONGODB_URI` และ `AUTH_SECRET`
-
-3. **รันโปรเจกต์ในโหมดยังพัฒนา**:
-   ```bash
-   npm run dev:turbo
-   ```
-
-4. **ตรวจสอบ Lint และความถูกต้องของโค้ด**:
-   ```bash
-   npm run lint
-   ```
+- **Routing**: URL จะมี prefix ของภาษา เช่น `/th/...` หรือ `/en/...` จัดการโดย Middleware
+- **Content**: ข้อมูลในฐานข้อมูล (MongoDB) เก็บแยกฟิลด์ภาษาชัดเจน (เช่น `name.th`, `name.en`) เพื่อให้ฝ่าย Admin สามารถกรอกข้อมูลได้ทั้งสองภาษา
+- **UI Text**: ข้อความคงที่บนหน้าเว็บถูกเก็บในไฟล์ JSON (`messages/path/to/locale.json`) และเรียกใช้ผ่าน `next-intl`
 
 ---
-*หมายเหตุ: โปรเจกต์นี้อยู่ในระหว่างการพัฒนาเพื่อปรับปรุงระบบให้สมบูรณ์ยิ่งขึ้น*
+
+## ⚙️ ระบบจัดการหลังบ้าน (CMS Dashboard)
+
+เข้าถึงได้ผ่าน Route `/admin` เป็นพื้นที่สำหรับดูแลจัดการเนื้อหาเว็บไซต์ทั้งหมด:
+
+- **Dashboard**: แสดงสถิติภาพรวมและการเข้าชมเว็บไซต์ (Analytics)
+- **Content Management**: ฟอร์ม (CRUD) สำหรับ สร้าง/แก้ไข/ลบ ข้อมูลต่างๆ เช่น ข่าว บุคลากร แบนเนอร์
+- **Media Handling**: ระบบอัปโหลดรูปภาพพร้อมการแสดงผลพรีวิว
+- **User Management**: จัดการบัญชีผู้ดูแลระบบและสิทธิ์การใช้งาน
+
+---
+
+## 🔄 การไหลของข้อมูล (Data Flow)
+
+1. **Client Request**: ผู้ใช้เข้าชมหน้าเว็บ (เช่น หน้าบุคลากร)
+2. **Middleware**: ตรวจสอบ Locale (ภาษา) และ Redirect หากจำเป็น
+3. **Server Component**: Next.js ดึงข้อมูลจาก MongoDB ผ่าน Mongoose (Direct DB Call) เพื่อทำ SEO และ Performance ที่ดีที่สุด (Server-side Data Fetching)
+4. **API Routes**: สำหรับการกระทำแบบโต้ตอบ (Interactive) เช่น การส่งฟอร์ม หรือการโหลดข้อมูลเพิ่มเติม จะเรียกผ่าน API (`/api/...`)
+5. **Rendering**: ส่ง HTML ที่พร้อมแสดงผลกลับไปยัง Browser ของผู้ใช้
+
+---
+
+ไฟล์นี้สรุปภาพรวมเพื่อให้ทีมพัฒนาเข้าใจตรงกัน หากต้องการรายละเอียดเชิงลึกของแต่ละโมดูล สามารถดูได้ในโค้ด source code หรือไฟล์ README.md

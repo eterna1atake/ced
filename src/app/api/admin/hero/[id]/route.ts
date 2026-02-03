@@ -72,7 +72,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             targetId: id
         });
 
-        revalidateTag('hero-carousel');
+        revalidateTag('hero-carousel', 'default');
         return NextResponse.json(updatedHero);
     } catch {
         return NextResponse.json({ error: "Internal Error" }, { status: 500 });
@@ -100,7 +100,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             targetId: id
         });
 
-        revalidateTag('hero-carousel');
+        revalidateTag('hero-carousel', 'default');
         return NextResponse.json({ message: "Deleted" });
     } catch {
         return NextResponse.json({ error: "Internal Error" }, { status: 500 });

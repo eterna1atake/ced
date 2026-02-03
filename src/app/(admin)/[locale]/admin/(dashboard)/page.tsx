@@ -9,7 +9,6 @@ import {
     Title,
     AreaChart,
     BarChart,
-    DonutChart,
     List,
     ListItem,
     Badge
@@ -62,7 +61,7 @@ export default function AdminDashboardPage() {
     const [data, setData] = useState<DashboardStats | null>(null);
     const [healthData, setHealthData] = useState<HealthData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [, setIsRefreshing] = useState(false);
     const [lastUpdated, setLastUpdated] = useState("");
 
     const fetchStats = async () => {

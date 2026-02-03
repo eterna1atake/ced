@@ -4,6 +4,7 @@ import FormRequest from "@/collections/FormRequest";
 import { getAdminSession } from "@/lib/auth";
 import { logSystemEvent } from "@/lib/audit";
 import { z } from "zod";
+import { sanitizeStrict } from "@/lib/sanitize";
 
 const formSchema = z.object({
     categoryId: z.string().min(1, "Category is required"),
@@ -31,21 +32,49 @@ export async function GET() {
     }
 }
 
+import { incrementAdminWriteLimit } from "@/lib/rate-limit"; // Rate limit
+
 export async function POST(req: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate Limit Check
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const email = session.user?.email || undefined;
+
+    const limitResult = await incrementAdminWriteLimit(ip, email);
+    if (!limitResult.success) {
+        return NextResponse.json(
+            { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
+            { status: 429 }
+        );
+    }
 
     try {
         const body = await req.json();
         const validatedData = formSchema.parse(body);
 
+        // Sanitize
+        const sanitizedData = {
+            ...validatedData,
+            categoryId: sanitizeStrict(validatedData.categoryId),
+            sectionId: sanitizeStrict(validatedData.sectionId),
+            th: {
+                name: sanitizeStrict(validatedData.th.name),
+            },
+            en: {
+                name: sanitizeStrict(validatedData.en.name),
+            }
+            // url is already validated by Zod
+        };
+
         await dbConnect();
-        const newForm = await FormRequest.create(validatedData);
+        const newForm = await FormRequest.create(sanitizedData);
 
         await logSystemEvent({
             action: "CREATE_CONTENT",
             actorEmail: session.user?.email || "unknown",
-            details: `Created Form Request: ${validatedData.en.name} (${validatedData.categoryId})`,
+            details: `Created Form Request: ${newForm.en.name} (${newForm.categoryId})`,
             ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown",
             targetId: String(newForm._id)
         });

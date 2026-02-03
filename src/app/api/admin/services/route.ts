@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
+import { sanitizeStrict } from "@/lib/sanitize";
 
 export const dynamic = 'force-dynamic';
 
@@ -17,11 +18,6 @@ const ServiceSchema = z.object({
     link: z.string().optional().default(""),
     category: z.enum(["software", "account", "network", "information-system", "service-area", "other"]).optional().default("other"),
 });
-
-// Simple sanitization for XSS
-function sanitize(str: string) {
-    return str.replace(/[<>]/g, "");
-}
 
 async function getAdminSession() {
     const session = await auth();
@@ -47,9 +43,24 @@ export async function GET() {
     }
 }
 
+import { incrementAdminWriteLimit } from "@/lib/rate-limit"; // Rate limit
+
 export async function POST(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate Limit Check
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const email = session.user?.email || undefined;
+
+    const limitResult = await incrementAdminWriteLimit(ip, email);
+    if (!limitResult.success) {
+        return NextResponse.json(
+            { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
+            { status: 429 }
+        );
+    }
 
     try {
         await dbConnect();
@@ -66,13 +77,14 @@ export async function POST(request: NextRequest) {
         const sanitizedData = {
             ...data,
             title: {
-                th: sanitize(data.title.th),
-                en: sanitize(data.title.en),
+                th: sanitizeStrict(data.title.th),
+                en: sanitizeStrict(data.title.en),
             },
-            link: data.link ? sanitize(data.link) : "",
+            link: data.link ? sanitizeStrict(data.link) : "",
             icon: data.icon && data.icon.trim() !== ""
                 ? data.icon
                 : "/images/service/default-service-icon.png"
+            // category is enum, checked by Zod
         };
 
         const newService = await StudentService.create(sanitizedData);

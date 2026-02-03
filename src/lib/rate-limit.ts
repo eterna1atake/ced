@@ -354,3 +354,25 @@ export async function checkSearchLimit(ip: string) {
 export async function incrementSearchLimit(ip: string) {
     return handleLimit(SEARCH_TIERS, searchLimiters, ip, undefined, "consume");
 }
+
+// --- Admin Write Rate Limiting ---
+
+const ADMIN_WRITE_TIERS = [
+    {
+        points: 60, // 60 write requests
+        duration: 60, // per 1 minute
+        blockDuration: 60, // Block for 1 minute if exceeded
+        keyPrefix: "admin_write",
+    },
+];
+
+const adminWriteLimiters: RateLimiterTier[] = [];
+
+export async function checkAdminWriteLimit(ip: string, email?: string) {
+    // Both IP and Email (if available) are checked/consumed
+    return handleLimit(ADMIN_WRITE_TIERS, adminWriteLimiters, ip, email, "check");
+}
+
+export async function incrementAdminWriteLimit(ip: string, email?: string) {
+    return handleLimit(ADMIN_WRITE_TIERS, adminWriteLimiters, ip, email, "consume");
+}

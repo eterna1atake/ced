@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
+import { sanitizeStrict } from "@/lib/sanitize";
 
 export const dynamic = 'force-dynamic';
 
@@ -56,11 +57,6 @@ function generateSlug(name: string) {
         .replace(/-+/g, '-'); // Replace multiple - with single -
 }
 
-// Simple sanitization for XSS
-function sanitize(str: string) {
-    return str.replace(/[<>]/g, "");
-}
-
 async function getAdminSession() {
     const session = await auth();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -86,9 +82,24 @@ export async function GET() {
     }
 }
 
+import { incrementAdminWriteLimit } from "@/lib/rate-limit"; // Rate limit
+
 export async function POST(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Rate Limit Check
+    const headersList = await headers();
+    const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+    const email = session.user?.email || undefined;
+
+    const limitResult = await incrementAdminWriteLimit(ip, email);
+    if (!limitResult.success) {
+        return NextResponse.json(
+            { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
+            { status: 429 }
+        );
+    }
 
     try {
         await dbConnect();
@@ -105,22 +116,32 @@ export async function POST(request: NextRequest) {
         const sanitizedData = {
             ...data,
             name: {
-                th: sanitize(data.name.th),
-                en: sanitize(data.name.en),
+                th: sanitizeStrict(data.name.th),
+                en: sanitizeStrict(data.name.en),
             },
             position: {
-                th: sanitize(data.position.th),
-                en: sanitize(data.position.en),
+                th: sanitizeStrict(data.position.th),
+                en: sanitizeStrict(data.position.en),
             },
-            email: sanitize(data.email),
-            room: sanitize(data.room),
-            phone: sanitize(data.phone),
+            email: sanitizeStrict(data.email),
+            room: sanitizeStrict(data.room),
+            phone: sanitizeStrict(data.phone),
             customLinks: data.customLinks.map(link => ({
-                title: sanitize(link.title),
-                url: link.url // URLs are trusted mostly, but Zod checks format
+                title: sanitizeStrict(link.title),
+                url: link.url
             })),
-            // URLs typically don't need strict <> sanitization in the same way, but good practice to be safe or use a URL validator
-            // We'll trust the input is a link, but could add specific URL validation in Zod
+            // education & courses are objects/arrays of strings, if they accept free text they should be sanitized too
+            // assuming they are safe or strict validation handles it, but let's be safe for string fields
+            education: data.education.map(edu => ({
+                level: { th: sanitizeStrict(edu.level.th), en: sanitizeStrict(edu.level.en) },
+                major: { th: sanitizeStrict(edu.major.th), en: sanitizeStrict(edu.major.en) },
+                university: { th: sanitizeStrict(edu.university.th), en: sanitizeStrict(edu.university.en) }
+            })),
+            courses: data.courses.map(c => ({
+                ...c,
+                th: sanitizeStrict(c.th),
+                en: sanitizeStrict(c.en)
+            }))
         };
 
         // Generate slug if not present
@@ -129,8 +150,6 @@ export async function POST(request: NextRequest) {
             let slug = baseSlug;
             let counter = 1;
 
-            // Allow duplicates for now or handle collision?
-            // Proper way: check DB.
             while (await Personnel.findOne({ slug })) {
                 slug = `${baseSlug}-${counter}`;
                 counter++;

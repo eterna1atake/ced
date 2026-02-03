@@ -21,7 +21,7 @@ async function testSecurity() {
             if (res.status === 200) successCount++;
             if (res.status === 429) blockedCount++;
 
-        } catch (err) {
+        } catch {
             process.stdout.write('E');
         }
         // Small delay to simulate rapid human/bot behavior
