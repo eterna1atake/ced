@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
         }
 
         // 0. Rate Limit (Brute Force Protection)
-        const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
+        const { getClientIp } = await import("@/lib/ip");
+        const ip = await getClientIp(req);
         const { success, msBeforeNext } = await checkRateLimit(ip, email);
 
         if (!success) {
@@ -28,7 +29,8 @@ export async function POST(req: NextRequest) {
 
         if (!user || !user.totpEnabled || !user.totpSecret) {
             await incrementRateLimit(ip, email);
-            return NextResponse.json({ error: "ไม่พบข้อมูล 2FA ของบัญชีนี้" }, { status: 400 });
+            await incrementRateLimit(ip, email);
+            return NextResponse.json({ error: "ข้อมูลไม่ถูกต้อง" }, { status: 400 });
         }
 
         // 1. Verify TOTP

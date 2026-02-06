@@ -228,6 +228,9 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                     if (status.reason === "AccountLocked") {
                         title = "บัญชีถูกระงับชั่วคราว";
                         msg = `บัญชีนี้ถูกระงับชั่วคราวเนื่องจากพยายามเข้าระบบผิดหลายครั้ง กรุณารอ ${timeStr}`;
+                    } else if (status.reason === "UnauthorizedEmail") {
+                        title = "ไม่มีสิทธิ์เข้าถึง";
+                        msg = "อีเมลนี้ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแล (Unauthorized Email)";
                     }
 
                     setError(msg);
@@ -236,9 +239,9 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         icon: "error",
                         title: title,
                         text: msg,
-                        confirmButtonColor: "#35622F",
-                        timer: status.seconds * 1000,
-                        timerProgressBar: true,
+                        confirmButtonColor: "#EF4444", // Red for auth error
+                        timer: status.seconds > 0 ? status.seconds * 1000 : undefined,
+                        timerProgressBar: status.seconds > 0,
                     });
 
                     setLoading(false);
@@ -365,11 +368,72 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                                 setBackupCodeInput("");
                             }
                         });
-                    } else {
-                        const msg = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+                    } else if (
+                        result.error.includes("Access Denied") ||
+                        result.error === "AccessDenied" ||
+                        result.error.includes("Email not authorized") ||
+                        result.error.includes("Forbidden") // [New] Catch base code
+                    ) {
+                        const msg = "อีเมลนี้ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแล (Unauthorized Email)";
                         setError(msg);
                         Swal.fire({
                             icon: "error",
+                            title: "ไม่มีสิทธิ์เข้าถึง",
+                            text: msg,
+                            confirmButtonColor: "#d33"
+                        });
+                    } else if (result.error === "InactiveAccount") {
+                        const msg = "บัญชีนี้ถูกปิดใช้งาน (Inactive Account)";
+                        setError(msg);
+                        Swal.fire({
+                            icon: "warning",
+                            title: "บัญชีถูกปิดใช้งาน",
+                            text: "กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดใช้งานบัญชี",
+                            confirmButtonColor: "#d33"
+                        });
+                    } else if (result.error.includes("Configuration Error")) {
+                        const msg = "ระบบยังไม่ได้รับการตั้งค่าอย่างสมบูรณ์ (Configuration Error)";
+                        setError(msg);
+                        Swal.fire({
+                            icon: "error",
+                            title: "ข้อผิดพลาดของระบบ",
+                            text: msg,
+                            confirmButtonColor: "#d33"
+                        });
+                    } else {
+                        // [Smart Error Handling]
+                        // NextAuth might mask RateLimit errors as "Configuration" or "AccessDenied".
+                        // So we double-check the rate limit status from API one more time here.
+                        try {
+                            const reCheck = await fetch("/api/auth/check-rate-limit", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ email }),
+                            });
+                            const reStatus = await reCheck.json();
+                            if (reStatus.blocked) {
+                                console.log(`[DEBUG] Rate limit detected via post-check: ${reStatus.seconds}s`);
+                                setBlockedSeconds(reStatus.seconds);
+                                const timeStr = formatTime(reStatus.seconds);
+                                const msg = `คุณทำรายการผิดพลาดเกินกำหนด ระบบระงับการใช้งานเป็นเวลา ${timeStr}`;
+                                setError(msg);
+                                Swal.fire({
+                                    icon: "error",
+                                    title: "ถูกระงับการใช้งาน",
+                                    text: msg,
+                                    confirmButtonColor: "#EF4444",
+                                    timer: reStatus.seconds * 1000,
+                                    timerProgressBar: true
+                                });
+                                setLoading(false);
+                                return;
+                            }
+                        } catch { /* Ignore check fail */ }
+
+                        const msg = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+                        setError(msg);
+                        Swal.fire({
+                            icon: "warning",
                             title: "ข้อผิดพลาด",
                             text: `${msg} (${result?.error})`,
                             confirmButtonColor: "#d33"

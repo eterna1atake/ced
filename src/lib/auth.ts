@@ -30,6 +30,10 @@ class InactiveAccountError extends CredentialsSignin {
 
 class ForbiddenError extends CredentialsSignin {
     code = "Forbidden";
+    constructor(message?: string) {
+        super(message || "Forbidden");
+        this.code = message || "Forbidden";
+    }
 }
 
 // กำหนดโครงสร้างข้อมูลผู้ใช้ที่คาดว่าจะได้จาก MongoDB
@@ -401,9 +405,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     throw new ForbiddenError();
                 }
 
-                // --- 5. Strict Admin Pinning (Optional but Recommended) ---
-                const adminEmail = process.env.ADMIN_EMAIL;
-                if (adminEmail && user.email.toLowerCase() !== adminEmail.toLowerCase()) {
+                // --- 5. Strict Admin Pinning ---
+                const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+
+                // Secure by Default: If ADMIN_EMAIL is not set, NO ONE can login.
+                if (!adminEmail) {
+                    console.error("[Auth] ADMIN_EMAIL is not set in environment variables. Denying all logins.");
+                    throw new ForbiddenError("Configuration Error: ADMIN_EMAIL missing");
+                }
+
+                if (user.email.toLowerCase() !== adminEmail) {
                     console.warn(`[Auth] Access denied. Email '${user.email}' does not match allowed ADMIN_EMAIL.`);
                     const { logLoginAttempt } = await import("@/lib/audit");
                     await logLoginAttempt({
@@ -414,7 +425,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         reason: "Email Not In Admin Allowlist"
                     });
 
-                    throw new ForbiddenError();
+                    // Throw specific error for frontend to handle if possible, or generic Forbidden
+                    throw new ForbiddenError("Access Denied: Email not authorized");
                 }
 
                 // --- 6. Trusted Device Check ---

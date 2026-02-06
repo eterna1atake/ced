@@ -5,8 +5,7 @@ export async function POST(req: NextRequest) {
     try {
         const { email } = await req.json();
 
-        // Get IP from headers (same logic as auth.ts)
-        // Get IP from headers (consistent with auth.ts)
+        // Get IP from headers
         const { getClientIp } = await import("@/lib/ip");
         const ip = await getClientIp(req);
 
@@ -22,8 +21,19 @@ export async function POST(req: NextRequest) {
             }, { status: 429 });
         }
 
-        // [New] Check Account Lockout (DB)
         if (email) {
+            // [Security] Strict Admin Email Check
+            const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+            if (adminEmail && email.toLowerCase() !== adminEmail) {
+                // Return generic 403 or specific blocked reason
+                // We return 'blocked: true' effectively but with specific reason for frontend
+                return NextResponse.json({
+                    blocked: true,
+                    seconds: 0, // No countdown needed
+                    reason: "UnauthorizedEmail"
+                });
+            }
+
             const { default: clientPromise } = await import("@/lib/mongodb");
             const client = await clientPromise;
             const db = client.db(process.env.MONGODB_DB_NAME);
