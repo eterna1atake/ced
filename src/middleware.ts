@@ -84,10 +84,10 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
       `default-src 'self'; ` +
       `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${process.env.NODE_ENV === "development" ? "'unsafe-eval'" : ""} https: http:; ` +
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
-      `img-src 'self' blob: data: https://*.google.com https://res.cloudinary.com; ` +
+      `img-src 'self' blob: data: https://*.google.com https://res.cloudinary.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' data: https://fonts.gstatic.com; ` +
       `frame-src 'self' https://*.google.com https://*.youtube.com https://www.facebook.com https://web.facebook.com; ` +
-      `connect-src 'self' https://www.google.com; ` +
+      `connect-src 'self' https://www.google.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `object-src 'none'; ` +
       `base-uri 'self';`
     );
