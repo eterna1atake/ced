@@ -82,9 +82,9 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     res.headers.set(
       "Content-Security-Policy",
       `default-src 'self'; ` +
-      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' ${process.env.NODE_ENV === "development" ? "'unsafe-eval'" : ""} https: http:; ` +
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; ` +
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
-      `frame-ancestors 'self' https://*.google.com; ` + // [Added] Allow Google needed for some widgets
+      `frame-ancestors 'self' https://*.google.com; ` +
       `img-src 'self' blob: data: https://*.google.com https://res.cloudinary.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' data: https://fonts.gstatic.com; ` +
       `frame-src 'self' https://*.google.com https://*.youtube.com https://www.facebook.com https://web.facebook.com; ` +
