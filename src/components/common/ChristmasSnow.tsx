@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { secureRandom } from '@/lib/random';
 
 const ChristmasSnow = () => {
     const [snowflakes, setSnowflakes] = useState<number[]>([]);
@@ -20,11 +21,11 @@ const ChristmasSnow = () => {
                     key={i}
                     className="absolute top-[-20px] text-slate-300 dark:text-white animate-fall drop-shadow-sm"
                     style={{
-                        left: `${Math.random() * 100}%`,
-                        animationDuration: `${Math.random() * 5 + 5}s`,
-                        animationDelay: `${Math.random() * 5}s`,
-                        opacity: Math.random() * 0.5 + 0.3,
-                        fontSize: `${Math.random() * 25 + 20}px`, // Increased size (20px - 45px)
+                        left: `${secureRandom() * 100}%`,
+                        animationDuration: `${secureRandom() * 5 + 5}s`,
+                        animationDelay: `${secureRandom() * 5}s`,
+                        opacity: secureRandom() * 0.5 + 0.3,
+                        fontSize: `${secureRandom() * 25 + 20}px`, // Increased size (20px - 45px)
                     }}
                 >
                     ❄

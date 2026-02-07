@@ -47,7 +47,16 @@ const getId = () => {
     return crypto.randomUUID();
   }
 
-  return `hero-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  // Fallback: Generate random ID using crypto.getRandomValues if randomUUID is not available
+  const array = new Uint8Array(16);
+  const cryptoObj = typeof crypto !== 'undefined' ? crypto : (typeof window !== 'undefined' ? window.crypto : undefined);
+
+  if (cryptoObj) {
+    cryptoObj.getRandomValues(array);
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  }
+
+  throw new Error("Secure random number generator not available");
 };
 
 export function HeroCarouselProvider({ children, initialImages = defaultImages }: { children: ReactNode, initialImages?: HeroCarouselImage[] }) {

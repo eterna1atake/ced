@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { secureRandom } from '@/lib/random';
 
 const SongkranEffect = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,15 +13,15 @@ const SongkranEffect = () => {
         const count = 30; // Number of items
         const items = Array.from({ length: count }, (_, i) => ({
             id: i,
-            type: Math.random() > 0.5 ? '🌼' : '💧', // Mix of Jasmine flower and Water drop
-            left: Math.random() * 100,
-            duration: Math.random() * 5 + 5,
-            delay: Math.random() * 5,
-            opacity: Math.random() * 0.5 + 0.3,
-            size: Math.random() * 20 + 20, // 20px - 40px
-            startRotate: Math.random() * 360,
-            endRotate: Math.random() * 360 + 360,
-            sway: Math.random() * 100 - 50
+            type: secureRandom() > 0.5 ? '🌼' : '💧', // Mix of Jasmine flower and Water drop
+            left: secureRandom() * 100,
+            duration: secureRandom() * 5 + 5,
+            delay: secureRandom() * 5,
+            opacity: secureRandom() * 0.5 + 0.3,
+            size: secureRandom() * 20 + 20, // 20px - 40px
+            startRotate: secureRandom() * 360,
+            endRotate: secureRandom() * 360 + 360,
+            sway: secureRandom() * 100 - 50
         }));
         setParticles(items);
     }, []);

@@ -33,10 +33,13 @@ const NewsSchema = z.object({
     tags: z.array(z.string()).optional().default([]),
 });
 
+import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
+
+// Reusing sanitizeStrict for simple string sanitization
 function sanitize(str: string) {
     if (!str) return "";
-    return str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-        .replace(/<[^>]*>/g, "");
+    // sanitizeStrict removes all HTML tags and prevents XSS
+    return sanitizeStrict(str);
 }
 
 async function getAdminSession() {
@@ -96,8 +99,8 @@ export async function PUT(
             title: { th: sanitize(data.title.th), en: sanitize(data.title.en) },
             summary: { th: sanitize(data.summary.th), en: sanitize(data.summary.en) },
             content: {
-                th: data.content.th.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, ""),
-                en: data.content.en.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+                th: sanitizeContent(data.content.th),
+                en: sanitizeContent(data.content.en)
             },
             author: { th: sanitize(data.author.th), en: sanitize(data.author.en) },
             category: sanitize(data.category),

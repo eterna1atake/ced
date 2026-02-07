@@ -50,8 +50,10 @@ interface HealthData {
         latency: string;
     };
     system: {
-        memoryUsage: number;
-        storageUsage: number;
+        memoryUsage: string;
+        memoryUsagePercent: number;
+        storageUsage: string;
+        storageUsagePercent: number;
         uptime: number;
     };
 }
@@ -197,11 +199,11 @@ export default function AdminDashboardPage() {
                                     <FontAwesomeIcon icon={faServer} className="text-slate-400" />
                                     <div className="flex flex-col">
                                         <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.storage")}</Text>
-                                        <Text className="text-xs">{healthData?.system.storageUsage}% {t("health.used")}</Text>
+                                        <Text className="text-xs">{healthData?.system.storageUsage}</Text>
                                     </div>
                                 </div>
                                 <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.storageUsage > 80 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${healthData?.system.storageUsage || 0}%` }}></div>
+                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.storageUsagePercent > 80 ? 'bg-red-500' : 'bg-blue-500'}`} style={{ width: `${healthData?.system.storageUsagePercent || 0}%` }}></div>
                                 </div>
                             </div>
 
@@ -210,11 +212,11 @@ export default function AdminDashboardPage() {
                                     <FontAwesomeIcon icon={faServer} className="text-slate-400" />
                                     <div className="flex flex-col">
                                         <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.memory")}</Text>
-                                        <Text className="text-xs">{healthData?.system.memoryUsage}% {t("health.used")}</Text>
+                                        <Text className="text-xs">{healthData?.system.memoryUsage}</Text>
                                     </div>
                                 </div>
                                 <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.memoryUsage > 80 ? 'bg-red-500' : 'bg-purple-500'}`} style={{ width: `${healthData?.system.memoryUsage || 0}%` }}></div>
+                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.memoryUsagePercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`} style={{ width: `${healthData?.system.memoryUsagePercent || 0}%` }}></div>
                                 </div>
                             </div>
                         </div>

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
         // Generate a safe random filename with original extension to ensure proper download behavior
         const fileExtension = file.name.split('.').pop() || "";
-        const safeFilename = `${Date.now()}_${Math.random().toString(36).substring(7)}${fileExtension ? "." + fileExtension : ""}`;
+        const safeFilename = `${crypto.randomUUID()}${fileExtension ? "." + fileExtension : ""}`;
 
         // 3. Upload to Cloudinary
         const uploadResponse = await new Promise((resolve, reject) => {

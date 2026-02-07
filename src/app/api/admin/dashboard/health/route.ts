@@ -1,5 +1,5 @@
-
 import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 import dbConnect, { getConnectionState } from "@/lib/mongoose";
 import os from "os";
 
@@ -7,30 +7,52 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
-        // Ensure connection
         await dbConnect();
+        const dbState = getConnectionState();
 
-        // 1. Get DB Status
-        const dbState = getConnectionState(); // You'll need to export this helper or rely on mongoose.connection.readyState
-        // mongoose.connection.readyState: 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
+        let dbLatency = null;
+        let dbSize = null;
+        let dbSizePercent = 0;
 
-        // 2. Get System Memory/Storage (Node.js level)
-        // Note: fs.statfs is not available in Vercel/Edge easily, but os.freemem is available in Node runtime.
-        // For real disk usage in cloud, you might need cloud specific SDKs.
-        // We will simulate storage check or use os info for simple stats.
+        if (dbState === 1 && mongoose.connection.db) {
+            const start = performance.now();
+            await mongoose.connection.db.admin().ping();
+            const end = performance.now();
+            dbLatency = Math.round(end - start);
+
+            // Get DB Stats
+            try {
+                const stats = await mongoose.connection.db.stats();
+                const usedSize = (stats.dataSize / (1024 * 1024)); // Value in MB
+                const limitSize = parseInt(process.env.MONGODB_STORAGE_LIMIT_MB || '512', 10);
+
+                const usedSizeStr = usedSize.toFixed(2);
+                dbSize = `${usedSizeStr} MB / ${limitSize} MB`;
+                dbSizePercent = (usedSize / limitSize) * 100;
+            } catch (e) {
+                console.error('Failed to get db stats:', e);
+            }
+        }
+
+        // 2. Get System Memory (Node.js level)
         const freeMem = os.freemem();
         const totalMem = os.totalmem();
-        const memUsage = ((totalMem - freeMem) / totalMem) * 100;
+        const usedMem = (totalMem - freeMem) / (1024 * 1024 * 1024);
+        const totalMemGb = totalMem / (1024 * 1024 * 1024);
+
+        const memUsage = `${usedMem.toFixed(2)} GB / ${totalMemGb.toFixed(2)} GB`;
+        const memUsagePercent = ((totalMem - freeMem) / totalMem) * 100;
 
         return NextResponse.json({
             database: {
                 status: dbState === 1 ? 'Connected' : 'Disconnected',
-                latency: Math.floor(Math.random() * 50) + 10 + 'ms', // Mock latency for now
+                latency: dbLatency !== null ? `${dbLatency}ms` : 'N/A',
             },
             system: {
-                memoryUsage: Math.round(memUsage),
-                // Mock storage for demo as we can't easily check cloud storage quota here
-                storageUsage: 45,
+                memoryUsage: memUsage,
+                memoryUsagePercent: Math.round(memUsagePercent),
+                storageUsage: dbSize || '0 MB / 512 MB',
+                storageUsagePercent: Math.round(dbSizePercent || 0),
                 uptime: os.uptime()
             }
         });

@@ -5,7 +5,6 @@ import HeroBanner from "@/components/common/HeroBanner";
 import Pagination from "@/components/common/Pagination";
 import { useLocale, useTranslations } from "next-intl";
 import FloatingBackButton from "@/components/common/FloatingBackButton";
-import { awards } from "@/data/awardsData";
 import Image from "next/image";
 import { useState, useEffect, useCallback } from "react";
 import { LocalizedString } from "@/types/common";
@@ -30,7 +29,7 @@ export default function AwardsPageClient() {
         }
     };
 
-    const [awardsList, setAwardsList] = useState<Award[]>(awards);
+    const [awardsList, setAwardsList] = useState<Award[]>([]);
     useEffect(() => {
         const fetchAwards = async () => {
             try {
