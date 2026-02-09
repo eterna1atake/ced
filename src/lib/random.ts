@@ -16,6 +16,7 @@ export function secureRandom(): number {
     // Fallback: This path should ideally not be reached in modern environments.
     // However, for pure visual effects, we might want to allow semblance of functionality 
     // even if crypto is missing, though we log a warning.
-    console.warn("Secure random number generator not available, falling back to Math.random");
-    return Math.random();
+    // If we cannot generate a secure random number, it's better to fail 
+    // than to degrade to an insecure one in a security library.
+    throw new Error("Secure random number generator not available.");
 }
