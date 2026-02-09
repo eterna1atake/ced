@@ -88,6 +88,8 @@ export async function checkRateLimit(ip: string, email?: string) {
         });
     };
 
+
+
     // 1. Check IP
     await checkKey(`login:ip:${ip}`);
 
@@ -106,7 +108,7 @@ export async function checkRateLimit(ip: string, email?: string) {
 
     return {
         success: true,
-        remaining: minRemaining === Infinity ? 5 : minRemaining, // Default to lowest tier if calc fails
+        remaining: minRemaining === Infinity ? 5 : minRemaining,
         msBeforeNext: 0,
     };
 }
@@ -152,6 +154,8 @@ export async function incrementRateLimit(ip: string, email?: string) {
         });
     };
 
+
+
     // 1. Penalize IP
     await consumeKey(`login:ip:${ip}`);
 
@@ -161,6 +165,7 @@ export async function incrementRateLimit(ip: string, email?: string) {
     }
 
     if (isBlocked) {
+        console.warn(`[RateLimit] BLOCKED: IP=${ip}, Email=${email}, Wait=${maxMsBeforeNext}ms`);
         return {
             success: false,
             remaining: 0,
