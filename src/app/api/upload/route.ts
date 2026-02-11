@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
+import { rateLimit } from '@/lib/security';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -10,15 +11,26 @@ cloudinary.config({
 });
 
 export async function POST(request: NextRequest) {
+    const rateLimitError = await rateLimit(request);
+    if (rateLimitError) return rateLimitError;
+
     // 1. Authentication & Role Check
     const session = await auth();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const user = session?.user as any;
-    if (!session || user?.role !== "superuser") {
+
+    if (!session) {
         return NextResponse.json(
-            { error: "Unauthorized. Admin access required." },
+            { error: "Unauthorized: No active session found" },
             { status: 401 }
+        );
+    }
+
+    if (user?.role !== "superuser") {
+        return NextResponse.json(
+            { error: "Forbidden: Superuser role required" },
+            { status: 403 }
         );
     }
 
@@ -65,31 +77,56 @@ export async function POST(request: NextRequest) {
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        // Determine resource type: 'raw' for documents to bypass PDF delivery restrictions
-        const isDocument = file.type.includes("pdf") ||
-            file.type.includes("application/") ||
-            file.type.includes("text/");
-        const resourceType = isDocument ? "raw" : "auto";
 
-        // Generate a safe random filename with original extension to ensure proper download behavior
-        const fileExtension = file.name.split('.').pop() || "";
-        const safeFilename = `${crypto.randomUUID()}${fileExtension ? "." + fileExtension : ""}`;
+        const fileExtension = file.name.split('.').pop()?.toLowerCase() || "";
+
+        // Determine resource type: 
+        // - 'raw' for Office documents (Word, Excel, Zip, etc.) to bypass processing
+        // - 'auto' for Images and PDFs (allows PDF viewing/preview and correct Content-Type)
+        const isRawDocument =
+            file.type.includes("application/msword") ||
+            file.type.includes("application/vnd") || // Word, Excel
+            file.type.includes("application/zip") ||
+            ["doc", "docx", "xls", "xlsx", "ppt", "pptx", "zip", "rar", "csv"].includes(fileExtension);
+
+        const resourceType = isRawDocument ? "raw" : "auto";
+
+        const uniqueId = crypto.randomUUID();
+        let publicId = uniqueId;
+
+        // For raw files ONLY, append extension to public_id
+        // For auto (Images/PDF), Cloudinary adds extension automatically based on format
+        if (isRawDocument && fileExtension) {
+            publicId = `${uniqueId}.${fileExtension}`;
+        }
 
         // 3. Upload to Cloudinary
+
         const uploadResponse = await new Promise((resolve, reject) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const uploadStreamOptions: any = {
+                folder: folder,
+                resource_type: resourceType,
+                public_id: publicId,
+                type: "upload",
+                access_mode: "public",
+            };
+
+            // Restore format forcing to help Cloudinary detect type correctly
+            // This ensures .pdf extension is applied if it's a PDF
+            if (!isRawDocument && fileExtension) {
+                uploadStreamOptions.format = fileExtension;
+            }
+
             cloudinary.uploader.upload_stream(
-                {
-                    folder: folder,
-                    resource_type: resourceType,
-                    public_id: safeFilename, // Set explicit public_id with extension
-                    type: "upload",
-                    access_mode: "public",
-                    use_filename: false,
-                    unique_filename: false
-                },
+                uploadStreamOptions,
                 (error, result) => {
-                    if (error) reject(error);
-                    else resolve(result);
+                    if (error) {
+                        console.error("[Upload] Cloudinary Stream Error:", error);
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
                 }
             ).end(buffer);
         });

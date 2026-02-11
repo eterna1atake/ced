@@ -9,6 +9,7 @@ type TrainingEventsSectionProps = {
   readMoreLabel?: string;
   emptyLabel?: string;
   seeAllLabel?: string;
+  embedUrls?: string[];
 };
 
 type FacebookEmbedItem = {
@@ -17,29 +18,8 @@ type FacebookEmbedItem = {
   height?: number;
 };
 
-const FACEBOOK_EMBED_DEFAULT_WIDTH = 400;
-const FACEBOOK_EMBED_DEFAULT_HEIGHT = 600;
-
-const FACEBOOK_EMBEDS: ReadonlyArray<FacebookEmbedItem> = [
-  {
-    embedUrl:
-      "https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FCEDTrainingCenter%2Fposts%2Fpfbid0RYZFd6L5ih2pbyCkMiaapxM7tYnvwKXh7oRZGWwPABntLRHZ9aJQimTrSF5rVFsCl&show_text=true&width=500",
-    width: 350,
-    height: 600,
-  },
-  {
-    embedUrl:
-      "https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FCEDTrainingCenter%2Fposts%2Fpfbid02EKSmsZhbM9uJBgXA8ytizr8LfR6EKLZAiKYCvSdnBxdKoj8p5GySRZCbnkeUfNYzl&show_text=true&width=500",
-    width: 350,
-    height: 600,
-  },
-  {
-    embedUrl:
-      "https://www.facebook.com/plugins/post.php?href=https%3A%2F%2Fwww.facebook.com%2FCEDTrainingCenter%2Fposts%2Fpfbid032gCTxUv1eMrM2KwmgsZHUMVsCdBNZToHKWwoV3rAx1BkQ7kvmojASQ6Kwc7MbEsgl&show_text=true&width=500",
-    width: 350,
-    height: 600,
-  },
-] as const;
+const FACEBOOK_EMBED_DEFAULT_WIDTH = 350;
+const FACEBOOK_EMBED_DEFAULT_HEIGHT = 620;
 
 function FacebookPostEmbed({
   embedUrl,
@@ -51,11 +31,33 @@ function FacebookPostEmbed({
   const resolvedHeight = height ?? Math.round(resolvedWidth * (FACEBOOK_EMBED_DEFAULT_HEIGHT / FACEBOOK_EMBED_DEFAULT_WIDTH));
 
   try {
-    const url = new URL(embedUrl);
-    url.searchParams.set("width", String(resolvedWidth));
-    resolvedUrl = url.toString();
+    // Normalize web.facebook.com to www.facebook.com for consistency
+    let normalizedEmbedUrl = embedUrl;
+    if (embedUrl.includes("web.facebook.com")) {
+      normalizedEmbedUrl = embedUrl.replace("web.facebook.com", "www.facebook.com");
+    }
+
+    const url = new URL(normalizedEmbedUrl);
+
+    // Check if it's already the plugin URL
+    if (url.pathname.includes("plugins/post.php")) {
+      if (!url.searchParams.has("width")) {
+        url.searchParams.set("width", String(resolvedWidth));
+      }
+      if (!url.searchParams.has("show_text")) {
+        url.searchParams.set("show_text", "true");
+      }
+      resolvedUrl = url.toString();
+    } else {
+      // Assume it's a direct post link, convert to embed plugin URL
+      const pluginUrl = new URL("https://www.facebook.com/plugins/post.php");
+      pluginUrl.searchParams.set("href", normalizedEmbedUrl);
+      pluginUrl.searchParams.set("width", String(resolvedWidth));
+      pluginUrl.searchParams.set("show_text", "true");
+      resolvedUrl = pluginUrl.toString();
+    }
   } catch {
-    // ignore invalid URLs and use the original string
+    // ignore invalid URLs
   }
 
   return (
@@ -87,7 +89,13 @@ export default function TrainingEventsSection({
   title,
   subtitle,
   seeAllLabel,
+  embedUrls = [],
 }: TrainingEventsSectionProps) {
+  const validEmbeds = embedUrls.filter(url => url && url.trim() !== "");
+
+  // Section now always renders title. If no embeds, show placeholder.
+  const hasEmbeds = validEmbeds.length > 0;
+
   return (
     <section className="bg-slate-50 px-6 py-12 lg:px-24">
       <div className="mx-auto max-w-7xl">
@@ -96,28 +104,35 @@ export default function TrainingEventsSection({
           {subtitle ? <p className="mt-3 text-base text-slate-600">{subtitle}</p> : null}
         </header>
 
-        <div className="grid grid-cols-1 justify-items-center gap-4 lg:gap-0 sm:grid-cols-2 md:grid-cols-3">
-          {FACEBOOK_EMBEDS.map((embed, index) => {
-            const targetWidth = embed.width ?? FACEBOOK_EMBED_DEFAULT_WIDTH;
-            const cardMaxWidth = Math.max(targetWidth, 280);
+        {hasEmbeds ? (
+          <div className="grid grid-cols-1 justify-items-center gap-4 lg:gap-0 sm:grid-cols-2 md:grid-cols-3">
+            {validEmbeds.map((url, index) => {
+              return (
+                <article
+                  key={`training-facebook-${index}`}
+                  className="flex h-full w-full flex-col rounded-lg border border-slate-200 bg-white shadow-sm"
+                  style={{ width: "100%", maxWidth: `374px` }}
+                >
+                  <div className="w-full overflow-hidden rounded-t-lg bg-slate-100 flex justify-center">
+                    <FacebookPostEmbed embedUrl={url} />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 text-slate-500 bg-slate-100 rounded-lg border border-dashed border-slate-300">
+            <p className="text-lg font-medium">No training events available at the moment.</p>
+            <p className="text-sm mt-2 opacity-75">Please configure Facebook Embed URLs in Admin Dashboard.</p>
+          </div>
+        )}
 
-            return (
-              <article
-                key={`training-facebook-${index}`}
-                className="flex h-full w-full flex-col rounded-lg border border-slate-200 bg-white shadow-sm"
-                style={{ width: "100%", maxWidth: `${cardMaxWidth + 24}px` }}
-              >
-                <div className="w-full overflow-hidden rounded-t-lg bg-slate-100">
-                  <FacebookPostEmbed {...embed} />
-                </div>
-              </article>
-            );
-          })}
-        </div>
 
         <div className="mt-12 text-center">
           <Link
             href="https://www.facebook.com/CEDTrainingCenter"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-md border border-primary-main px-6 py-2 text-sm font-semibold text-white bg-primary-main transition-colors duration-200 hover:bg-white hover:text-primary-main"
           >
             {seeAllLabel}
@@ -127,3 +142,4 @@ export default function TrainingEventsSection({
     </section>
   );
 }
+

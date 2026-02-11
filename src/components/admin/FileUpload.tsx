@@ -76,6 +76,7 @@ export default function FileUpload({
                     "x-csrf-token": csrfToken || "",
                 },
                 body: formData,
+                credentials: "include" // Ensure cookies are sent
             });
 
             if (!res.ok) {
@@ -120,10 +121,10 @@ export default function FileUpload({
         setError(null);
     };
 
-    const isImage = value && (value.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || accept.includes("image/"));
-    const isPdf = value && value.toLowerCase().endsWith(".pdf");
-    const isWord = value && (value.toLowerCase().endsWith(".doc") || value.toLowerCase().endsWith(".docx"));
-    const isExcel = value && (value.toLowerCase().endsWith(".xls") || value.toLowerCase().endsWith(".xlsx"));
+    const isImage = value && /\.(jpeg|jpg|gif|png|webp|svg|bmp|ico|tiff)$/i.test(value);
+    const isPdf = value && /\.pdf$/i.test(value);
+    const isWord = value && /\.(doc|docx)$/i.test(value);
+    const isExcel = value && /\.(xls|xlsx)$/i.test(value);
 
 
     return (

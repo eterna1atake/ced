@@ -2,11 +2,15 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import Setting from '@/collections/Setting';
+import { rateLimit } from '@/lib/security';
 
 export const dynamic = 'force-dynamic'; // [New] Ensure this is not cached
 export const revalidate = 0;
 
-export const GET = async () => {
+export const GET = async (req: Request) => {
+    const rateLimitError = await rateLimit(req);
+    if (rateLimitError) return rateLimitError;
+
     try {
         await dbConnect();
 
@@ -17,7 +21,8 @@ export const GET = async () => {
                     'theme', 'theme_start_date', 'theme_end_date', 'theme_force_disable_snow',
                     'contactDepartmentTh', 'contactDepartmentEn',
                     'contactEmail', 'phoneNumber', 'addressTh', 'addressEn',
-                    'facebook', 'youtube', 'tiktok', 'googlePlus'
+                    'facebook', 'youtube', 'tiktok', 'googlePlus',
+                    'training_embed_1', 'training_embed_2', 'training_embed_3'
                 ]
             }
         });
@@ -67,6 +72,11 @@ export const GET = async () => {
                 youtube: getVal('youtube') || '',
                 tiktok: getVal('tiktok') || '',
                 googlePlus: getVal('googlePlus') || ''
+            },
+            training: {
+                embed1: getVal('training_embed_1') || '',
+                embed2: getVal('training_embed_2') || '',
+                embed3: getVal('training_embed_3') || ''
             }
         });
     } catch (error) {

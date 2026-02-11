@@ -82,14 +82,14 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     res.headers.set(
       "Content-Security-Policy",
       `default-src 'self'; ` +
-      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; ` +
+      `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net https://www.google.com https://www.gstatic.com https://www.googletagmanager.com; ` +
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
-      `frame-ancestors 'self' https://*.google.com; ` +
-      `img-src 'self' blob: data: https://*.google.com https://res.cloudinary.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
-      `font-src 'self' data: https://fonts.gstatic.com; ` +
-      `frame-src 'self' https://*.google.com https://*.youtube.com https://www.facebook.com https://web.facebook.com; ` +
-      `connect-src 'self' https://www.google.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
-      `object-src 'none'; ` +
+      `img-src 'self' blob: data: https://res.cloudinary.com https://*.facebook.com https://scontent.xx.fbcdn.net https://external.xx.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
+      `font-src 'self' https://fonts.gstatic.com data:; ` +
+      `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com; ` +
+      `object-src 'self' https://res.cloudinary.com blob:; ` +
+      `worker-src 'self' blob:; ` +
+      `connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net https://analytics.google.com https://*.googleapis.com https://res.cloudinary.com; ` +
       `base-uri 'self';`
     );
 

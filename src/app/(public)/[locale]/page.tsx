@@ -26,6 +26,18 @@ async function getLatestNews() {
   }
 }
 
+async function getPublicSettings() {
+  const baseUrl = getApiBaseUrl();
+  try {
+    const res = await fetch(`${baseUrl}/api/public/settings`, { next: { revalidate: 0 } });
+    if (!res.ok) return null;
+    return res.json();
+  } catch (error) {
+    console.error("Failed to fetch settings:", error);
+    return null;
+  }
+}
+
 type Props = {
   params: Promise<{ locale: string }>;
 };
@@ -54,7 +66,15 @@ export default async function Home({ params }: Props) {
   ];
 
   const newsItems = await getLatestNews();
+  const settings = await getPublicSettings();
   const trainingItems = getTrainingItems();
+
+  const embedUrls = settings?.training ? [
+    settings.training.embed1,
+    settings.training.embed2,
+    settings.training.embed3
+  ].filter(Boolean) : [];
+
 
   return (
     <div className="relative bg-white w-full">
@@ -138,6 +158,7 @@ export default async function Home({ params }: Props) {
           readMoreLabel={tTraining("readMore")}
           emptyLabel={tTraining("empty")}
           seeAllLabel={tTraining("seeAll")}
+          embedUrls={embedUrls}
         />
 
         <ServicesSection />
