@@ -4,10 +4,14 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSave, faGlobe, faEnvelope, faPhone, faLocationDot, faPalette } from "@fortawesome/free-solid-svg-icons";
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+
+import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
     const t = useTranslations("Admin.pages.settings");
     const tCommon = useTranslations("Admin.forms.common");
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [settings, setSettings] = useState({
         contactDepartmentTh: "ภาควิชาคอมพิวเตอร์ศึกษา ชั้น 2 คณะครุศาสตร์อุตสาหกรรม มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
@@ -73,11 +77,24 @@ export default function SettingsPage() {
                 console.error("Server error:", data);
                 throw new Error(data.error || 'Failed to update');
             }
-            alert('Settings saved successfully!');
+
+            await Swal.fire({
+                icon: 'success',
+                title: 'Saved!',
+                text: 'Settings saved successfully!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+            router.refresh();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Failed to save settings:", error);
-            alert(`Error saving settings: ${error.message}`);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: `Error saving settings: ${error.message}`,
+                confirmButtonColor: '#d33'
+            });
         } finally {
             setLoading(false);
         }

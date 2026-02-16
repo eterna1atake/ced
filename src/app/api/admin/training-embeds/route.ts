@@ -30,8 +30,9 @@ export const GET = async (req: Request) => {
         };
 
         return NextResponse.json(result);
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Internal Server Error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }
 
@@ -75,7 +76,7 @@ export const PUT = async (req: Request) => {
                         // But usually public posts redirect to the post page.
                         return cleanUrl.toString();
                     }
-                } catch (e) {
+                } catch {
                     // Ignore errors, use original
                 }
             }
@@ -110,7 +111,8 @@ export const PUT = async (req: Request) => {
         ));
 
         return NextResponse.json({ success: true });
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Internal Server Error';
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 }

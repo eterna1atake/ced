@@ -21,8 +21,11 @@ interface OnlineResourceItem {
     en: { title: string; description: string };
 }
 
+import { useRouter } from "next/navigation";
+
 export default function ResourcesListPage() {
     const t = useTranslations("Admin.pages.onlineResources");
+    const router = useRouter();
     const [resources, setResources] = useState<OnlineResourceItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -73,6 +76,7 @@ export default function ResourcesListPage() {
                 if (res.ok) {
                     Swal.fire("Deleted!", "Resource has been deleted.", "success");
                     setResources(prev => prev.filter(item => item._id !== id));
+                    router.refresh();
                 } else {
                     throw new Error("Failed to delete");
                 }

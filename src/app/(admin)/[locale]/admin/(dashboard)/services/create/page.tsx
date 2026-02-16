@@ -42,6 +42,7 @@ export default function CreateServicePage() {
             });
 
             router.push("/admin/services");
+            router.refresh();
         } catch (error: unknown) {
             console.error("Create error:", error);
             const message = error instanceof Error ? error.message : "Something went wrong";

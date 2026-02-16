@@ -13,8 +13,11 @@ import { useTranslations } from "next-intl";
 // But actually we should use the type from the model we created if possible, or define a local one matching the API response.
 // The IPersonnel from model is good.
 
+import { useRouter } from "next/navigation";
+
 export default function PersonnelListPage() {
     const t = useTranslations("Admin.pages.personnel");
+    const router = useRouter();
     const [personnel, setPersonnel] = useState<IPersonnel[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -94,6 +97,7 @@ export default function PersonnelListPage() {
 
                 Swal.fire("Deleted!", "Personnel has been deleted.", "success");
                 fetchPersonnel(); // Refresh list
+                router.refresh();
             } catch (error) {
                 console.error(error);
                 Swal.fire("Error", "Failed to delete personnel", "error");

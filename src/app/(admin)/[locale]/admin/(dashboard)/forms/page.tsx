@@ -20,8 +20,11 @@ interface FormRequestItem {
     createdAt: string;
 }
 
+import { useRouter } from "next/navigation";
+
 export default function FormRequestsListPage() {
     const t = useTranslations("Admin.pages.forms");
+    const router = useRouter();
     const [forms, setForms] = useState<FormRequestItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -71,6 +74,7 @@ export default function FormRequestsListPage() {
                 if (res.ok) {
                     Swal.fire("Deleted!", "Document has been deleted.", "success");
                     fetchForms();
+                    router.refresh();
                 } else {
                     throw new Error("Failed to delete");
                 }

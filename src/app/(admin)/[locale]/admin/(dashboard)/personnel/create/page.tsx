@@ -46,6 +46,7 @@ export default function CreatePersonnelPage() {
             });
 
             router.push("/admin/personnel");
+            router.refresh();
         } catch (error: unknown) {
             console.error("Create error:", error);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

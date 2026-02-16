@@ -8,6 +8,7 @@ import { Fragment, useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import LanguageSwitch from "@/components/common/LanguageSwitch";
+import Swal from "sweetalert2";
 
 export default function AdminHeader({
     onMenuClick,
@@ -192,9 +193,22 @@ export default function AdminHeader({
                                     </div>
                                     <button
                                         onClick={async () => {
-                                            await signOut({
-                                                callbackUrl: `/${locale}/admin/login`,
+                                            const result = await Swal.fire({
+                                                title: "Are you sure?",
+                                                text: "You will be logged out of the system.",
+                                                icon: "warning",
+                                                showCancelButton: true,
+                                                confirmButtonColor: "#d33",
+                                                cancelButtonColor: "#3085d6",
+                                                confirmButtonText: "Logout",
+                                                cancelButtonText: "Cancel"
                                             });
+
+                                            if (result.isConfirmed) {
+                                                await signOut({
+                                                    callbackUrl: `/${locale}/admin/login`,
+                                                });
+                                            }
                                         }}
                                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-400 transition-colors flex items-center gap-2"
                                     >

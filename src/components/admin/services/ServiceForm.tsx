@@ -8,6 +8,7 @@ import { FormInput, FormSelect } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import Swal from "sweetalert2";
 
 type ServiceFormProps = {
     initialData?: Partial<Service>;
@@ -58,14 +59,27 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         }));
     }, []);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const submissionData = {
-            ...formData,
-            id: formData.id || `service-${Date.now()}`,
-        } as Service;
 
-        onSubmit(submissionData);
+        const result = await Swal.fire({
+            title: t("common.saveConfirmTitle") || "Are you sure?",
+            text: t("common.saveConfirmText") || "Do you want to save this service?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: t("common.save") || "Save",
+            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+        });
+
+        if (result.isConfirmed) {
+            const submissionData = {
+                ...formData,
+                id: formData.id || `service-${Date.now()}`,
+            } as Service;
+            onSubmit(submissionData);
+        }
     };
 
     const handleIconChange = useCallback((url: string) => {

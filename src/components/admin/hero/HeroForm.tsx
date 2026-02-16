@@ -10,6 +10,7 @@ import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import { LocalizedString } from "@/types/common";
 import { useTranslations } from "next-intl";
+import Swal from "sweetalert2";
 
 
 type HeroFormProps = {
@@ -50,14 +51,27 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
     };
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const submissionData = {
-            ...formData,
-            id: formData.id || `hero-${Date.now()}`,
-        } as HeroCarouselImage;
+        const result = await Swal.fire({
+            title: t("common.saveConfirmTitle") || "Are you sure?",
+            text: t("common.saveConfirmText") || "Do you want to save these changes?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: t("common.save") || "Save",
+            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+        });
 
-        onSubmit(submissionData);
+        if (result.isConfirmed) {
+            const submissionData = {
+                ...formData,
+                id: formData.id || `hero-${Date.now()}`,
+            } as HeroCarouselImage;
+
+            onSubmit(submissionData);
+        }
     };
 
     return (

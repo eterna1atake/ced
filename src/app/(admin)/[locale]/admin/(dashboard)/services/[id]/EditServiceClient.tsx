@@ -47,6 +47,7 @@ export default function EditServiceClient({ initialData }: Props) {
             });
 
             router.push("/admin/services");
+            router.refresh();
         } catch (error: unknown) {
             console.error("Update error:", error);
             const message = error instanceof Error ? error.message : "Something went wrong";

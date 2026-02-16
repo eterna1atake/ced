@@ -7,6 +7,7 @@ import FileUpload from "@/components/admin/FileUpload";
 import { FormSelect } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import Swal from "sweetalert2";
 
 // These matches FORM_REQUESTS_DATA structure but will be stored in and fetched from DB
 const CATEGORIES = [
@@ -78,7 +79,21 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await onSubmit(formData);
+
+        const result = await Swal.fire({
+            title: t("common.saveConfirmTitle") || "Are you sure?",
+            text: t("common.saveConfirmText") || "Do you want to save this document?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: t("common.save") || "Save",
+            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+        });
+
+        if (result.isConfirmed) {
+            await onSubmit(formData);
+        }
     };
 
     return (

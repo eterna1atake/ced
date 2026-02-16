@@ -15,8 +15,11 @@ type HeroCarouselImage = {
     alt?: string | { en?: string; th?: string };
 };
 
+import { useRouter } from "next/navigation";
+
 export default function HeroListPage() {
     const t = useTranslations("Admin.pages.hero");
+    const router = useRouter();
     const [heroes, setHeroes] = useState<HeroCarouselImage[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -67,6 +70,7 @@ export default function HeroListPage() {
                 if (res.ok) {
                     Swal.fire("Deleted!", "Your file has been deleted.", "success");
                     fetchHeroes();
+                    router.refresh();
                 } else {
                     throw new Error("Failed to delete");
                 }

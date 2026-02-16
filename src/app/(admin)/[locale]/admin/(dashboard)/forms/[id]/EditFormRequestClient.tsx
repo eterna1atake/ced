@@ -46,7 +46,7 @@ export default function EditFormRequestClient({ initialData }: Props) {
                 throw new Error(errorData.error?.[0]?.message || errorData.error || "Failed to update document");
             }
 
-            Swal.fire({
+            await Swal.fire({
                 title: "Updated",
                 text: "Document has been updated successfully!",
                 icon: "success",
@@ -55,6 +55,7 @@ export default function EditFormRequestClient({ initialData }: Props) {
             });
 
             router.push("/admin/forms");
+            router.refresh();
         } catch (error: unknown) {
             Swal.fire("Error", error instanceof Error ? error.message : "An error occurred", "error");
         } finally {

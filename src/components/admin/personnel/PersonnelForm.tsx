@@ -19,6 +19,7 @@ import { CustomLinkEditor } from "./CustomLinkEditor";
 import { POSITIONS } from "./constants";
 
 import { useTranslations } from "next-intl";
+import Swal from "sweetalert2";
 
 
 export default function PersonnelForm({ initialData, onSubmit, isLoading = false }: PersonnelFormProps) {
@@ -171,41 +172,52 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         return missingFields;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         const missingFields = validate();
         if (missingFields.length > 0) {
-            import("sweetalert2").then((Swal) => {
-                Swal.default.fire({
-                    title: t("common.missingInfoTitle"),
-                    html: `
-                        <p class="mb-2">${t("common.missingInfoText")}</p>
-                        <ul class="text-left text-sm list-disc pl-6 text-slate-600 dark:text-slate-300">
-                            ${missingFields.map(field => `<li>${field}</li>`).join("")}
-                        </ul>
-                    `,
-                    icon: "error",
-                    confirmButtonColor: "#f43f5e",
-                });
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                html: `
+                    <p class="mb-2">${t("common.missingInfoText")}</p>
+                    <ul class="text-left text-sm list-disc pl-6 text-slate-600 dark:text-slate-300">
+                        ${missingFields.map(field => `<li>${field}</li>`).join("")}
+                    </ul>
+                `,
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
             });
             return;
         }
 
-        // Filter out empty entries
-        const cleanEducation = (formData.education || []).filter(item => item.major.th || item.major.en || item.university.th || item.university.en);
-        const cleanCourses = (formData.courses || []).filter(item => item.th || item.en || item.courseId);
-        const cleanCustomLinks = (formData.customLinks || []).filter(item => item.title || item.url);
+        const result = await Swal.fire({
+            title: t("common.saveConfirmTitle") || "Are you sure?",
+            text: t("common.saveConfirmText") || "Do you want to save these personnel details?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: t("common.save") || "Save",
+            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+        });
 
-        const submissionData = {
-            ...formData,
-            education: cleanEducation,
-            courses: cleanCourses,
-            customLinks: cleanCustomLinks,
-            id: formData.id || `person-${Date.now()}`,
-        } as Personnel;
+        if (result.isConfirmed) {
+            // Filter out empty entries
+            const cleanEducation = (formData.education || []).filter(item => item.major.th || item.major.en || item.university.th || item.university.en);
+            const cleanCourses = (formData.courses || []).filter(item => item.th || item.en || item.courseId);
+            const cleanCustomLinks = (formData.customLinks || []).filter(item => item.title || item.url);
 
-        onSubmit(submissionData);
+            const submissionData = {
+                ...formData,
+                education: cleanEducation,
+                courses: cleanCourses,
+                customLinks: cleanCustomLinks,
+                id: formData.id || `person-${Date.now()}`,
+            } as Personnel;
+
+            onSubmit(submissionData);
+        }
     };
 
     return (

@@ -50,8 +50,11 @@ function FacebookPostEmbedPreview({ embedUrl }: { embedUrl: string }) {
     );
 }
 
+import { useRouter } from "next/navigation";
+
 export default function TrainingPage() {
     const t = useTranslations("Admin.pages.training");
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(true);
     const [embeds, setEmbeds] = useState({
@@ -96,7 +99,7 @@ export default function TrainingPage() {
                 if (href) {
                     cleanValue = href; // Revert to the original post URL
                 }
-            } catch (e) {
+            } catch {
                 // ignore invalid urls
             }
         }
@@ -104,20 +107,32 @@ export default function TrainingPage() {
     };
 
     const handleSave = async () => {
+        // Validate that ALL 3 embeds are provided
+        if (!embeds.embed1 || !embeds.embed2 || !embeds.embed3) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Data',
+                text: 'Please provide all 3 Facebook Embed URLs.',
+                confirmButtonColor: '#3085d6',
+            });
+            return;
+        }
+
+        const result = await Swal.fire({
+            title: t("common.saveConfirmTitle") || "Are you sure?",
+            text: t("common.saveConfirmText") || "Do you want to save these training embeds?",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: t("common.save") || "Save",
+            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+        });
+
+        if (!result.isConfirmed) return;
+
         setLoading(true);
         try {
-            // Validate that ALL 3 embeds are provided
-            if (!embeds.embed1 || !embeds.embed2 || !embeds.embed3) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Incomplete Data',
-                    text: 'Please provide all 3 Facebook Embed URLs.',
-                    confirmButtonColor: '#3085d6',
-                });
-                setLoading(false);
-                return;
-            }
-
             // Get CSRF Token from cookie
             const csrfToken = document.cookie
                 .split("; ")
@@ -140,19 +155,21 @@ export default function TrainingPage() {
             if (!res.ok) {
                 throw new Error('Failed to update');
             }
-            Swal.fire({
+            await Swal.fire({
                 icon: 'success',
                 title: 'Saved!',
                 text: 'Training embeds saved successfully!',
                 showConfirmButton: false,
                 timer: 1500
             });
-        } catch (error: any) {
+            router.refresh();
+        } catch (error: unknown) {
             console.error("Failed to save embeds:", error);
+            const message = error instanceof Error ? error.message : 'Something went wrong';
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: error.message || 'Something went wrong',
+                text: message,
                 confirmButtonColor: '#d33',
             });
         } finally {
@@ -270,4 +287,3 @@ export default function TrainingPage() {
         </div>
     );
 }
-

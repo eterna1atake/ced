@@ -60,6 +60,7 @@ export default function EditPersonnelClient({ initialData }: Props) {
             });
 
             router.push("/admin/personnel");
+            router.refresh();
         } catch (error: unknown) {
             console.error("Update error:", error);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -21,8 +21,11 @@ type Service = {
     category: string;
 };
 
+import { useRouter } from "next/navigation";
+
 export default function ServicesListPage() {
     const t = useTranslations("Admin.pages.services");
+    const router = useRouter();
     const [services, setServices] = useState<Service[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -73,6 +76,7 @@ export default function ServicesListPage() {
                 if (res.ok) {
                     Swal.fire("Deleted!", "Service has been deleted.", "success");
                     fetchServices();
+                    router.refresh();
                 } else {
                     throw new Error("Failed to delete");
                 }
