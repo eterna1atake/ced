@@ -108,7 +108,7 @@ export default function SettingsPage() {
                                 >
                                     <option value="default">Default</option>
                                     <option value="christmas">Christmas (Snow & Red/Green)</option>
-                                    <option value="songkran">Songkran (Flowers & Water)</option>
+                                    <option value="grayscale">Grayscale (Black & White)</option>
                                 </select>
                             </div>
 
