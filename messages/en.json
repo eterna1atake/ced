@@ -95,7 +95,7 @@
     "major": "Majors, Minors AND Programs",
     "awards": "Awards",
     "deptinfo": "Department Information",
-    "classroom": "CLASSROOM",
+    "classroom": "Classroom",
     "studentservices": "Student Services",
     "lastNew": "LASTEST NEWS",
     "seeMore": "SEE MORE NEWS",
@@ -106,7 +106,7 @@
     "mooc": "KMUTNB MOOC",
     "centralLibrary": "Central Library",
     "studentAffairs": "Student Affairs",
-    "formRequests": "Form Requests and Documents",
+    "formRequests": "Form requests",
     "headerTitle": "Empowering the Future of Learning",
     "headerDesc": "Technology is the tool of creation, and teaching is the heart of transformation. The Department of Computer Education empowers future educators through innovation and technology, designing meaningful learning experiences that connect learners to a creative and sustainable digital world.",
     "aboutDepartment": "About Department",
@@ -230,7 +230,18 @@
         "mutedGreen": "Muted Green/Teal",
         "brightBlue": "Bright Blue",
         "orange": "Orange"
-      }
+      },
+      "kmutnbTitle": "University Symbol",
+      "kmutnbNameTh": "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
+      "kmutnbNameEn": "King Mongkut's University of Technology North Bangkok",
+      "kmutnbMeaning": "Comprises a red Great Crown motif situated in a busabok base above the Thai numeral 4. It symbolizes King Mongkut (Rama IV) of the Chakri Dynasty, who is recognized as the Father of Thai Science. This emblem represents the institution's highest prestige and auspiciousness.",
+      "fteTitle": "Faculty Symbol",
+      "fteNameTh": "คณะครุศาสตร์อุตสาหกรรม",
+      "fteNameEn": "Faculty of Technical Education",
+      "fteMeaning": "The logo featuring a gear surrounding a torch represents academic excellence and industrial skills. The gear stands for the driving force of technology with continuous development, while the torch signifies the light of wisdom leading to progress.",
+      "downloadKmutnb": "Download University Logo",
+      "downloadFte": "Download Faculty Logo",
+      "meaningLabel": "Meaning"
     },
     "history": {
       "highlight": "Department History",

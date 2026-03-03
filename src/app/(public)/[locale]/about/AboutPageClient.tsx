@@ -354,25 +354,25 @@ export default function AboutPageClient() {
 
                   <div className="md:col-span-7 space-y-8 text-left">
                     <div>
-                      <h2 className="text-3xl font-bold text-slate-900 mb-2">ตราสัญลักษณ์มหาวิทยาลัย</h2>
+                      <h2 className="text-3xl font-bold text-slate-900 mb-2">{symbolT("kmutnbTitle")}</h2>
                       <div className="h-1 w-20 bg-[#A81E23]/20"></div>
                     </div>
 
                     <p className="text-lg leading-relaxed text-slate-600 font-light">
-                      มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ<br />
-                      <span className="text-base text-slate-500">King Mongkut&apos;s University of Technology North Bangkok</span>
+                      {symbolT("kmutnbNameTh")}<br />
+                      <span className="text-base text-slate-500">{symbolT("kmutnbNameEn")}</span>
                     </p>
 
                     <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-slate-800">ความหมาย</h3>
+                      <h3 className="text-xl font-semibold text-slate-800">{symbolT("meaningLabel")}</h3>
                       <p className="text-slate-600 leading-relaxed">
-                        ประกอบด้วยลายพระมหามงกุฎสีแดงอยู่กลางบุษบกเหนือเลข ๔ ไทย มีความหมายถึง พระบาทสมเด็จพระจอมเกล้าเจ้าอยู่หัว รัชกาลที่ ๔ แห่งพระบรมราชจักรีวงศ์ ผู้ทรงเป็นบิดาแห่งวิทยาศาสตร์ไทย เป็นสัญลักษณ์แห่งความเป็นสิริมงคลและเกียรติยศสูงสุดของสถาบัน
+                        {symbolT("kmutnbMeaning")}
                       </p>
                     </div>
 
                     <a href="/images/logo/kmutnb.png" download="KMUTNB_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#A81E23] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#A81E23] hover:border-[#A81E23] transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
-                      <span>ดาวน์โหลดตราสัญลักษณ์</span>
+                      <span>{symbolT("downloadKmutnb")}</span>
                     </a>
                   </div>
                 </section>
@@ -405,25 +405,25 @@ export default function AboutPageClient() {
 
                   <div className="md:col-span-7 space-y-8 text-left">
                     <div>
-                      <h2 className="text-3xl font-bold text-slate-900 mb-2">ตราสัญลักษณ์คณะ</h2>
+                      <h2 className="text-3xl font-bold text-slate-900 mb-2">{symbolT("fteTitle")}</h2>
                       <div className="h-1 w-20 bg-[#128312]/20"></div>
                     </div>
 
                     <p className="text-lg leading-relaxed text-slate-600 font-light">
-                      คณะครุศาสตร์อุตสาหกรรม<br />
-                      <span className="text-base text-slate-500">Faculty of Technical Education</span>
+                      {symbolT("fteNameTh")}<br />
+                      <span className="text-base text-slate-500">{symbolT("fteNameEn")}</span>
                     </p>
 
                     <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-slate-800">ความหมาย</h3>
+                      <h3 className="text-xl font-semibold text-slate-800">{symbolT("meaningLabel")}</h3>
                       <p className="text-slate-600 leading-relaxed">
-                        สัญลักษณ์รูปเฟืองล้อมรอบคบเพลิง สื่อถึงความเป็นเลิศทางวิชาการและทักษะช่างอุตสาหกรรม เฟืองหมายถึงพลังขับเคลื่อนทางเทคโนโลยีที่หมุนเวียนพัฒนาอย่างต่อเนื่อง ส่วนคบเพลิงหมายถึงแสงสว่างแห่งปัญญาที่นำพาความเจริญก้าวหน้า
+                        {symbolT("fteMeaning")}
                       </p>
                     </div>
 
                     <a href="/images/logo/fte.png" download="FTE_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#128312] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#128312] hover:border-[#128312] transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
-                      <span>ดาวน์โหลดตราสัญลักษณ์</span>
+                      <span>{symbolT("downloadFte")}</span>
                     </a>
                   </div>
                 </section>

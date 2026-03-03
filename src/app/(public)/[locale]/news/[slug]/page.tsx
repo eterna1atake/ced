@@ -8,6 +8,8 @@ import NewsGallery from "@/components/news/NewsGallery";
 import { getTranslations } from "next-intl/server";
 import HeroBanner from "@/components/common/HeroBanner";
 import { getApiBaseUrl } from "@/lib/api-config";
+import Link from "next/link";
+import React from "react";
 
 type NewsDetailPageProps = {
   params: Promise<{
@@ -54,6 +56,37 @@ const formatDate = (value: string | Date, locale: string) => {
     month: "long",
     year: "numeric",
   }).format(parsed);
+};
+
+const parseLinksAndTags = (text: string, locale: string) => {
+  const regex = /(https?:\/\/[^\s]+|#[^\s]+)/g;
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    if (part.match(/^https?:\/\/[^\s]+/)) {
+      return (
+        <a
+          key={index}
+          href={part}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary-main hover:underline break-all"
+        >
+          {part}
+        </a>
+      );
+    } else if (part.match(/^#[^\s]+/)) {
+      return (
+        <span
+          key={index}
+          className="text-primary-main font-medium"
+        >
+          {part}
+        </span>
+      );
+    }
+    return <React.Fragment key={index}>{part}</React.Fragment>;
+  });
 };
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
@@ -136,7 +169,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             {contentBlocks.length > 0 ? (
               contentBlocks.map((block: string, index: number) => (
                 <p key={index} className="whitespace-pre-line">
-                  {block}
+                  {parseLinksAndTags(block, locale)}
                 </p>
               ))
             ) : (
