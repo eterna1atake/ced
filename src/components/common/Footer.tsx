@@ -44,6 +44,29 @@ export default function Footer() {
         return `/${locale}${path}`;
     };
 
+    const renderLinkItem = (link: { key: string, path: string }) => {
+        if (link.path.startsWith("http")) {
+            return (
+                <a
+                    href={link.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
+                >
+                    {t(`links.${link.key}`)}
+                </a>
+            );
+        }
+        return (
+            <Link
+                href={getLocalizedPath(link.path)}
+                className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
+            >
+                {t(`links.${link.key}`)}
+            </Link>
+        );
+    };
+
     return (
         <footer className="bg-gradient-to-b from-gray-900 to-black text-white border-t border-gray-700/50">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -73,12 +96,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             {quickLinks.map((link) => (
                                 <li key={link.key}>
-                                    <Link
-                                        href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
-                                    >
-                                        {t(`links.${link.key}`)}
-                                    </Link>
+                                    {renderLinkItem(link)}
                                 </li>
                             ))}
                         </ul>
@@ -92,12 +110,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             {serviceLinks.map((link) => (
                                 <li key={link.key}>
-                                    <Link
-                                        href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
-                                    >
-                                        {t(`links.${link.key}`)}
-                                    </Link>
+                                    {renderLinkItem(link)}
                                 </li>
                             ))}
                         </ul>
@@ -111,12 +124,7 @@ export default function Footer() {
                         <ul className="space-y-2">
                             {studentLinks.map((link) => (
                                 <li key={link.key}>
-                                    <Link
-                                        href={getLocalizedPath(link.path)}
-                                        className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
-                                    >
-                                        {t(`links.${link.key}`)}
-                                    </Link>
+                                    {renderLinkItem(link)}
                                 </li>
                             ))}
                         </ul>
