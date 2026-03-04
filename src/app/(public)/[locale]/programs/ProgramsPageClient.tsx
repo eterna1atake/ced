@@ -54,7 +54,7 @@ export default function ProgramsPageClient({ initialPrograms }: { initialProgram
       <section className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
         {/* Tab Navigation */}
         <div className="relative mb-10 border-b border-slate-200">
-          <div ref={containerRef} className="relative flex flex-wrap gap-0 md:gap-4">
+          <div ref={containerRef} className="relative flex flex-wrap gap-0 md:gap-2">
             {["bachelor", "master", "doctoral"].map((tab, index) => (
               <button
                 key={tab}
@@ -65,9 +65,9 @@ export default function ProgramsPageClient({ initialPrograms }: { initialProgram
                   : "text-slate-500 hover:text-slate-700"
                   }`}
               >
-                {tab === "bachelor" && "ปริญญาตรี"}
-                {tab === "master" && "ปริญญาโท"}
-                {tab === "doctoral" && "ปริญญาเอก"}
+                {tab === "bachelor" && t("tabs.bachelor")}
+                {tab === "master" && t("tabs.master")}
+                {tab === "doctoral" && t("tabs.doctoral")}
               </button>
             ))}
             <span

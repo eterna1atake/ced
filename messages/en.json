@@ -347,6 +347,11 @@
     "title": "Programs",
     "description": "Discover academic journeys that integrate teaching practice.",
     "eyebrow": "What You Can Study",
+    "tabs": {
+      "bachelor": "Bachelor's Degree",
+      "master": "Master's Degree",
+      "doctoral": "Doctoral Degree"
+    },
     "programs": {
       "undergraduateTitle": "Bachelor of Education in Computer Education",
       "undergraduateBody": "Develop classroom-ready skills across programming, instructional design, and emerging educational technologies.",
