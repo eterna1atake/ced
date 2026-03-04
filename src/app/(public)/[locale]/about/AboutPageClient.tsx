@@ -176,7 +176,7 @@ export default function AboutPageClient() {
                   </div>
                 </div>
 
-                <div className="bg-white/70 p-6 shadow-lg shadow-slate-100">
+                <div className="bg-white/70 p-6">
                   <div className="space-y-2 text-center" data-aos="fade-up">
                     <p className="text-base font-semibold uppercase tracking-[0.3em] text-primary-main/70">
                       {historyData.highlight ?? "ประวัติภาควิชา"}
@@ -304,6 +304,10 @@ export default function AboutPageClient() {
                       <h2 className="text-3xl font-bold text-slate-900 mb-2">{symbolT("title")}</h2>
                       <div className="h-1 w-20 bg-primary-main/20"></div>
                     </div>
+                    <p className="text-lg leading-relaxed text-slate-600 font-light">
+                      {symbolT("cedNameTh")}<br />
+                      <span className="text-base text-slate-500">{symbolT("cedNameEn")}</span>
+                    </p>
 
                     <p className="text-lg leading-relaxed text-slate-600 font-light">
                       {symbolT("description")}
@@ -336,69 +340,27 @@ export default function AboutPageClient() {
 
                 <div className="w-full h-px bg-slate-100"></div>
 
-                {/* KMUTNB Logo Section */}
-                <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
-                  <div className="md:col-span-5 flex flex-col items-center md:order-last">
-                    <div className="relative w-64 h-64 mb-8">
-                      <Image src="/images/logo/kmutnb.png" alt="KMUTNB Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
-                    </div>
-
-                    {/* KMUTNB Colors */}
-                    <div className="flex gap-4 justify-center">
-                      <div className="group relative">
-                        <div className="w-8 h-8 rounded-full bg-[#A81E23] ring-1 ring-slate-200 cursor-help"></div>
-                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">#A81E23</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="md:col-span-7 space-y-8 text-left">
-                    <div>
-                      <h2 className="text-3xl font-bold text-slate-900 mb-2">{symbolT("kmutnbTitle")}</h2>
-                      <div className="h-1 w-20 bg-[#A81E23]/20"></div>
-                    </div>
-
-                    <p className="text-lg leading-relaxed text-slate-600 font-light">
-                      {symbolT("kmutnbNameTh")}<br />
-                      <span className="text-base text-slate-500">{symbolT("kmutnbNameEn")}</span>
-                    </p>
-
-                    <div className="space-y-4">
-                      <h3 className="text-xl font-semibold text-slate-800">{symbolT("meaningLabel")}</h3>
-                      <p className="text-slate-600 leading-relaxed">
-                        {symbolT("kmutnbMeaning")}
-                      </p>
-                    </div>
-
-                    <a href="/images/logo/kmutnb.png" download="KMUTNB_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#A81E23] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#A81E23] hover:border-[#A81E23] transition-all hover:-translate-y-0.5 mt-4">
-                      <FontAwesomeIcon icon={faDownload} />
-                      <span>{symbolT("downloadKmutnb")}</span>
-                    </a>
-                  </div>
-                </section>
-
-                <div className="w-full h-px bg-slate-100"></div>
-
                 {/* FTE Logo Section */}
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
-                  <div className="md:col-span-5 flex flex-col items-center">
+                  <div className="md:col-span-5 flex flex-col items-center md:order-last">
                     <div className="relative w-64 h-64 mb-8">
                       <Image src="/images/logo/fte.png" alt="FTE Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
                     </div>
 
                     {/* FTE Colors */}
+
                     <div className="flex gap-4 justify-center">
                       <div className="group relative">
                         <div className="w-8 h-8 rounded-full bg-[#128312] ring-1 ring-slate-200 cursor-help"></div>
-                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Bilbao #128312</span>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">#128312</span>
                       </div>
                       <div className="group relative">
                         <div className="w-8 h-8 rounded-full bg-[#86BE89] ring-1 ring-slate-200 cursor-help"></div>
-                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">De York #86BE89</span>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">#86BE89</span>
                       </div>
                       <div className="group relative">
                         <div className="w-8 h-8 rounded-full bg-[#E8F2E7] ring-1 ring-slate-200 cursor-help"></div>
-                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Gin #E8F2E7</span>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">#E8F2E7</span>
                       </div>
                     </div>
                   </div>
@@ -424,6 +386,51 @@ export default function AboutPageClient() {
                     <a href="/images/logo/fte.png" download="FTE_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#128312] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#128312] hover:border-[#128312] transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
                       <span>{symbolT("downloadFte")}</span>
+                    </a>
+                  </div>
+                </section>
+
+                <div className="w-full h-px bg-slate-100"></div>
+
+                {/* KMUTNB Logo Section */}
+                <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
+                  <div className="md:col-span-5 flex flex-col items-center">
+                    <div className="relative w-64 h-64 mb-8">
+                      <Image src="/images/logo/kmutnb.png" alt="KMUTNB Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
+
+                    </div>
+
+                    {/* KMUTNB Colors */}
+                    <div className="flex gap-4 justify-center">
+                      <div className="group relative">
+                        <div className="w-8 h-8 rounded-full bg-[#A81E23] ring-1 ring-slate-200 cursor-help"></div>
+                        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-xs text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">#A81E23</span>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <div className="md:col-span-7 space-y-8 text-left">
+                    <div>
+                      <h2 className="text-3xl font-bold text-slate-900 mb-2">{symbolT("kmutnbTitle")}</h2>
+                      <div className="h-1 w-20 bg-[#A81E23]/20"></div>
+                    </div>
+
+                    <p className="text-lg leading-relaxed text-slate-600 font-light">
+                      {symbolT("kmutnbNameTh")}<br />
+                      <span className="text-base text-slate-500">{symbolT("kmutnbNameEn")}</span>
+                    </p>
+
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-semibold text-slate-800">{symbolT("meaningLabel")}</h3>
+                      <p className="text-slate-600 leading-relaxed">
+                        {symbolT("kmutnbMeaning")}
+                      </p>
+                    </div>
+
+                    <a href="/images/logo/kmutnb.png" download="KMUTNB_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#A81E23] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#A81E23] hover:border-[#A81E23] transition-all hover:-translate-y-0.5 mt-4">
+                      <FontAwesomeIcon icon={faDownload} />
+                      <span>{symbolT("downloadKmutnb")}</span>
                     </a>
                   </div>
                 </section>

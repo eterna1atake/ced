@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Classroom from "@/collections/Classroom";
+import Facility from "@/collections/Facility";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { logSystemEvent } from "@/lib/audit";
@@ -20,7 +20,7 @@ const DescriptionSchema = z.object({
 });
 
 // For update, fields can be partial, but ID usually shouldn't change easily or needs care
-const ClassroomUpdateSchema = z.object({
+const FacilityUpdateSchema = z.object({
     // ID is allowed in body but check if it matches param or handles rename logic (usually we don't rename IDs easily)
     name: LocalizedStringSchema.optional(),
     image: z.string().trim().min(1).optional(),
@@ -58,15 +58,15 @@ export async function GET(
         const { id } = await params;
 
         // Find by custom ID (e.g. 52-205)
-        const classroom = await Classroom.findOne({ id: decodeURIComponent(id) });
+        const facility = await Facility.findOne({ id: decodeURIComponent(id) });
 
-        if (!classroom) {
-            return NextResponse.json({ error: "Classroom not found" }, { status: 404 });
+        if (!facility) {
+            return NextResponse.json({ error: "Facility not found" }, { status: 404 });
         }
 
-        return NextResponse.json(classroom);
+        return NextResponse.json(facility);
     } catch (error) {
-        console.error("Error fetching classroom:", error);
+        console.error("Error fetching facility:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -83,7 +83,7 @@ export async function PUT(
         const { id } = await params;
         const body = await request.json();
 
-        const parsed = ClassroomUpdateSchema.safeParse(body);
+        const parsed = FacilityUpdateSchema.safeParse(body);
         if (!parsed.success) {
             return NextResponse.json({ error: "Validation failed", details: parsed.error.flatten() }, { status: 400 });
         }
@@ -91,9 +91,9 @@ export async function PUT(
         const data = parsed.data;
         const targetId = decodeURIComponent(id);
 
-        const existing = await Classroom.findOne({ id: targetId });
+        const existing = await Facility.findOne({ id: targetId });
         if (!existing) {
-            return NextResponse.json({ error: "Classroom not found" }, { status: 404 });
+            return NextResponse.json({ error: "Facility not found" }, { status: 404 });
         }
 
         // Sanitization and Update Object construction
@@ -116,7 +116,7 @@ export async function PUT(
         if (data.capacity !== undefined) updateData.capacity = sanitize(data.capacity);
         if (data.equipment !== undefined) updateData.equipment = data.equipment.map(e => sanitize(e));
 
-        const updatedClassroom = await Classroom.findOneAndUpdate(
+        const updatedFacility = await Facility.findOneAndUpdate(
             { id: targetId },
             { $set: updateData },
             { new: true, runValidators: true }
@@ -128,17 +128,17 @@ export async function PUT(
         await logSystemEvent({
             action: "UPDATE_CONTENT",
             actorEmail: session.user?.email || "unknown",
-            details: `Updated Classroom: ${targetId} (${updatedClassroom.name.en})`,
+            details: `Updated Facility: ${targetId} (${updatedFacility.name.en})`,
             ip,
-            targetId: String(updatedClassroom._id)
+            targetId: String(updatedFacility._id)
         });
 
-        revalidatePath('/[locale]/classroom');
-        return NextResponse.json(updatedClassroom);
+        revalidatePath('/[locale]/facilities');
+        return NextResponse.json(updatedFacility);
     } catch (error: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const err = error as any;
-        console.error("Error updating classroom:", err);
+        console.error("Error updating facility:", err);
         return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
     }
 }
@@ -155,10 +155,10 @@ export async function DELETE(
         const { id } = await params;
         const targetId = decodeURIComponent(id);
 
-        const deleted = await Classroom.findOneAndDelete({ id: targetId });
+        const deleted = await Facility.findOneAndDelete({ id: targetId });
 
         if (!deleted) {
-            return NextResponse.json({ error: "Classroom not found" }, { status: 404 });
+            return NextResponse.json({ error: "Facility not found" }, { status: 404 });
         }
 
         // Audit Log
@@ -167,15 +167,15 @@ export async function DELETE(
         await logSystemEvent({
             action: "DELETE_CONTENT",
             actorEmail: session.user?.email || "unknown",
-            details: `Deleted Classroom: ${targetId} (${deleted.name.en})`,
+            details: `Deleted Facility: ${targetId} (${deleted.name.en})`,
             ip,
             targetId: String(deleted._id)
         });
 
-        revalidatePath('/[locale]/classroom');
-        return NextResponse.json({ success: true, message: "Classroom deleted" });
+        revalidatePath('/[locale]/facilities');
+        return NextResponse.json({ success: true, message: "Facility deleted" });
     } catch (error) {
-        console.error("Error deleting classroom:", error);
+        console.error("Error deleting facility:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

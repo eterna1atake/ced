@@ -137,7 +137,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         <article className="space-y-8">
           <header className="space-y-2 md:space-y-4">
             <span className="inline-flex items-center rounded-full bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
-              {newsItem.category ? t(`categories.${newsItem.category}`) : t("categoryLabel")}
+              {newsItem.category ? t(`categories.${newsItem.category.replace(/&amp;/g, '&')}`) : t("categoryLabel")}
             </span>
             <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 sm:text-4xl">
               {newsItem.title[locale as "en" | "th"]}

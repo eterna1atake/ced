@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Classroom from "@/collections/Classroom";
+import Facility from "@/collections/Facility";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { logSystemEvent } from "@/lib/audit";
@@ -20,7 +20,7 @@ const DescriptionSchema = z.object({
     en: z.string().default(""),
 });
 
-const ClassroomSchema = z.object({
+const FacilitySchema = z.object({
     id: z.string().trim().min(1, "ID is required").regex(/^(44|52)-/, "ID must start with 44- or 52-"),
     name: LocalizedStringSchema,
     image: z.string().trim().min(1, "Cover image is required"),
@@ -47,10 +47,10 @@ export async function GET() {
     try {
         await dbConnect();
         // Sort by ID is usually reasonable for rooms
-        const classrooms = await Classroom.find({}).sort({ id: 1 });
-        return NextResponse.json(classrooms);
+        const facilities = await Facility.find({}).sort({ id: 1 });
+        return NextResponse.json(facilities);
     } catch (error) {
-        console.error("Error fetching classrooms:", error);
+        console.error("Error fetching facilities:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     try {
         await dbConnect();
         const body = await request.json();
-        const parsed = ClassroomSchema.safeParse(body);
+        const parsed = FacilitySchema.safeParse(body);
 
         if (!parsed.success) {
             return NextResponse.json({ error: "Validation failed", details: parsed.error.flatten() }, { status: 400 });
@@ -86,9 +86,9 @@ export async function POST(request: NextRequest) {
         const data = parsed.data;
 
         // Check for duplicate ID
-        const existing = await Classroom.findOne({ id: data.id });
+        const existing = await Facility.findOne({ id: data.id });
         if (existing) {
-            return NextResponse.json({ error: "Classroom ID already exists" }, { status: 409 });
+            return NextResponse.json({ error: "Facility ID already exists" }, { status: 409 });
         }
 
         // XSS Protection
@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
             // Images are URLs
         };
 
-        const newClassroom = await Classroom.create(sanitizedData);
+        const newFacility = await Facility.create(sanitizedData);
 
         // Audit Log
         const headersList = await headers();
@@ -116,17 +116,17 @@ export async function POST(request: NextRequest) {
         await logSystemEvent({
             action: "CREATE_CONTENT",
             actorEmail: session.user?.email || "unknown",
-            details: `Created Classroom: ${newClassroom.id} (${newClassroom.name.en})`,
+            details: `Created Facility: ${newFacility.id} (${newFacility.name.en})`,
             ip,
-            targetId: String(newClassroom._id)
+            targetId: String(newFacility._id)
         });
 
-        revalidatePath('/[locale]/classroom');
-        return NextResponse.json(newClassroom, { status: 201 });
+        revalidatePath('/[locale]/facilities');
+        return NextResponse.json(newFacility, { status: 201 });
     } catch (error: unknown) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const err = error as any;
-        console.error("Error creating classroom:", err);
+        console.error("Error creating facility:", err);
         return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
     }
 }

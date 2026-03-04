@@ -53,7 +53,7 @@ export default async function Home({ params }: Props) {
     { id: "admissions", label: t("admissions"), href: "https://admission.kmutnb.ac.th" },
     { id: "programs", label: t("programs"), href: `/${locale}/programs` },
     { id: "Department Information", label: t("deptinfo"), href: `/${locale}/about` },
-    { id: "CLASSROOM", label: t("classroom"), href: `/${locale}/classroom` },
+    { id: "FACILITIES", label: t("facilities"), href: `/${locale}/facilities` },
     { id: "olr", label: t("olr"), href: `/${locale}/online-learning-resources` },
     { id: "research", label: t("research"), href: "https://research.kmutnb.ac.th" },
   ];

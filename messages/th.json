@@ -8,7 +8,7 @@
     "programsTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | หลักสูตร",
     "servicesTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | บริการ",
     "onlineLearningTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | แหล่งเรียนรู้ออนไลน์",
-    "classroomTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | ทรัพยากรห้องเรียน",
+    "facilityTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | ทรัพยากรห้อง (Facilities)",
     "formRequestsTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | แบบฟอร์มคำร้อง",
     "contactUsTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | ติดต่อเรา",
     "awardsTitle": "ภาควิชาคอมพิวเตอร์ศึกษา | รางวัลและประกาศเกียรติคุณ",
@@ -95,7 +95,7 @@
     "major": "สาขาวิชา, แขนงวิชา และหลักสูตร",
     "awards": "รางวัลและประกาศเกียรติคุณ",
     "deptinfo": "ข้อมูลภาควิชา",
-    "classroom": "ห้องเรียน",
+    "facilities": "สิ่งอำนวยความสะดวก",
     "studentservices": "งานบริการนักศึกษา",
     "lastNew": "ข่าวสารล่าสุด",
     "seeMore": "ดูข่าวเพิ่มเติม",
@@ -231,6 +231,8 @@
         "brightBlue": "Bright Blue",
         "orange": "Orange"
       },
+      "cedNameTh": "ภาควิชาคอมพิวเตอร์ศึกษา",
+      "cedNameEn": "Computer Education Department",
       "kmutnbTitle": "ตราสัญลักษณ์มหาวิทยาลัย",
       "kmutnbNameTh": "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
       "kmutnbNameEn": "King Mongkut's University of Technology North Bangkok",
@@ -462,11 +464,12 @@
       "visit": "เข้าสู่เว็บไซต์"
     }
   },
-  "ClassroomPage": {
-    "title": "ทรัพยากรห้องเรียน",
-    "description": "เข้าถึงสื่อการสอนและกิจกรรมต่างๆ ภายในห้องเรียน",
-    "eyebrow": "ห้องเรียน",
+  "FacilityPage": {
+    "title": "ทรัพยากรห้อง (Facilities)",
+    "description": "เข้าถึงสื่อและกิจกรรมต่างๆ ภายในห้อง",
+    "eyebrow": "ห้องต่างๆ",
     "selectBuilding": "เลือกอาคารเรียน",
+    "videoPresentation": "วิดีโอแนะนำห้องเรียน ภาควิชาคอมพิวเตอร์ศึกษา",
     "building52": "อาคาร 52",
     "building44": "อาคาร 44",
     "building52Desc": "ศูนย์ปฏิบัติการคอมพิวเตอร์และเทคโนโลยีสารสนเทศ",
@@ -475,10 +478,11 @@
     "capacity": "ความจุ",
     "equipment": "อุปกรณ์",
     "gallery": "รูปภาพเพิ่มเติม",
-    "roomDetail": "รายละเอียดห้องเรียน",
+    "roomDetail": "รายละเอียด",
     "computerSpecs": "สิ่งอำนวยความสะดวก",
     "machineCount": "จำนวนเครื่อง",
-    "bookRoom": "จองห้องเรียน"
+    "bookRoom": "จองห้อง",
+    "noFacilitiesFound": "ไม่พบข้อมูลห้องสำหรับอาคารนี้"
   },
   "AwardsPage": {
     "title": "รางวัลและประกาศเกียรติคุณ",
@@ -509,7 +513,7 @@
       "personnel": "ข้อมูลบุคลากร",
       "academic": "วิชาการและทรัพยากร",
       "programs": "หลักสูตร",
-      "classrooms": "ห้องเรียน",
+      "facilities": "ห้องต่างๆ (Facilities)",
       "onlineResources": "แหล่งเรียนรู้ออนไลน์",
       "services": "การบริการ",
       "studentServices": "บริการนักศึกษา",
@@ -613,10 +617,10 @@
         "description": "จัดการลิงก์บริการและไอคอน",
         "add": "เพิ่มบริการ"
       },
-      "classrooms": {
-        "title": "ห้องเรียนและแล็บ",
+      "facilities": {
+        "title": "ห้องต่างๆ และแล็บ",
         "description": "จัดการพื้นที่เรียนรู้และอุปกรณ์",
-        "add": "เพิ่มห้องเรียน"
+        "add": "เพิ่มห้องใหม่"
       },
       "auditLogs": {
         "title": "ประวัติการใช้งานและบันทึก",
@@ -863,14 +867,14 @@
         "iconHint": "อัปโหลดรูปไอคอนสำหรับบริการ",
         "saveService": "บันทึกข้อมูลบริการ"
       },
-      "classrooms": {
-        "details": "รายละเอียดห้องเรียน",
+      "facilities": {
+        "details": "รายละเอียดห้อง",
         "roomNumber": "หมายเลขห้อง (ID)",
         "roomNumberPlaceholder": "เช่น 52-205",
         "roomNumberHint": "รหัสนี้จะถูกใช้เป็น ID ที่ห้ามซ้ำกัน",
         "capacity": "ความจุ",
         "capacityPlaceholder": "เช่น 40 คน",
-        "roomName": "ชื่อห้องเรียน",
+        "roomName": "ชื่อห้อง",
         "roomNamePlaceholderTh": "ชื่อห้อง (ไทย)",
         "roomNamePlaceholderEn": "ชื่อห้อง (อังกฤษ)",
         "description": "คำอธิบาย",
@@ -880,9 +884,9 @@
         "equipmentPlaceholder": "ชื่ออุปกรณ์",
         "addItem": "เพิ่มรายการ",
         "noEquipment": "ยังไม่มีรายการอุปกรณ์ถูกเพิ่ม",
-        "saveClassroom": "บันทึกห้องเรียน",
-        "editClassroom": "แก้ไขห้องเรียน",
-        "newClassroom": "เพิ่มห้องเรียนใหม่"
+        "saveFacility": "บันทึกข้อมูลห้อง",
+        "editFacility": "แก้ไขข้อมูลห้อง",
+        "newFacility": "เพิ่มห้องใหม่"
       },
       "training": {
         "details": "รายละเอียดการฝึกอบรม",

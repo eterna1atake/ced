@@ -48,7 +48,7 @@ export default function LatestNewsSection({
             summary={item.content[locale as "en" | "th"]}
             imageSrc={item.imageSrc}
             galleryImages={item.galleryImages}
-            category={item.category ? tNews(`categories.${item.category}`) : undefined}
+            category={item.category ? tNews(`categories.${item.category.replace(/&amp;/g, '&')}`) : undefined}
             date={item.date}
             author={item.author[locale as "en" | "th"]}
             href={`/news/${item.slug ?? item.id}`}

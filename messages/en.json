@@ -8,7 +8,7 @@
     "programsTitle": "Computer Education | Programs",
     "servicesTitle": "Computer Education | Services",
     "onlineLearningTitle": "Computer Education | Online Learning Resources",
-    "classroomTitle": "Computer Education | Classroom",
+    "facilityTitle": "Computer Education | Facility",
     "formRequestsTitle": "Computer Education | Form Requests",
     "contactUsTitle": "Computer Education | Contact Us",
     "awardsTitle": "Computer Education | Awards & Recognition",
@@ -95,7 +95,7 @@
     "major": "Majors, Minors AND Programs",
     "awards": "Awards",
     "deptinfo": "Department Information",
-    "classroom": "Classroom",
+    "facilities": "Facilities",
     "studentservices": "Student Services",
     "lastNew": "LASTEST NEWS",
     "seeMore": "SEE MORE NEWS",
@@ -231,6 +231,8 @@
         "brightBlue": "Bright Blue",
         "orange": "Orange"
       },
+      "cedNameTh": "ภาควิชาคอมพิวเตอร์ศึกษา",
+      "cedNameEn": "Computer Education Department",
       "kmutnbTitle": "University Symbol",
       "kmutnbNameTh": "มหาวิทยาลัยเทคโนโลยีพระจอมเกล้าพระนครเหนือ",
       "kmutnbNameEn": "King Mongkut's University of Technology North Bangkok",
@@ -462,11 +464,12 @@
       "visit": "Visit Website"
     }
   },
-  "ClassroomPage": {
-    "title": "Classroom Resources",
-    "description": "Access all necessary materials and activities for the classroom.",
-    "eyebrow": "My Classroom",
+  "FacilityPage": {
+    "title": "Facility Resources",
+    "description": "Access all necessary materials and activities for the facility.",
+    "eyebrow": "My Facility",
     "selectBuilding": "Select Building",
+    "videoPresentation": "Facilities Introduction Video",
     "building52": "Building 52",
     "building44": "Building 44",
     "building52Desc": "Computer and Information Technology Center",
@@ -475,10 +478,11 @@
     "capacity": "Capacity",
     "equipment": "Equipment",
     "gallery": "Gallery",
-    "roomDetail": "Room Details",
-    "computerSpecs": "Computer Specifications",
+    "roomDetail": "Facility Details",
+    "computerSpecs": "Facility Specifications",
     "machineCount": "Capacity",
-    "bookRoom": "Book This Room"
+    "bookRoom": "Book This Facility",
+    "noFacilitiesFound": "No facilities found for this building."
   },
   "AwardsPage": {
     "title": "Awards & Recognition",
@@ -509,7 +513,7 @@
       "personnel": "Personnel",
       "academic": "Academic & Resources",
       "programs": "Programs",
-      "classrooms": "Classrooms",
+      "facilities": "Facilities",
       "onlineResources": "Online Resources",
       "services": "Services",
       "studentServices": "Student Services",
@@ -613,10 +617,10 @@
         "description": "Manage service links and icons.",
         "add": "Add Service"
       },
-      "classrooms": {
-        "title": "Classrooms & Labs",
+      "facilities": {
+        "title": "Facilities & Labs",
         "description": "Manage learning spaces and equipment.",
-        "add": "Add Classroom"
+        "add": "Add Facility"
       },
       "auditLogs": {
         "title": "Audit Logs & History",
@@ -863,26 +867,26 @@
         "iconHint": "Upload an icon image for the service",
         "saveService": "Save Service"
       },
-      "classrooms": {
-        "details": "Classroom Details",
+      "facilities": {
+        "details": "Facility Details",
         "roomNumber": "Room Number (ID)",
         "roomNumberPlaceholder": "e.g. 52-205",
         "roomNumberHint": "This will be used as the unique ID",
         "capacity": "Capacity",
         "capacityPlaceholder": "e.g. 40 Students",
-        "roomName": "Room Name",
-        "roomNamePlaceholderTh": "Room Name (Thai)",
-        "roomNamePlaceholderEn": "Room Name (English)",
+        "roomName": "Facility Name",
+        "roomNamePlaceholderTh": "Facility Name (Thai)",
+        "roomNamePlaceholderEn": "Facility Name (English)",
         "description": "Description",
-        "descriptionPlaceholderTh": "Room Description (Thai)",
-        "descriptionPlaceholderEn": "Room Description (English)",
+        "descriptionPlaceholderTh": "Facility Description (Thai)",
+        "descriptionPlaceholderEn": "Facility Description (English)",
         "equipmentList": "Equipment List",
         "equipmentPlaceholder": "Equipment name",
         "addItem": "Add Item",
         "noEquipment": "No equipment added yet.",
-        "saveClassroom": "Save Classroom",
-        "editClassroom": "Edit Classroom",
-        "newClassroom": "New Classroom"
+        "saveFacility": "Save Facility",
+        "editFacility": "Edit Facility",
+        "newFacility": "New Facility"
       },
       "training": {
         "details": "Training Details",

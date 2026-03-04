@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Classroom from "@/collections/Classroom";
+import Facility from "@/collections/Facility";
 
 export const dynamic = 'force-dynamic';
 
@@ -20,11 +20,11 @@ export async function GET(request: NextRequest) {
             query.id = { $regex: `^${building}-` };
         }
 
-        const classrooms = await Classroom.find(query).sort({ id: 1 });
+        const facilities = await Facility.find(query).sort({ id: 1 });
 
-        return NextResponse.json(classrooms);
+        return NextResponse.json(facilities);
     } catch (error) {
-        console.error("Error fetching classrooms:", error);
+        console.error("Error fetching facilities:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
