@@ -96,7 +96,7 @@ export default function FormRequestPageClient({ initialForms = [] }: FormRequest
                 <FloatingBackButton />
             </section>
 
-            <section className="mx-auto w-full max-w-7xl px-6 py-8 lg:px-10">
+            <section className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
                 <div className="flex flex-col lg:flex-row gap-10">
                     {/* Sidebar */}
                     <aside className="w-full lg:w-72 flex-shrink-0">

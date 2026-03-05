@@ -12,6 +12,7 @@
     "formRequestsTitle": "Computer Education | Form Requests",
     "contactUsTitle": "Computer Education | Contact Us",
     "awardsTitle": "Computer Education | Awards & Recognition",
+    "applyTitle": "Computer Education | Apply for Admission",
     "faviconPath": "/favicon.ico"
   },
   "Common": {
@@ -83,7 +84,8 @@
     "tct": "B.S.Tech.Ed. (Computer Technology)",
     "services": "Services",
     "onlineLearning": "Online Learning Resources",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "apply": "Apply for Admission"
   },
   "Hero": {
     "admissions": "Admissions",
@@ -191,6 +193,18 @@
     "paginationPrevious": "Previous",
     "paginationNext": "Next",
     "paginationPageInfo": "Page {current} of {total}"
+  },
+  "ApplyPage": {
+    "title": "Apply",
+    "description": "For those interested in applying for admission",
+    "eyebrow": "Apply for Admission",
+    "bachelorsLevel": "Undergraduate Programs",
+    "bachelorsDesc": "Explore our admission schedules, criteria, and applicant qualifications for Bachelor's degree programs.",
+    "graduateLevel": "Postgraduate Programs (Master's & Ph.D.)",
+    "graduateDesc": "Discover the admission schedules, criteria, and applicant qualifications for our advanced degree programs.",
+    "applyNow": "Apply Now",
+    "campusLife": "Campus Life",
+    "seeAll": "See all"
   },
   "Personnel": {
     "title": "Our Personnel",
@@ -350,9 +364,9 @@
     "description": "Discover academic journeys that integrate teaching practice.",
     "eyebrow": "What You Can Study",
     "tabs": {
-      "bachelor": "Bachelor's Degree",
-      "master": "Master's Degree",
-      "doctoral": "Doctoral Degree"
+      "bachelor": "Bachelor",
+      "master": "Master",
+      "doctoral": "Doctoral"
     },
     "programs": {
       "undergraduateTitle": "Bachelor of Education in Computer Education",
@@ -368,7 +382,8 @@
       "labs": "Specialised labs for robotics, AR/VR, and learning analytics",
       "community": "Collaborative projects with local and international schools"
     },
-    "ctaLabel": "Contact admissions"
+    "ctaLabel": "Contact admissions",
+    "programDetail": "Program Details"
   },
   "FormRequestsPage": {
     "title": "Form Requests & Documents",

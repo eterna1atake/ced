@@ -167,10 +167,10 @@ export default function FacilityPageClient() {
 
 
 
-        <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+        <div className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
           {/* Video Presentation */}
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">{t("videoPresentation")}</h1>
-          <div className="mb-12 w-full max-w-4xl mx-auto rounded-md overflow-hidden shadow-xl">
+          <div className="mb-12 w-full mx-auto overflow-hidden">
             <div className="relative w-full aspect-video">
               <iframe
                 className="absolute top-0 left-0 w-full h-full"

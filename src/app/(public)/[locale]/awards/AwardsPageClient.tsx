@@ -159,7 +159,7 @@ export default function AwardsPageClient() {
                     <FloatingBackButton />
                 </section>
 
-                <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+                <section className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
                     <div className="grid grid-cols-1 gap-2 lg:gap-4 md:grid-cols-3 lg:grid-cols-4 auto-rows-[300px]">
                         {currentItems.map((award, index) => {
                             const globalIndex = indexOfFirstItem + index;

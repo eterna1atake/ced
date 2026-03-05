@@ -85,7 +85,7 @@ export default function StaffClient({ allPersonnel }: Props) {
         <FloatingBackButton />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 pt-12 lg:px-10 text-center">
+      <section className="mx-auto w-full max-w-7xl px-6 pt-6 lg:px-10 text-center">
         <h2 className="text-3xl font-bold text-slate-900 sm:text-4xl">{content[lang].structureTitle}</h2>
         <p className="mt-4 text-slate-600 max-w-7xl mx-auto">
           {content[lang].structureDesc}
