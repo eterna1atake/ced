@@ -20,9 +20,8 @@ export default function Footer() {
     const quickLinks = [
         { key: "aboutCed", path: "/about" },
         { key: "newsEvents", path: "/newsandevents" },
-        { key: "admissions", path: "https://admission.kmutnb.ac.th/" },
+        { key: "admissions", path: "/apply" },
         { key: "programs", path: "/programs" },
-        { key: "research", path: "https://research.kmutnb.ac.th/researcher/" },
     ];
 
     const serviceLinks = [

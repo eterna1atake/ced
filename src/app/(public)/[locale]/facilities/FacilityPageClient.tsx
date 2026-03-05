@@ -7,15 +7,15 @@ import Loading from "@/components/common/Loading";
 import { useLocale, useTranslations } from "next-intl";
 import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
-import type { IClassroom } from "@/collections/Classroom";
+import type { IFacility } from "@/collections/Facility";
 
-export default function ClassroomPageClient() {
-  const t = useTranslations("ClassroomPage");
+export default function FacilityPageClient() {
+  const t = useTranslations("FacilityPage");
   const breadcrumb = useTranslations("Breadcrumbs");
   const locale = useLocale();
 
   // State
-  const [classrooms, setClassrooms] = useState<IClassroom[]>([]);
+  const [facilities, setFacilities] = useState<IFacility[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeBuilding, setActiveBuilding] = useState<"52" | "44">("44");
   const [activeRoomId, setActiveRoomId] = useState<string>("");
@@ -29,13 +29,13 @@ export default function ClassroomPageClient() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('/api/public/classrooms', { cache: 'no-store' });
+        const res = await fetch('/api/public/facilities', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          setClassrooms(data);
+          setFacilities(data);
         }
       } catch (error) {
-        console.error("Failed to fetch classrooms", error);
+        console.error("Failed to fetch facilities", error);
       } finally {
         setIsLoading(false);
       }
@@ -43,24 +43,24 @@ export default function ClassroomPageClient() {
     fetchData();
   }, []);
 
-  // Filter classrooms based on building
-  const filteredClassrooms = classrooms.filter(c => c.id.startsWith(activeBuilding + "-"));
+  // Filter facilities based on building
+  const filteredFacilities = facilities.filter(c => c.id.startsWith(activeBuilding + "-"));
 
-  // Get active classroom data
-  const activeClassroom = filteredClassrooms.find((c) => c.id === activeRoomId) || filteredClassrooms[0];
+  // Get active facility data
+  const activeFacility = filteredFacilities.find((c) => c.id === activeRoomId) || filteredFacilities[0];
 
   // Set default room when building/data changes
   useEffect(() => {
-    if (filteredClassrooms.length > 0) {
+    if (filteredFacilities.length > 0) {
       // If activeRoomId is not in the current filtered list, switch to the first one
-      const exists = filteredClassrooms.some(c => c.id === activeRoomId);
-      if (!exists && filteredClassrooms[0]) {
-        setActiveRoomId(filteredClassrooms[0].id);
+      const exists = filteredFacilities.some(c => c.id === activeRoomId);
+      if (!exists && filteredFacilities[0]) {
+        setActiveRoomId(filteredFacilities[0].id);
       }
     } else {
       setActiveRoomId("");
     }
-  }, [activeBuilding, filteredClassrooms, activeRoomId]);
+  }, [activeBuilding, filteredFacilities, activeRoomId]);
 
   useEffect(() => {
     const buildings = ["52", "44"];
@@ -83,11 +83,11 @@ export default function ClassroomPageClient() {
 
   // Helper to safely get gallery images
   const getGalleryImage = (index: number) => {
-    if (activeClassroom?.gallery && activeClassroom.gallery.length > index) {
-      return activeClassroom.gallery[index];
+    if (activeFacility?.gallery && activeFacility.gallery.length > index) {
+      return activeFacility.gallery[index];
     }
     // Fallback if no gallery image at index, use main image or placeholder
-    const image = activeClassroom?.image;
+    const image = activeFacility?.image;
     return image || "/images/placeholder.jpg";
   };
 
@@ -119,15 +119,15 @@ export default function ClassroomPageClient() {
 
   const nextLightboxImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const totalImages = activeClassroom?.gallery?.length || 1;
+    const totalImages = activeFacility?.gallery?.length || 1;
     setLightboxIndex((prev) => (prev + 1) % totalImages);
-  }, [activeClassroom]);
+  }, [activeFacility]);
 
   const prevLightboxImage = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const totalImages = activeClassroom?.gallery?.length || 1;
+    const totalImages = activeFacility?.gallery?.length || 1;
     setLightboxIndex((prev) => (prev - 1 + totalImages) % totalImages);
-  }, [activeClassroom]);
+  }, [activeFacility]);
 
   // Handle keyboard navigation
   useEffect(() => {
@@ -140,7 +140,7 @@ export default function ClassroomPageClient() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isLightboxOpen, activeClassroom, closeLightbox, nextLightboxImage, prevLightboxImage]);
+  }, [isLightboxOpen, activeFacility, closeLightbox, nextLightboxImage, prevLightboxImage]);
 
   return (
     <>
@@ -165,7 +165,23 @@ export default function ClassroomPageClient() {
           <FloatingBackButton />
         </section>
 
-        <div className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+
+
+        <div className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
+          {/* Video Presentation */}
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">{t("videoPresentation")}</h1>
+          <div className="mb-12 w-full mx-auto overflow-hidden">
+            <div className="relative w-full aspect-video">
+              <iframe
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/X3OAA-VZ6ro"
+                title="แนะนำห้องเรียน ภาควิชาคอมพิวเตอร์ศึกษา"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              ></iframe>
+            </div>
+          </div>
+
           {/* Building Tabs */}
           <div className="flex justify-center border-b border-slate-200 mb-4">
             <div ref={containerRef} className="relative flex gap-16">
@@ -205,8 +221,8 @@ export default function ClassroomPageClient() {
               {/* Room List Selector */}
               <div data-aos="fade-right">
                 <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-4 md:mb-10 mb-8">
-                  {filteredClassrooms.length > 0 ? (
-                    filteredClassrooms.map((room, index) => (
+                  {filteredFacilities.length > 0 ? (
+                    filteredFacilities.map((room, index) => (
                       <div key={room.id} className="flex items-center">
                         <button
                           onClick={() => setActiveRoomId(room.id)}
@@ -221,19 +237,19 @@ export default function ClassroomPageClient() {
                           />
                         </button>
                         {/* Vertical Divider (don't show after last item) */}
-                        {index < filteredClassrooms.length - 1 && (
+                        {index < filteredFacilities.length - 1 && (
                           <div className="h-6 w-[1px] bg-slate-200 ml-6" />
                         )}
                       </div>
                     ))
                   ) : (
-                    <div className="text-slate-500 py-10">{t("noClassroomsFound")}</div>
+                    <div className="text-slate-500 py-10">{t("noFacilitiesFound")}</div>
                   )}
                 </div>
               </div>
 
               {/* Gallery and Detail Container */}
-              {activeClassroom && (
+              {activeFacility && (
                 <div key={activeRoomId}>
                   {/* Gallery Grid */}
                   <div data-aos="fade-left" data-aos-anchor="#example-anchor" data-aos-offset="500" data-aos-duration="500">
@@ -245,7 +261,7 @@ export default function ClassroomPageClient() {
                       >
                         <Image
                           src={getGalleryImage(0)}
-                          alt={`${getLocalized(activeClassroom.name)} Main View`}
+                          alt={`${getLocalized(activeFacility.name)} Main View`}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
                           priority
@@ -262,7 +278,7 @@ export default function ClassroomPageClient() {
                         >
                           <Image
                             src={getGalleryImage(1)}
-                            alt={`${getLocalized(activeClassroom.name)} View 2`}
+                            alt={`${getLocalized(activeFacility.name)} View 2`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                             priority
@@ -277,7 +293,7 @@ export default function ClassroomPageClient() {
                         >
                           <Image
                             src={getGalleryImage(2)}
-                            alt={`${getLocalized(activeClassroom.name)} View 3`}
+                            alt={`${getLocalized(activeFacility.name)} View 3`}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-105"
                           />
@@ -287,7 +303,7 @@ export default function ClassroomPageClient() {
                     </div>
                   </div>
 
-                  {/* Classroom Detail Section */}
+                  {/* Facility Detail Section */}
                   <div className="mt-8">
                     {/* Detail Header with Green Border */}
                     <div className="border-l-4 border-[#35622F] pl-4 mb-6" data-aos="fade-up">
@@ -297,16 +313,16 @@ export default function ClassroomPageClient() {
                     {/* Detail Content */}
                     <div className="bg-slate-50 rounded-xl p-6 md:p-8">
                       {/* Description */}
-                      {activeClassroom.description && (
+                      {activeFacility.description && (
                         <p className="text-slate-600 text-base leading-relaxed mb-6" data-aos="fade-up" data-aos-delay="100">
-                          {getLocalized(activeClassroom.description)}
+                          {getLocalized(activeFacility.description)}
                         </p>
                       )}
 
                       {/* Specs Grid */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         {/* Computer Specs */}
-                        {activeClassroom.equipment && activeClassroom.equipment.length > 0 && (
+                        {activeFacility.equipment && activeFacility.equipment.length > 0 && (
                           <div className="bg-white rounded-lg p-5 shadow-sm" data-aos="fade-up" data-aos-delay="200">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-lg bg-[#35622F]/10 flex items-center justify-center">
@@ -317,7 +333,7 @@ export default function ClassroomPageClient() {
                               <h3 className="text-lg font-semibold text-slate-900">{t("computerSpecs")}</h3>
                             </div>
                             <ul className="space-y-2">
-                              {activeClassroom.equipment.map((item, index) => (
+                              {activeFacility.equipment.map((item, index) => (
                                 <li key={index} className="flex items-center gap-2 text-slate-600 text-sm">
                                   <span className="w-1.5 h-1.5 rounded-full bg-[#35622F]"></span>
                                   {item}
@@ -328,7 +344,7 @@ export default function ClassroomPageClient() {
                         )}
 
                         {/* Capacity */}
-                        {activeClassroom.capacity && (
+                        {activeFacility.capacity && (
                           <div className="bg-white rounded-lg p-5 shadow-sm" data-aos="fade-up" data-aos-delay="300">
                             <div className="flex items-center gap-3 mb-3">
                               <div className="w-10 h-10 rounded-lg bg-[#35622F]/10 flex items-center justify-center">
@@ -338,7 +354,7 @@ export default function ClassroomPageClient() {
                               </div>
                               <h3 className="text-lg font-semibold text-slate-900">{t("machineCount")}</h3>
                             </div>
-                            <p className="text-2xl font-bold text-[#35622F]">{activeClassroom.capacity}</p>
+                            <p className="text-2xl font-bold text-[#35622F]">{activeFacility.capacity}</p>
                           </div>
                         )}
                       </div>
@@ -363,67 +379,69 @@ export default function ClassroomPageClient() {
           )}
 
         </div>
-      </main>
+      </main >
 
 
 
       {/* Lightbox Modal */}
-      {isLightboxOpen && (
-        <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-200"
-          onClick={closeLightbox}
-        >
-          {/* Close Button */}
-          <button
-            onClick={closeLightbox}
-            className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors p-2 z-10"
-          >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"></line>
-              <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-          </button>
-
-          {/* Navigation Arrows */}
-          <button
-            onClick={prevLightboxImage}
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-4 focus:outline-none z-10"
-          >
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" />
-            </svg>
-          </button>
-
-          <button
-            onClick={nextLightboxImage}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-4 focus:outline-none z-10"
-          >
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 6L8.59 7.41L13.17 12L8.59 16.59L10 18L16 12L10 6Z" />
-            </svg>
-          </button>
-
-          {/* Main Image Container */}
+      {
+        isLightboxOpen && (
           <div
-            className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={closeLightbox}
           >
-            <div className="relative w-full h-full">
-              <Image
-                src={getGalleryImage(lightboxIndex)}
-                alt={`${getLocalized(activeClassroom.name)} Lightbox View`}
-                fill
-                className="object-contain"
-                priority
-              />
+            {/* Close Button */}
+            <button
+              onClick={closeLightbox}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors p-2 z-10"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevLightboxImage}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-4 focus:outline-none z-10"
+            >
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.41 7.41L14 6L8 12L14 18L15.41 16.59L10.83 12L15.41 7.41Z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={nextLightboxImage}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors p-4 focus:outline-none z-10"
+            >
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 6L8.59 7.41L13.17 12L8.59 16.59L10 18L16 12L10 6Z" />
+              </svg>
+            </button>
+
+            {/* Main Image Container */}
+            <div
+              className="relative w-full h-full max-w-7xl max-h-[90vh] p-4 flex items-center justify-center"
+            >
+              <div className="relative w-full h-full">
+                <Image
+                  src={getGalleryImage(lightboxIndex)}
+                  alt={`${getLocalized(activeFacility.name)} Lightbox View`}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+
+            {/* Image Counter */}
+            <div className="absolute bottom-6 right-8 translate-x-1/2 text-slate-400 text-sm font-medium">
+              {lightboxIndex + 1} of {activeFacility?.gallery?.length || 1}
             </div>
           </div>
-
-          {/* Image Counter */}
-          <div className="absolute bottom-6 right-8 translate-x-1/2 text-slate-400 text-sm font-medium">
-            {lightboxIndex + 1} of {activeClassroom?.gallery?.length || 1}
-          </div>
-        </div>
-      )}
+        )
+      }
     </>
   );
 }

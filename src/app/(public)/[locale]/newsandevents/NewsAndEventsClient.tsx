@@ -37,8 +37,8 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
       }
     });
     return Array.from(values).sort((a, b) => {
-      const labelA = t(`categories.${a}`);
-      const labelB = t(`categories.${b}`);
+      const labelA = t(`categories.${a.replace(/&amp;/g, '&')}`);
+      const labelB = t(`categories.${b.replace(/&amp;/g, '&')}`);
       return labelA.localeCompare(labelB, locale);
     });
   }, [newsItems, locale, t]);
@@ -53,8 +53,8 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
       });
     });
     return Array.from(values).sort((a, b) => {
-      const labelA = t(`tags.${a}`);
-      const labelB = t(`tags.${b}`);
+      const labelA = t(`tags.${a.replace(/&amp;/g, '&')}`);
+      const labelB = t(`tags.${b.replace(/&amp;/g, '&')}`);
       return labelA.localeCompare(labelB, locale);
     });
   }, [newsItems, locale, t]);
@@ -180,7 +180,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
                   <option value="all">{t("filterCategoryAll")}</option>
                   {categories.map((category) => (
                     <option key={category} value={category}>
-                      {t(`categories.${category}`)}
+                      {t(`categories.${category.replace(/&amp;/g, '&')}`)}
                     </option>
                   ))}
                 </select>
@@ -220,7 +220,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
                   <option value="all">{t("filterTagAll")}</option>
                   {tags.map((tag) => (
                     <option key={tag} value={tag}>
-                      {t(`tags.${tag}`)}
+                      {t(`tags.${tag.replace(/&amp;/g, '&')}`)}
                     </option>
                   ))}
                 </select>
@@ -286,7 +286,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
               summary={item.content[locale as "en" | "th"]}
               imageSrc={item.imageSrc}
               galleryImages={item.galleryImages}
-              category={item.category ? t(`categories.${item.category}`) : undefined}
+              category={item.category ? t(`categories.${item.category.replace(/&amp;/g, '&')}`) : undefined}
               date={item.date}
               author={item.author[locale as "en" | "th"]}
               href={item.href ?? `/news/${item.slug ?? item.id}`}

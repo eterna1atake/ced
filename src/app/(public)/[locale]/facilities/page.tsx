@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
-import ClassroomPageClient from "./ClassroomPageClient";
+import FacilityPageClient from "./FacilityPageClient";
 
 type PageParams = {
   params: Promise<{
@@ -14,11 +14,11 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
-    title: tMeta("classroomTitle"),
+    title: tMeta("facilityTitle"),
   };
 }
 
 
-export default function ClassroomPage() {
-  return <ClassroomPageClient />;
+export default function FacilityPage() {
+  return <FacilityPageClient />;
 }

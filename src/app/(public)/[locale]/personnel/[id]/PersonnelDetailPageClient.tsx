@@ -172,37 +172,57 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                                         </Link>
                                     )}
 
-                                    {/* Custom Links */}
-                                    {person.customLinks?.map((link, idx) => (
-                                        <Link
-                                            key={idx}
-                                            href={link.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="block group h-full"
-                                        >
-                                            <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50 border border-slate-200 transition-all duration-200 group-hover:border-slate-400/30 group-hover:bg-slate-400/5 group-hover:shadow-sm h-full">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-900/5 group-hover:scale-110 transition-transform duration-200">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Custom Links */}
+                        {person.customLinks && person.customLinks.length > 0 && (
+                            <div>
+                                <div className="mb-6 flex items-center gap-4">
+                                    <div className="w-1 h-8 bg-primary-main"></div>
+                                    <h2 className="text-2xl font-bold text-slate-900">
+                                        {lang === 'th' ? "ลิงก์อื่นๆ" : "Other Links"}
+                                    </h2>
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2">
+                                    {person.customLinks.map((link, idx) => {
+                                        let hrefUrl = link.url;
+                                        if (hrefUrl && !hrefUrl.startsWith("http://") && !hrefUrl.startsWith("https://")) {
+                                            hrefUrl = "https://" + hrefUrl;
+                                        }
+
+                                        return (
+                                            <a
+                                                key={idx}
+                                                href={hrefUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="block group h-full"
+                                            >
+                                                <div className="flex items-center justify-between p-4 rounded-lg bg-slate-50 border border-slate-200 transition-all duration-200 group-hover:border-slate-400/30 group-hover:bg-slate-400/5 group-hover:shadow-sm h-full">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-slate-600 shadow-sm ring-1 ring-slate-900/5 group-hover:scale-110 transition-transform duration-200">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">{link.title}</h3>
+                                                            <p className="text-sm text-slate-500">
+                                                                {lang === 'th' ? "ลิงก์ภายนอก" : "External Link"}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all pl-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                                                         </svg>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">{link.title}</h3>
-                                                        <p className="text-sm text-slate-500">
-                                                            {lang === 'th' ? "ลิงก์ภายนอก" : "External Link"}
-                                                        </p>
-                                                    </div>
                                                 </div>
-                                                <div className="text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all pl-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))}
+                                            </a>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

@@ -128,7 +128,7 @@ const STATIC_PAGES = [
     { title: { th: 'แอดมิชชั่น / รับสมัคร', en: 'Admissions' }, url: 'https://admission.kmutnb.ac.th/', keywords: ['admission', 'apply', 'register', 'entrance', 'รับสมัคร', 'สอบเข้า', 'สมัครเรียน', 'tcas'] },
     { title: { th: 'ผลงานและรางวัล', en: 'Awards & Achievements' }, url: '/awards', keywords: ['award', 'prize', 'competition', 'winner', 'achievement', 'รางวัล', 'ผลงาน', 'ชนะเลิศ', 'แข่งขัน'] },
     { title: { th: 'งานวิจัยและนวัตกรรม', en: 'Research & Innovation' }, url: 'https://research.kmutnb.ac.th', keywords: ['research', 'innovation', 'paper', 'publication', 'scopus', 'วิจัย', 'นวัตกรรม', 'ตีพิมพ์', 'บทความ'] },
-    { title: { th: 'ระบบจองห้องเรียน', en: 'Classroom Scheduler' }, url: '/classroom', keywords: ['classroom', 'room', 'booking', 'schedule', 'ห้องเรียน', 'จองห้อง', 'ตารางเรียน'] },
+    { title: { th: 'ระบบจองห้องเรียน', en: 'Classroom Scheduler' }, url: '/facilities', keywords: ['classroom', 'room', 'booking', 'schedule', 'ห้องเรียน', 'จองห้อง', 'ตารางเรียน', 'facilities'] },
     { title: { th: 'แหล่งเรียนรู้ออนไลน์', en: 'Online Learning Resources' }, url: '/online-learning-resources', keywords: ['online', 'learning', 'resource', 'lms', 'moodle', 'tool', 'software', 'เรียนรู้', 'ออนไลน์', 'สื่อการสอน'] },
     { title: { th: 'ยื่นคำร้อง', en: 'Form Requests' }, url: '/form-requests', keywords: ['form', 'request', 'document', 'petition', 'ยื่นคำร้อง', 'แบบฟอร์ม', 'คำร้อง', 'เอกสาร'] },
 ];

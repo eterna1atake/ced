@@ -7,18 +7,18 @@ import SaveButton from "@/components/admin/common/SaveButton";
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
-import type { Classroom } from "@/types/classroom";
+import type { Facility } from "@/types/facility";
 import Swal from "sweetalert2";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
-interface ClassroomFormProps {
-    initialData?: Partial<Classroom>;
-    onSubmit: (data: Classroom) => void;
+interface FacilityFormProps {
+    initialData?: Partial<Facility>;
+    onSubmit: (data: Facility) => void;
     isLoading?: boolean;
 }
 
-export default function ClassroomForm({ initialData, onSubmit, isLoading = false }: ClassroomFormProps) {
+export default function FacilityForm({ initialData, onSubmit, isLoading = false }: FacilityFormProps) {
     const t = useTranslations("Admin.forms");
     const safeT = (key: string, fallback: string) => {
         try {
@@ -29,7 +29,7 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
         }
     };
 
-    const [formData, setFormData] = useState<Partial<Classroom>>({
+    const [formData, setFormData] = useState<Partial<Facility>>({
         id: "",
         name: { th: "", en: "" },
         description: { th: "", en: "" },
@@ -99,14 +99,14 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
             return;
         }
 
-        onSubmit(formData as Classroom);
+        onSubmit(formData as Facility);
     };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <div className="border-b dark:border-slate-800 pb-4">
                 <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
-                    {initialData?.id ? t("classrooms.editClassroom") : t("classrooms.newClassroom")}
+                    {initialData?.id ? t("facilities.editFacility") : t("facilities.newFacility")}
                 </h3>
             </div>
 
@@ -114,39 +114,39 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormInput
-                        label={t("classrooms.roomNumber")}
+                        label={t("facilities.roomNumber")}
                         name="id"
                         value={formData.id || ""}
                         onChange={handleChange}
                         required
-                        placeholder={t("classrooms.roomNumberPlaceholder")}
-                        hint={t("classrooms.roomNumberHint")}
+                        placeholder={t("facilities.roomNumberPlaceholder")}
+                        hint={t("facilities.roomNumberHint")}
                     />
                     <FormInput
-                        label={t("classrooms.capacity")}
+                        label={t("facilities.capacity")}
                         name="capacity"
                         value={formData.capacity || ""}
                         onChange={handleChange}
-                        placeholder={t("classrooms.capacityPlaceholder")}
+                        placeholder={t("facilities.capacityPlaceholder")}
                     />
                 </div>
 
                 {/* Bilingual Name */}
                 <BilingualInput
-                    label={t("classrooms.roomName")}
+                    label={t("facilities.roomName")}
                     value={formData.name || { th: "", en: "" }}
                     onChange={(lang, value) => setFormData(prev => ({
                         ...prev,
                         name: { ...prev.name!, [lang]: value }
                     }))}
-                    placeholder={{ th: t("classrooms.roomNamePlaceholderTh"), en: t("classrooms.roomNamePlaceholderEn") }}
+                    placeholder={{ th: t("facilities.roomNamePlaceholderTh"), en: t("facilities.roomNamePlaceholderEn") }}
                     onTranslate={() => handleTranslate("name", formData.name?.th || "")}
                     isTranslating={isTranslating.name}
                 />
 
                 {/* Bilingual Description */}
                 <BilingualInput
-                    label={t("classrooms.description")}
+                    label={t("facilities.description")}
                     value={formData.description || { th: "", en: "" }}
                     onChange={(lang, value) => setFormData(prev => ({
                         ...prev,
@@ -154,7 +154,7 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                     }))}
                     multiline
                     rows={3}
-                    placeholder={{ th: t("classrooms.descriptionPlaceholderTh"), en: t("classrooms.descriptionPlaceholderEn") }}
+                    placeholder={{ th: t("facilities.descriptionPlaceholderTh"), en: t("facilities.descriptionPlaceholderEn") }}
                     onTranslate={() => handleTranslate("description", formData.description?.th || "")}
                     isTranslating={isTranslating.description}
                 />
@@ -164,14 +164,14 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
             <div className="space-y-4 pt-4 border-t dark:border-slate-800">
                 <div className="flex justify-between items-center">
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {t("classrooms.equipmentList")}
+                        {t("facilities.equipmentList")}
                     </label>
                     <button
                         type="button"
                         onClick={addEquipment}
                         className="text-sm text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1"
                     >
-                        <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> {t("classrooms.addItem")}
+                        <FontAwesomeIcon icon={faPlus} className="w-3 h-3" /> {t("facilities.addItem")}
                     </button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +182,7 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                                 value={item}
                                 onChange={(e) => handleEquipmentChange(index, e.target.value)}
                                 className="flex-1 px-4 py-2 border rounded-lg outline-none transition-all border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
-                                placeholder={t("classrooms.equipmentPlaceholder")}
+                                placeholder={t("facilities.equipmentPlaceholder")}
                             />
                             <button
                                 type="button"
@@ -194,7 +194,7 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                         </div>
                     ))}
                     {(!formData.equipment || formData.equipment.length === 0) && (
-                        <div className="text-sm text-slate-400 italic col-span-2">{t("classrooms.noEquipment")}</div>
+                        <div className="text-sm text-slate-400 italic col-span-2">{t("facilities.noEquipment")}</div>
                     )}
                 </div>
             </div>
@@ -211,7 +211,7 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                         value={formData.image}
                         onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
                         accept="image/*"
-                        folder="ced_web/classrooms"
+                        folder="ced_web/facilities"
                     />
                 </div>
 
@@ -244,14 +244,14 @@ export default function ClassroomForm({ initialData, onSubmit, isLoading = false
                                 if (url) setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), url] }));
                             }}
                             accept="image/*"
-                            folder="ced_web/classrooms/gallery"
+                            folder="ced_web/facilities/gallery"
                         />
                     </div>
                 </div>
             </div>
 
             <div className="flex justify-end pt-6 border-t dark:border-slate-800">
-                <SaveButton isLoading={isLoading} label={t("classrooms.saveClassroom")} />
+                <SaveButton isLoading={isLoading} label={t("facilities.saveFacility")} />
             </div>
         </form>
     );

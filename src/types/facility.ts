@@ -1,6 +1,6 @@
 import { LocalizedString } from "./common";
 
-export type Classroom = {
+export type Facility = {
     id: string;
     name: LocalizedString;
     image: string;

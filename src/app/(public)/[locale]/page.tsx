@@ -50,16 +50,15 @@ export default async function Home({ params }: Props) {
   // const locale = useLocale(); // We get locale from params in server component
 
   const itemsA = [
-    { id: "admissions", label: t("admissions"), href: "https://admission.kmutnb.ac.th" },
+    { id: "admissions", label: t("admissions"), href: `/${locale}/apply` },
     { id: "programs", label: t("programs"), href: `/${locale}/programs` },
     { id: "Department Information", label: t("deptinfo"), href: `/${locale}/about` },
-    { id: "CLASSROOM", label: t("classroom"), href: `/${locale}/classroom` },
     { id: "olr", label: t("olr"), href: `/${locale}/online-learning-resources` },
     { id: "research", label: t("research"), href: "https://research.kmutnb.ac.th" },
   ];
 
   const itemsB = [
-    { id: "Majors, Minors AND Programs", label: t("major"), href: `/${locale}/programs` },
+    { id: "FACILITIES", label: t("facilities"), href: `/${locale}/facilities` },
     { id: "Student Services", label: t("studentservices"), href: `/${locale}/student-services` },
     { id: "Awards", label: t("awards"), href: `/${locale}/awards` },
     { id: "Form Requests", label: t("formRequests"), href: `/${locale}/form-requests` },
@@ -89,19 +88,19 @@ export default async function Home({ params }: Props) {
             aria-label="Main quick links"
             className="mx-auto w-full max-w-7xl px-4"
           >
-            <ul className="flex items-center gap-2 sm:gap-3 overflow-x-auto py-1 md:justify-center md:gap-0 md:overflow-visible">
+            <ul className="flex items-center gap-2 sm:gap-3 overflow-x-auto py-1 md:justify-center lg:gap-0 lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {itemsA.map((item, index) => (
                 <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className="rounded-full bg-white/10 px-3 py-1.5 text-sm sm:text-base font-normal text-white transition-colors hover:bg-white/20 md:rounded-md md:bg-transparent md:px-2 md:py-2 md:text-lg md:hover:bg-white/10"
+                    className="rounded-full bg-white/10 px-3 py-1.5 text-sm sm:text-base font-normal text-white transition-colors hover:bg-white/20 lg:rounded-md lg:bg-transparent lg:px-2 lg:py-2 lg:text-lg lg:hover:bg-white/10"
                   >
                     {item.label}
                   </Link>
 
                   {/* Separator on desktop only */}
                   {index !== itemsA.length - 1 && (
-                    <span className="hidden px-1 text-white/50 md:flex lg:px-2">
+                    <span className="hidden px-1 text-white/50 lg:flex lg:px-2">
                       <PipeIcon className="h-6 w-4 sm:h-7 md:h-8" strokeWidth={4} />
                     </span>
                   )}
@@ -116,19 +115,19 @@ export default async function Home({ params }: Props) {
             aria-label="Secondary quick links"
             className="mx-auto w-full max-w-7xl px-4"
           >
-            <ul className="flex items-center gap-2 sm:gap-2 overflow-x-auto py-1 md:justify-center md:gap-0 md:overflow-visible">
+            <ul className="flex items-center gap-2 sm:gap-2 overflow-x-auto py-1 md:justify-center lg:gap-0 lg:overflow-visible [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {itemsB.map((item, index) => (
                 <li key={item.id} className="flex shrink-0 items-center">
                   <Link
                     href={item.href}
-                    className="rounded-full bg-slate-100 px-3 py-2 text-sm sm:text-base font-normal text-slate-700 transition-colors hover:bg-slate-200 md:rounded-none md:bg-transparent md:px-2 md:py-2 md:text-lg md:text-slate-800 md:hover:bg-transparent md:hover:text-primary-main"
+                    className="rounded-full bg-slate-100 px-3 py-2 text-sm sm:text-base font-normal text-slate-700 transition-colors hover:bg-slate-200 lg:rounded-none lg:bg-transparent lg:px-2 lg:py-2 lg:text-lg lg:text-slate-800 lg:hover:bg-transparent lg:hover:text-primary-main"
                   >
                     {item.label}
                   </Link>
 
                   {/* Separator on desktop only */}
                   {index !== itemsB.length - 1 && (
-                    <span className="hidden px-0 text-slate-300 md:flex lg:px-1">
+                    <span className="hidden px-0 text-slate-300 lg:flex lg:px-1">
                       <PipeIcon className="h-6 w-4 sm:h-7 md:h-8" strokeWidth={4} />
                     </span>
                   )}

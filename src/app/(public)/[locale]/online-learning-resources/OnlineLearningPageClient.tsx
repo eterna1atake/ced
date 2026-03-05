@@ -100,7 +100,7 @@ export default function OnlineLearningPageClient({ initialResources }: { initial
         <FloatingBackButton />
       </section>
 
-      <div className="mx-auto w-full max-w-7xl px-6 py-12 lg:px-10 space-y-16">
+      <div className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10 space-y-16">
         {groupedResources.map((category, index) => (
           <section key={category.key} data-aos="fade-up" data-aos-delay={index * 100}>
             <div className="flex items-center gap-4 mb-8">

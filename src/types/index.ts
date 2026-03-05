@@ -1,6 +1,6 @@
 export * from './common';
 export * from './award';
-export * from './classroom';
+export * from './facility';
 export * from './form-request';
 export * from './hero';
 export * from './news';

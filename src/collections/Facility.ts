@@ -1,6 +1,6 @@
 import { Schema, model, models } from 'mongoose';
 
-export type IClassroom = {
+export type IFacility = {
     _id?: string;
     id: string; // The manual ID like "52-205"
     name: { th: string; en: string };
@@ -14,11 +14,11 @@ export type IClassroom = {
     updatedAt?: Date;
 };
 
-const ClassroomSchema = new Schema<IClassroom>(
+const FacilitySchema = new Schema<IFacility>(
     {
         id: {
             type: String,
-            required: [true, 'Classroom ID is required'],
+            required: [true, 'Facility ID is required'],
             unique: true,
             trim: true,
             // 44-xxx or 52-xxx
@@ -26,7 +26,7 @@ const ClassroomSchema = new Schema<IClassroom>(
                 validator: function (v: string) {
                     return /^(44|52)-/.test(v);
                 },
-                message: props => `${props.value} is not a valid classroom ID. Must start with 44- or 52-.`
+                message: props => `${props.value} is not a valid facility ID. Must start with 44- or 52-.`
             }
         },
         name: {
@@ -54,7 +54,7 @@ const ClassroomSchema = new Schema<IClassroom>(
 );
 
 // Virtual for building number
-ClassroomSchema.virtual('building').get(function () {
+FacilitySchema.virtual('building').get(function () {
     if (this.id && typeof this.id === 'string') {
         const parts = this.id.split('-');
         return parts[0] || 'Unknown';
@@ -62,6 +62,6 @@ ClassroomSchema.virtual('building').get(function () {
     return 'Unknown';
 });
 
-const Classroom = models.Classroom || model<IClassroom>('Classroom', ClassroomSchema);
+const Facility = models.Facility || model<IFacility>('Facility', FacilitySchema);
 
-export default Classroom;
+export default Facility;

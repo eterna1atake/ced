@@ -44,7 +44,7 @@ export default function ContactUsPageClient() {
           <FloatingBackButton />
         </section>
 
-        <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+        <section className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900">{t("title")}</h1>
 
           <div className="mt-10 w-full">

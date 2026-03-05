@@ -7,13 +7,13 @@ import { AddButton } from "@/components/admin/common/AddButton";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import type { Classroom } from "@/types/classroom";
+import type { Facility } from "@/types/facility";
 
 import { useTranslations } from "next-intl";
 
 import { useLocale } from "next-intl";
 
-export default function ClassroomsListPage() {
+export default function FacilitiesListPage() {
     const t = useTranslations("Admin.pages.classrooms");
     const locale = useLocale();
 
@@ -24,30 +24,30 @@ export default function ClassroomsListPage() {
         return obj[locale as 'en' | 'th'] || obj['en'] || "";
     };
 
-    const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+    const [facilities, setFacilities] = useState<Facility[]>([]);
     // const [_isLoading, setIsLoading] = useState(true); // Removed unused
     const [activeFilter, setActiveFilter] = useState<'all' | '44' | '52'>('all');
 
     useEffect(() => {
-        fetchClassrooms();
+        fetchFacilities();
     }, []);
 
-    const fetchClassrooms = async () => {
+    const fetchFacilities = async () => {
         try {
-            const res = await fetch('/api/admin/classrooms');
+            const res = await fetch('/api/admin/facilities');
             if (res.ok) {
                 const data = await res.json();
-                setClassrooms(data);
+                setFacilities(data);
             }
         } catch (error) {
-            console.error("Failed to fetch classrooms", error);
-            Swal.fire("Error", "Failed to load classrooms", "error");
+            console.error("Failed to fetch facilities", error);
+            Swal.fire("Error", "Failed to load facilities", "error");
         } finally {
             // setIsLoading(false);
         }
     };
 
-    const filteredClassrooms = classrooms.filter(room => {
+    const filteredFacilities = facilities.filter(room => {
         if (activeFilter === 'all') return true;
         // Determine building from ID (e.g. 52-205 -> 52)
         const building = room.id.split('-')[0];
@@ -71,7 +71,7 @@ export default function ClassroomsListPage() {
                     .find((row) => row.startsWith("ced_csrf_token="))
                     ?.split("=")[1];
 
-                const res = await fetch(`/api/admin/classrooms/${encodeURIComponent(id)}`, {
+                const res = await fetch(`/api/admin/facilities/${encodeURIComponent(id)}`, {
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': csrfToken || ""
@@ -79,13 +79,13 @@ export default function ClassroomsListPage() {
                 });
 
                 if (res.ok) {
-                    setClassrooms(prev => prev.filter(c => c.id !== id));
-                    Swal.fire("Deleted!", "Classroom has been deleted.", "success");
+                    setFacilities(prev => prev.filter(c => c.id !== id));
+                    Swal.fire("Deleted!", "Facility has been deleted.", "success");
                 } else {
                     throw new Error("Failed to delete");
                 }
             } catch {
-                Swal.fire("Error", "Failed to delete classroom", "error");
+                Swal.fire("Error", "Failed to delete facility", "error");
             }
         }
     };
@@ -98,7 +98,7 @@ export default function ClassroomsListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/classrooms/create"
+                    href="/admin/facilities/create"
                     label={t("add")}
                 />
             </div>
@@ -144,7 +144,7 @@ export default function ClassroomsListPage() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredClassrooms.map((item) => (
+                        {filteredFacilities.map((item) => (
                             <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                 <td className="p-4 flex gap-3 items-center">
                                     <div className="w-16 h-10 relative bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
@@ -163,7 +163,7 @@ export default function ClassroomsListPage() {
                                 </td>
                                 <td className="p-4 text-right">
                                     <ActionButtons
-                                        editUrl={`/admin/classrooms/${encodeURIComponent(item.id)}`}
+                                        editUrl={`/admin/facilities/${encodeURIComponent(item.id)}`}
                                         onDelete={() => handleDelete(item.id)}
                                     />
                                 </td>

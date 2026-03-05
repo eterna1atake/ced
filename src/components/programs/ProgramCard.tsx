@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export interface ProgramCardProps {
     title: string;
@@ -19,9 +22,12 @@ export default function ProgramCard({
     imageSrc,
     imageAlt,
     degree,
-    buttonText = "รายละเอียดหลักสูตร",
+    buttonText,
     buttonLink = "#",
 }: ProgramCardProps) {
+    const t = useTranslations("ProgramsPage");
+    const displayButtonText = buttonText || t("programDetail");
+
     return (
         <div className="flex flex-col gap-8 overflow-hidden md:flex-row md:items-start" data-aos="fade-left" suppressHydrationWarning>
             {/* Image Section */}
@@ -51,7 +57,7 @@ export default function ProgramCard({
                         href={buttonLink}
                         className="inline-flex items-center justify-center rounded-lg bg-primary-main border border-primary-main px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-white hover:text-primary-main"
                     >
-                        {buttonText}
+                        {displayButtonText}
                     </Link>
                 </div>
             </div>

@@ -6,6 +6,7 @@ import HeroBanner from "@/components/common/HeroBanner";
 import { useLocale, useTranslations } from "next-intl";
 
 import type { ProgramDetailData } from "@/types/program";
+import FloatingBackButton from "../common/FloatingBackButton";
 
 interface Props {
     data: ProgramDetailData;
@@ -33,8 +34,8 @@ export default function ProgramDetailTemplate({ data, breadcrumbLabel }: Props) 
                     imageAlt={t("title")}
                 />
 
-                <section className="border-b border-slate-200 bg-slate-50/80">
-                    <div className="mx-auto w-full max-w-7xl px-6 py-4 lg:px-10">
+                <section className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+                    <div className="border-b border-slate-200 bg-slate-50/80 py-4">
                         <Breadcrumbs
                             items={[
                                 { href: `/${locale}`, label: breadcrumb("home") },
@@ -43,13 +44,15 @@ export default function ProgramDetailTemplate({ data, breadcrumbLabel }: Props) 
                             ]}
                         />
                     </div>
+                    <FloatingBackButton />
                 </section>
 
-                <section className="mx-auto w-full max-w-7xl px-6 py-10 lg:px-10">
+
+                <section className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10">
                     <h1 className="text-3xl font-bold text-black" data-aos="fade-up" suppressHydrationWarning>
                         {breadcrumbLabel}
                     </h1>
-                    <div className="mt-10 w-full">
+                    <div className="mt-6 w-full">
                         <section>
                             <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
                                 <div className="relative h-full col-span-1 md:col-span-8 space-y-8">

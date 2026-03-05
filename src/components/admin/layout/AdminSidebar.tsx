@@ -77,7 +77,7 @@ export default function AdminSidebar({
             title: t("academic"),
             items: [
                 { label: t("programs"), href: `/${locale}/admin/programs`, icon: Icons.Program },
-                { label: t("classrooms"), href: `/${locale}/admin/classrooms`, icon: Icons.Room },
+                { label: t("classrooms"), href: `/${locale}/admin/facilities`, icon: Icons.Room },
                 { label: t("onlineResources"), href: `/${locale}/admin/online-resources`, icon: Icons.Globe },
             ]
         },

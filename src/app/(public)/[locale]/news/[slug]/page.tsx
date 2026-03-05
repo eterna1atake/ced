@@ -8,7 +8,6 @@ import NewsGallery from "@/components/news/NewsGallery";
 import { getTranslations } from "next-intl/server";
 import HeroBanner from "@/components/common/HeroBanner";
 import { getApiBaseUrl } from "@/lib/api-config";
-import Link from "next/link";
 import React from "react";
 
 type NewsDetailPageProps = {
@@ -58,7 +57,7 @@ const formatDate = (value: string | Date, locale: string) => {
   }).format(parsed);
 };
 
-const parseLinksAndTags = (text: string, locale: string) => {
+const parseLinksAndTags = (text: string) => {
   const regex = /(https?:\/\/[^\s]+|#[^\s]+)/g;
   const parts = text.split(regex);
 
@@ -133,11 +132,11 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
         </div>
         <FloatingBackButton />
       </section>
-      <div className="mx-auto w-full max-w-5xl px-6 py-10 lg:px-8">
+      <div className="mx-auto w-full max-w-5xl px-6 py-6 lg:px-8">
         <article className="space-y-8">
           <header className="space-y-2 md:space-y-4">
             <span className="inline-flex items-center rounded-full bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
-              {newsItem.category ? t(`categories.${newsItem.category}`) : t("categoryLabel")}
+              {newsItem.category ? t(`categories.${newsItem.category.replace(/&amp;/g, '&')}`) : t("categoryLabel")}
             </span>
             <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 sm:text-4xl">
               {newsItem.title[locale as "en" | "th"]}
@@ -169,7 +168,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             {contentBlocks.length > 0 ? (
               contentBlocks.map((block: string, index: number) => (
                 <p key={index} className="whitespace-pre-line">
-                  {parseLinksAndTags(block, locale)}
+                  {parseLinksAndTags(block)}
                 </p>
               ))
             ) : (
