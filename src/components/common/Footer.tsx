@@ -175,9 +175,14 @@ export default function Footer() {
                         )}
                     </div>
 
-                    <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-                        {t("rights", { year: new Date().getFullYear() })}
-                    </p>
+                    <div className="flex flex-col items-center justify-center gap-2">
+                        <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
+                            {t("rights", { year: new Date().getFullYear() })}
+                        </p>
+                        <Link href={getLocalizedPath("/site-map")} className="text-gray-500 text-sm hover:text-white hover:underline transition-colors duration-300">
+                            {locale === 'th' ? "แผนผังเว็บไซต์ (Sitemap)" : "Sitemap"}
+                        </Link>
+                    </div>
                 </div>
             </div>
         </footer>
