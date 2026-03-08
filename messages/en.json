@@ -14,6 +14,7 @@
     "awardsTitle": "Computer Education | Awards & Recognition",
     "applyTitle": "Computer Education | Apply for Admission",
     "researchTitle": "Computer Education | Research",
+    "sitemapTitle": "Computer Education | Sitemap",
     "faviconPath": "/favicon.ico"
   },
   "Common": {
@@ -87,7 +88,8 @@
     "services": "Services",
     "onlineLearning": "Online Learning Resources",
     "contactUs": "Contact Us",
-    "apply": "Apply for Admission"
+    "apply": "Apply for Admission",
+    "sitemap": "Sitemap"
   },
   "Hero": {
     "admissions": "Admissions",
@@ -1145,5 +1147,24 @@
       "createFailed": "Failed to create",
       "deleteFailed": "Failed to delete"
     }
+  },
+  "Sitemap": {
+    "title": "Site Map",
+    "description": "View the structure and navigate to all sections of the website here.",
+    "home": "Home",
+    "about": "About Department",
+    "personnel": "Personnel",
+    "programs": "Programs",
+    "news": "News & Events",
+    "contact": "Contact Us",
+    "services": "Services",
+    "studentServices": "Student Services",
+    "onlineLearning": "Online Learning Resources",
+    "formRequests": "Form Requests",
+    "facilities": "Facilities Booking",
+    "others": "Others",
+    "apply": "Admissions",
+    "awards": "Awards & Achievements",
+    "research": "Research & Innovation"
   }
 }
