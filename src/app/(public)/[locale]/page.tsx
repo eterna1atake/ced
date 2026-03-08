@@ -54,7 +54,7 @@ export default async function Home({ params }: Props) {
     { id: "programs", label: t("programs"), href: `/${locale}/programs` },
     { id: "Department Information", label: t("deptinfo"), href: `/${locale}/about` },
     { id: "olr", label: t("olr"), href: `/${locale}/online-learning-resources` },
-    { id: "research", label: t("research"), href: "https://research.kmutnb.ac.th" },
+    { id: "research", label: t("research"), href: `/${locale}/research` },
   ];
 
   const itemsB = [

@@ -13,6 +13,7 @@
     "contactUsTitle": "Computer Education | Contact Us",
     "awardsTitle": "Computer Education | Awards & Recognition",
     "applyTitle": "Computer Education | Apply for Admission",
+    "researchTitle": "Computer Education | Research",
     "faviconPath": "/favicon.ico"
   },
   "Common": {
@@ -79,6 +80,7 @@
     "newsEvents": "News & Events",
     "personnel": "Personnel",
     "about": "About",
+    "research": "Research",
     "programs": "Programs",
     "ced": "B.S.Tech.Ed. (Computer Technology)",
     "tct": "B.S.Tech.Ed. (Computer Technology)",
@@ -358,6 +360,24 @@
         }
       }
     }
+  },
+  "ResearchPage": {
+    "title": "Research",
+    "description": "Research Databases & Academic Journals",
+    "eyebrow": "Research",
+    "introTitle": "Research & Innovation",
+    "introHighlight": "Department of Computer Education (CED)",
+    "introText1": "The Department of Computer Education, Faculty of Technical Education at King Mongkut's University of Technology North Bangkok (KMUTNB) focuses on creating innovative in-depth research in education and computer technology for sustainable national development.",
+    "introText2": "Our research features the combined knowledge of our faculty and students, ranging from the fundamental theories of learning, to the application of Artificial Intelligence (AI), IoT, interactive multimedia, and modern educational platforms aimed at solving real-world challenges in society and industry.",
+    "sectionTitle": "Research Databases & Academic Journals",
+    "sectionDesc": "Access university-level research databases and the Faculty of Technical Education's academic journals.",
+    "databaseTitle": "KMUTNB Research and Academic Service Database System",
+    "databaseDesc": "Search for researchers, research works, projects, and academic services provided by personnel within King Mongkut's University of Technology North Bangkok (KMUTNB), a hub of knowledge and innovation.",
+    "journalTitle": "Journal of Industrial Education",
+    "journalDesc": "An academic journal publishing research and academic articles in industrial education, engineering, and educational innovation to promote the dissemination of national academic works.",
+    "kjournalTitle": "The Journal of KMUTNB",
+    "kjournalDesc": "An academic journal publishing research and academic works in engineering, applied science, agro-industry, and advanced academics related to business and industry.",
+    "visitWebsite": "Explore"
   },
   "ProgramsPage": {
     "title": "Programs",
