@@ -10,6 +10,7 @@ export interface Personnel {
     id?: string;
     _id?: string;
     name: LocalizedString;
+    academicTitle?: LocalizedString;
     position: LocalizedString;
     email: string;
     imageSrc: string;

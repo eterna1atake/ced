@@ -534,7 +534,6 @@
       "studentServices": "Student Services",
       "formRequests": "Form Requests",
       "system": "System",
-      "users": "Users",
       "loginHistory": "Login History",
       "settings": "Settings",
       "myProfile": "My Profile"
@@ -650,11 +649,6 @@
         "description": "Manage training workshops and seminars.",
         "add": "Add Training"
       },
-      "users": {
-        "title": "User Management",
-        "description": "Manage admin access and roles.",
-        "add": "Add User"
-      },
       "guide": {
         "title": "Admin System Guide",
         "subtitle": "Documentation and help for managing the CED website.",
@@ -746,7 +740,10 @@
         "invalidInfoText": "Please check your input.",
         "thai": "Thai",
         "english": "English",
-        "preview": "Preview"
+        "preview": "Preview",
+        "saveConfirmTitle": "Are you sure?",
+        "saveConfirmText": "Do you want to save these changes?",
+        "save": "Save"
       },
       "news": {
         "details": "News Details",
@@ -1101,6 +1098,32 @@
         "altTextPlaceholderEn": "Alt Text (English)",
         "saveImage": "Save Image"
       }
+    },
+    "alerts": {
+      "success": "Success",
+      "error": "Error",
+      "warning": "Warning",
+      "updated": "Updated!",
+      "created": "Created!",
+      "deleted": "Deleted!",
+      "updatedText": "Data has been updated successfully.",
+      "createdText": "Data has been created successfully.",
+      "deletedText": "Data has been deleted.",
+      "deleteConfirmTitle": "Are you sure?",
+      "deleteConfirmText": "You won't be able to revert this!",
+      "deleteConfirmButton": "Yes, delete it!",
+      "cancelButton": "Cancel",
+      "failedToLoad": "Failed to load data",
+      "loginSuccess": "Signed in successfully",
+      "loginFailed": "Invalid credentials",
+      "invalidCode": "Invalid Code",
+      "twoFactorDisabled": "Two-Factor Authentication has been disabled.",
+      "sessionExpiredTitle": "Session Expired",
+      "sessionExpiredText": "Your session has expired. Please log in again.",
+      "loginAgainButton": "Log In",
+      "updateFailed": "Failed to update",
+      "createFailed": "Failed to create",
+      "deleteFailed": "Failed to delete"
     }
   }
 }

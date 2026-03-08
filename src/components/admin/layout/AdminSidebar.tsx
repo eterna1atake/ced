@@ -77,7 +77,7 @@ export default function AdminSidebar({
             title: t("academic"),
             items: [
                 { label: t("programs"), href: `/${locale}/admin/programs`, icon: Icons.Program },
-                { label: t("classrooms"), href: `/${locale}/admin/facilities`, icon: Icons.Room },
+                { label: t("facilities"), href: `/${locale}/admin/facilities`, icon: Icons.Room },
                 { label: t("onlineResources"), href: `/${locale}/admin/online-resources`, icon: Icons.Globe },
             ]
         },
@@ -91,7 +91,6 @@ export default function AdminSidebar({
         {
             title: t("system"),
             items: [
-                { label: t("users"), href: `/${locale}/admin/users`, icon: Icons.Users },
                 { label: t("loginHistory"), href: `/${locale}/admin/login-history`, icon: Icons.History },
                 { label: t("settings"), href: `/${locale}/admin/settings`, icon: Icons.Settings },
                 { label: t("myProfile"), href: `/${locale}/admin/profile`, icon: Icons.Person },

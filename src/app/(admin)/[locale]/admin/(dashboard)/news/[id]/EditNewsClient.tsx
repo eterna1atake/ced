@@ -6,12 +6,14 @@ import NewsForm from "@/components/admin/news/NewsForm";
 import type { NewsSeedItem } from "@/types/news";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 type Props = {
     initialData: NewsSeedItem;
 };
 
 export default function EditNewsClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,7 +54,7 @@ export default function EditNewsClient({ initialData }: Props) {
 
             await Swal.fire({
                 title: "Success!",
-                text: "News item updated successfully.",
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -63,7 +65,7 @@ export default function EditNewsClient({ initialData }: Props) {
             console.error("Update error:", error);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const msg = (error as any).message || "Unknown error occurred";
-            Swal.fire("Error", msg, "error");
+            Swal.fire(tAlert("error"), msg, "error");
         } finally {
             setIsSubmitting(false);
         }

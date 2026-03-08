@@ -4,8 +4,10 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import AwardsForm from "@/components/admin/awards/AwardsForm";
 import type { Award } from "@/types/award";
+import { useTranslations } from "next-intl";
 
 export default function CreateAwardPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -33,7 +35,7 @@ export default function CreateAwardPage() {
 
             const Swal = (await import("sweetalert2")).default;
             await Swal.fire({
-                title: "Created!",
+                title: tAlert("created"),
                 text: "New award has been added successfully.",
                 icon: "success",
                 timer: 2000,
@@ -49,7 +51,7 @@ export default function CreateAwardPage() {
             console.error("Create error:", error);
             const Swal = (await import("sweetalert2")).default;
             Swal.fire({
-                title: "Error",
+                title: tAlert("error"),
                 text: error.message || "An unexpected error occurred.",
                 icon: "error"
             });

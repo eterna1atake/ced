@@ -18,6 +18,7 @@ export default function AdminHeader({
     const pathname = usePathname();
     const locale = useLocale();
     const t = useTranslations("Admin.header");
+    const tAlert = useTranslations("Admin.alerts");
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -194,14 +195,14 @@ export default function AdminHeader({
                                     <button
                                         onClick={async () => {
                                             const result = await Swal.fire({
-                                                title: "Are you sure?",
-                                                text: "You will be logged out of the system.",
+                                                title: tAlert("deleteConfirmTitle"),
+                                                text: tAlert("sessionExpiredText"),
                                                 icon: "warning",
                                                 showCancelButton: true,
                                                 confirmButtonColor: "#d33",
                                                 cancelButtonColor: "#3085d6",
-                                                confirmButtonText: "Logout",
-                                                cancelButtonText: "Cancel"
+                                                confirmButtonText: t("logout"),
+                                                cancelButtonText: tAlert("cancelButton")
                                             });
 
                                             if (result.isConfirmed) {

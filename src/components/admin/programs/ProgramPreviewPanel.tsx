@@ -42,7 +42,7 @@ export default function ProgramPreviewPanel({ data }: ProgramPreviewPanelProps) 
             </div>
 
             {/* Preview Content */}
-            <div className="p-4 max-h-[70vh] overflow-y-auto text-sm space-y-6">
+            <div className="p-4 overflow-y-auto text-sm space-y-6">
                 {/* Program Name */}
                 <div>
                     <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">

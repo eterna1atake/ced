@@ -1,6 +1,7 @@
 "use client";
 // เพจข้อมูลบุคลากรที่ดึง hero ข้อความจาก i18n และใช้ navbar ซ้อนทับพื้นหลัง
 import Breadcrumbs from "@/components/common/Breadcrumbs";
+import { formatPersonnelName } from "@/utils/personnel";
 import HeroBanner from "@/components/common/HeroBanner";
 import CompactPersonnelCard from "@/components/personnel/CompactPersonnelCard";
 import { useLocale, useTranslations } from "next-intl";
@@ -109,7 +110,7 @@ export default function StaffClient({ allPersonnel }: Props) {
                   <CompactPersonnelCard
                     id={person._id!}
                     imageSrc={person.imageSrc}
-                    name={person.name[lang]}
+                    name={formatPersonnelName(person, lang)}
                     position={person.position[lang]}
                     email={person.email}
                     slug={person.slug}
@@ -137,7 +138,7 @@ export default function StaffClient({ allPersonnel }: Props) {
                   <CompactPersonnelCard
                     id={person._id!}
                     imageSrc={person.imageSrc}
-                    name={person.name[lang]}
+                    name={formatPersonnelName(person, lang)}
                     position={person.position[lang]}
                     email={person.email}
                     slug={person.slug}
@@ -164,7 +165,7 @@ export default function StaffClient({ allPersonnel }: Props) {
                   <CompactPersonnelCard
                     id={person._id!}
                     imageSrc={person.imageSrc}
-                    name={person.name[lang]}
+                    name={formatPersonnelName(person, lang)}
                     position={person.position[lang]}
                     email={person.email}
                     slug={person.slug}
@@ -192,7 +193,7 @@ export default function StaffClient({ allPersonnel }: Props) {
                   <CompactPersonnelCard
                     id={person._id!}
                     imageSrc={person.imageSrc}
-                    name={person.name[lang]}
+                    name={formatPersonnelName(person, lang)}
                     position={person.position[lang]}
                     email={person.email}
                     slug={person.slug}

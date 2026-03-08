@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import ProgramForm from "@/components/admin/programs/ProgramForm";
 import type { ProgramItem } from "@/types/program";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 export default function CreateProgramClient() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -36,7 +38,7 @@ export default function CreateProgramClient() {
             const created = await response.json();
 
             await Swal.fire({
-                title: "Created!",
+                title: tAlert("created"),
                 text: "Program has been created successfully. Now you can edit its details.",
                 icon: "success",
                 confirmButtonText: "Go to Edit"
@@ -48,7 +50,7 @@ export default function CreateProgramClient() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             Swal.fire({
-                title: "Error",
+                title: tAlert("error"),
                 text: error.message || "Failed to create program",
                 icon: "error"
             });

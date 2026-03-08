@@ -12,8 +12,10 @@ import Loading from "@/components/common/Loading";
 
 import Swal from "sweetalert2";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 
 function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl") || "/admin";
@@ -87,12 +89,13 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
             setError("เซสชั่นหมดอายุ กรุณาเข้าสู่ระบบใหม่");
             Swal.fire({
                 icon: 'warning',
-                title: 'เซสชั่นหมดอายุ',
-                text: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง',
+                title: tAlert("sessionExpiredTitle"),
+                text: tAlert("sessionExpiredText"),
                 confirmButtonColor: '#35622F',
                 confirmButtonText: 'ตกลง'
             });
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
     // Validation Schema
@@ -183,7 +186,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 setError(errorMessage);
                 Swal.fire({
                     icon: "warning",
-                    title: "ข้อมูลไม่ถูกต้อง",
+                    title: tAlert("error"),
                     text: errorMessage,
                     confirmButtonColor: "#EF4444",
                 });
@@ -302,7 +305,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
 
                     Swal.fire({
                         icon: "error",
-                        title: "ถูกระงับการใช้งาน",
+                        title: tAlert("error"),
                         text: msg,
                         confirmButtonColor: "#35622F",
                         timer: seconds * 1000,
@@ -320,7 +323,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
 
                     Swal.fire({
                         icon: "error",
-                        title: "บัญชีถูกระงับชั่วคราว",
+                        title: tAlert("error"),
                         text: msg,
                         confirmButtonColor: "#35622F",
                         timer: seconds * 1000,
@@ -359,7 +362,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         setError(msg);
                         Swal.fire({
                             icon: "error",
-                            title: "เข้าสู่ระบบไม่สำเร็จ",
+                            title: tAlert("error"),
                             text: msg,
                             confirmButtonText: "ตกลง"
                         }).then(() => {
@@ -378,7 +381,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         setError(msg);
                         Swal.fire({
                             icon: "error",
-                            title: "ไม่มีสิทธิ์เข้าถึง",
+                            title: tAlert("error"),
                             text: msg,
                             confirmButtonColor: "#d33"
                         });
@@ -387,7 +390,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         setError(msg);
                         Swal.fire({
                             icon: "warning",
-                            title: "บัญชีถูกปิดใช้งาน",
+                            title: tAlert("error"),
                             text: "กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดใช้งานบัญชี",
                             confirmButtonColor: "#d33"
                         });
@@ -396,7 +399,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         setError(msg);
                         Swal.fire({
                             icon: "error",
-                            title: "ข้อผิดพลาดของระบบ",
+                            title: tAlert("error"),
                             text: msg,
                             confirmButtonColor: "#d33"
                         });
@@ -419,7 +422,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                                 setError(msg);
                                 Swal.fire({
                                     icon: "error",
-                                    title: "ถูกระงับการใช้งาน",
+                                    title: tAlert("error"),
                                     text: msg,
                                     confirmButtonColor: "#EF4444",
                                     timer: reStatus.seconds * 1000,
@@ -434,7 +437,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         setError(msg);
                         Swal.fire({
                             icon: "warning",
-                            title: "ข้อผิดพลาด",
+                            title: tAlert("error"),
                             text: `${msg} (${result?.error})`,
                             confirmButtonColor: "#d33"
                         });
@@ -443,7 +446,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
             } else {
                 Swal.fire({
                     icon: "success",
-                    title: "เข้าสู่ระบบสำเร็จ",
+                    title: tAlert("loginSuccess"),
                     text: "กำลังเข้าสู่หน้าผู้ดูแลระบบ...",
                     showConfirmButton: false,
                     timer: 1500,

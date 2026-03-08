@@ -5,6 +5,7 @@ import { useState } from "react";
 import ServiceForm from "@/components/admin/services/ServiceForm";
 import { Service } from "@/types/service";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 type Props = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function EditServiceClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -39,8 +41,8 @@ export default function EditServiceClient({ initialData }: Props) {
             }
 
             await Swal.fire({
-                title: "Success",
-                text: "Service updated successfully",
+                title: tAlert("success"),
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -51,7 +53,7 @@ export default function EditServiceClient({ initialData }: Props) {
         } catch (error: unknown) {
             console.error("Update error:", error);
             const message = error instanceof Error ? error.message : "Something went wrong";
-            Swal.fire("Error", message, "error");
+            Swal.fire(tAlert("error"), message, "error");
         } finally {
             setIsSaving(false);
         }

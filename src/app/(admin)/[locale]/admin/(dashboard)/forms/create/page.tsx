@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import FormRequestForm from "@/components/admin/forms/FormRequestForm";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface FormRequestItem {
     _id: string;
@@ -16,6 +17,7 @@ interface FormRequestItem {
 }
 
 export default function CreateFormRequestPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -43,7 +45,7 @@ export default function CreateFormRequestPage() {
             }
 
             await Swal.fire({
-                title: "Success",
+                title: tAlert("success"),
                 text: "Document has been created successfully!",
                 icon: "success",
                 timer: 1500,
@@ -53,7 +55,7 @@ export default function CreateFormRequestPage() {
             router.push("/admin/forms");
             router.refresh();
         } catch (error: unknown) {
-            Swal.fire("Error", error instanceof Error ? error.message : "An error occurred", "error");
+            Swal.fire(tAlert("error"), error instanceof Error ? error.message : "An error occurred", "error");
         } finally {
             setIsLoading(false);
         }

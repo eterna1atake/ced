@@ -18,6 +18,7 @@ type HeroCarouselImage = {
 import { useRouter } from "next/navigation";
 
 export default function HeroListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.hero");
     const router = useRouter();
     const [heroes, setHeroes] = useState<HeroCarouselImage[]>([]);
@@ -31,7 +32,7 @@ export default function HeroListPage() {
             setHeroes(data);
         } catch (error) {
             console.error(error);
-            Swal.fire("Error", "Failed to load hero images", "error");
+            Swal.fire(tAlert("error"), "Failed to load hero images", "error");
         } finally {
             setIsLoading(false);
         }
@@ -39,17 +40,18 @@ export default function HeroListPage() {
 
     useEffect(() => {
         fetchHeroes();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: tAlert("deleteConfirmTitle"),
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -68,7 +70,7 @@ export default function HeroListPage() {
                 });
 
                 if (res.ok) {
-                    Swal.fire("Deleted!", "Your file has been deleted.", "success");
+                    Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                     fetchHeroes();
                     router.refresh();
                 } else {
@@ -76,7 +78,7 @@ export default function HeroListPage() {
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire("Error", "Failed to delete image", "error");
+                Swal.fire(tAlert("error"), "Failed to delete image", "error");
             }
         }
     };
@@ -104,13 +106,24 @@ export default function HeroListPage() {
                     <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("title")}</h1>
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
-                <Link
-                    href="/admin/hero/create"
-                    className="bg-primary-main/90 hover:bg-primary-hover text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
-                >
-                    <span className="hidden md:block"><FontAwesomeIcon icon={faPlus} /> {t("add")}</span>
-                    <span className="block md:hidden"><FontAwesomeIcon icon={faPlus} /></span>
-                </Link>
+                {heroes.length >= 9 ? (
+                    <button
+                        disabled
+                        className="bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-4 py-2 rounded-md font-medium cursor-not-allowed flex items-center gap-2"
+                        title="Maximum of 9 hero images allowed"
+                    >
+                        <span className="hidden md:block"><FontAwesomeIcon icon={faPlus} /> {t("add")} (Max 9)</span>
+                        <span className="block md:hidden"><FontAwesomeIcon icon={faPlus} /></span>
+                    </button>
+                ) : (
+                    <Link
+                        href="/admin/hero/create"
+                        className="bg-primary-main/90 hover:bg-primary-hover text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
+                    >
+                        <span className="hidden md:block"><FontAwesomeIcon icon={faPlus} /> {t("add")}</span>
+                        <span className="block md:hidden"><FontAwesomeIcon icon={faPlus} /></span>
+                    </Link>
+                )}
             </div>
 
             {heroes.length === 0 ? (

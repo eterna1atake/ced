@@ -4,12 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import ResourceForm, { IOnlineResourceForm } from "@/components/admin/online-resources/ResourceForm";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 interface EditResourceClientProps {
     initialData: IOnlineResourceForm & { _id: string };
 }
 
 export default function EditResourceClient({ initialData }: EditResourceClientProps) {
+    const tAlert = useTranslations("Admin.alerts");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
 
@@ -43,7 +45,7 @@ export default function EditResourceClient({ initialData }: EditResourceClientPr
             }
 
             await Swal.fire({
-                title: "Updated!",
+                title: tAlert("updated"),
                 text: "Resource details have been saved.",
                 icon: "success",
                 confirmButtonColor: "#35622F",

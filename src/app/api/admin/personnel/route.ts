@@ -31,6 +31,10 @@ const PersonnelSchema = z.object({
         th: z.string().trim().min(1, "Thai name is required"),
         en: z.string().trim().min(1, "English name is required"),
     }),
+    academicTitle: z.object({
+        th: z.string().trim().optional().default(""),
+        en: z.string().trim().optional().default(""),
+    }).optional(),
     position: z.object({
         th: z.string().trim().min(1, "Thai position is required"),
         en: z.string().trim().min(1, "English position is required"),
@@ -118,6 +122,10 @@ export async function POST(request: NextRequest) {
             name: {
                 th: sanitizeStrict(data.name.th),
                 en: sanitizeStrict(data.name.en),
+            },
+            academicTitle: {
+                th: sanitizeStrict(data.academicTitle?.th || ""),
+                en: sanitizeStrict(data.academicTitle?.en || ""),
             },
             position: {
                 th: sanitizeStrict(data.position.th),

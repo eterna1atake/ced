@@ -14,7 +14,8 @@ import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 
 export default function FacilitiesListPage() {
-    const t = useTranslations("Admin.pages.classrooms");
+    const tAlert = useTranslations("Admin.alerts");
+    const t = useTranslations("Admin.pages.facilities");
     const locale = useLocale();
 
     // Helper to get localized string safely
@@ -30,6 +31,7 @@ export default function FacilitiesListPage() {
 
     useEffect(() => {
         fetchFacilities();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const fetchFacilities = async () => {
@@ -41,7 +43,7 @@ export default function FacilitiesListPage() {
             }
         } catch (error) {
             console.error("Failed to fetch facilities", error);
-            Swal.fire("Error", "Failed to load facilities", "error");
+            Swal.fire(tAlert("error"), "Failed to load facilities", "error");
         } finally {
             // setIsLoading(false);
         }
@@ -56,12 +58,12 @@ export default function FacilitiesListPage() {
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
+            title: tAlert("deleteConfirmTitle"),
             text: "This action cannot be undone!",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -80,12 +82,12 @@ export default function FacilitiesListPage() {
 
                 if (res.ok) {
                     setFacilities(prev => prev.filter(c => c.id !== id));
-                    Swal.fire("Deleted!", "Facility has been deleted.", "success");
+                    Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                 } else {
                     throw new Error("Failed to delete");
                 }
             } catch {
-                Swal.fire("Error", "Failed to delete facility", "error");
+                Swal.fire(tAlert("error"), "Failed to delete facility", "error");
             }
         }
     };

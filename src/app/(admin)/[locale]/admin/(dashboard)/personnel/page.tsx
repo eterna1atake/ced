@@ -8,6 +8,7 @@ import Swal from "sweetalert2";
 import type { IPersonnel } from "@/collections/Personnel";
 import Loading from "../loading";
 import { useTranslations } from "next-intl";
+import { formatPersonnelName } from "@/utils/personnel";
 
 // Fallback interface to match what's used in the component if the model import is tricky or we want to be explicit here
 // But actually we should use the type from the model we created if possible, or define a local one matching the API response.
@@ -16,6 +17,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 
 export default function PersonnelListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.personnel");
     const router = useRouter();
     const [personnel, setPersonnel] = useState<IPersonnel[]>([]);
@@ -51,13 +53,15 @@ export default function PersonnelListPage() {
                 const weightA = getWeight(a);
                 const weightB = getWeight(b);
                 if (weightA !== weightB) return weightA - weightB;
-                return (a.name?.th || "").localeCompare(b.name?.th || "");
+                const nameA = formatPersonnelName(a, 'th');
+                const nameB = formatPersonnelName(b, 'th');
+                return nameA.localeCompare(nameB);
             });
 
             setPersonnel(sortedData);
         } catch (error) {
             console.error(error);
-            Swal.fire("Error", "Failed to load personnel data", "error");
+            Swal.fire(tAlert("error"), "Failed to load personnel data", "error");
         } finally {
             setIsLoading(false);
         }
@@ -65,17 +69,18 @@ export default function PersonnelListPage() {
 
     useEffect(() => {
         fetchPersonnel();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: tAlert("deleteConfirmTitle"),
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: tAlert("deleteConfirmButton"),
         });
 
         if (result.isConfirmed) {
@@ -95,12 +100,12 @@ export default function PersonnelListPage() {
 
                 if (!res.ok) throw new Error("Failed to delete");
 
-                Swal.fire("Deleted!", "Personnel has been deleted.", "success");
+                Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                 fetchPersonnel(); // Refresh list
                 router.refresh();
             } catch (error) {
                 console.error(error);
-                Swal.fire("Error", "Failed to delete personnel", "error");
+                Swal.fire(tAlert("error"), "Failed to delete personnel", "error");
             }
         }
     };
@@ -150,14 +155,14 @@ export default function PersonnelListPage() {
                                         <td className="p-4 w-16">
                                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
                                                 {person.imageSrc ? (
-                                                    <Image src={person.imageSrc} alt={person.name.th} fill className="object-cover" />
+                                                    <Image src={person.imageSrc} alt={formatPersonnelName(person, 'th')} fill className="object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">?</div>
                                                 )}
                                             </div>
                                         </td>
                                         <td className="p-4 whitespace-nowrap">
-                                            <div className="font-medium text-slate-900 dark:text-slate-100">{person.name.th}</div>
+                                            <div className="font-medium text-slate-900 dark:text-slate-100">{formatPersonnelName(person, 'th')}</div>
                                             <div className="text-sm text-slate-500 dark:text-slate-400">{person.position.th}</div>
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">

@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import type { Award } from "@/types/award";
 
 export default function AwardsListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.awards");
     const [awards, setAwards] = useState<Award[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -35,13 +36,13 @@ export default function AwardsListPage() {
     const handleDelete = async (id: string) => {
         const Swal = (await import("sweetalert2")).default;
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: tAlert("deleteConfirmTitle"),
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -60,11 +61,11 @@ export default function AwardsListPage() {
 
                 if (!res.ok) throw new Error("Delete failed");
 
-                await Swal.fire("Deleted!", "Award has been deleted.", "success");
+                await Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                 fetchAwards();
             } catch (error) {
                 console.error("Delete error:", error);
-                Swal.fire("Error", "Could not delete award.", "error");
+                Swal.fire(tAlert("error"), "Could not delete award.", "error");
             }
         }
     };

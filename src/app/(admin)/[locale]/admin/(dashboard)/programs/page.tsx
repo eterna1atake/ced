@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import type { ProgramItem } from "@/types/program";
 
 export default function ProgramsListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.programs");
 
     const [programs, setPrograms] = useState<ProgramItem[]>([]);
@@ -55,13 +56,13 @@ export default function ProgramsListPage() {
 
     const handleDelete = async (id: string, name: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
+            title: tAlert("deleteConfirmTitle"),
             text: `You are about to delete "${name}". This action cannot be undone!`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -79,7 +80,7 @@ export default function ProgramsListPage() {
                 });
 
                 if (res.ok) {
-                    await Swal.fire("Deleted!", "Program has been deleted.", "success");
+                    await Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                     fetchPrograms();
                 } else {
                     const data = await res.json();
@@ -87,7 +88,7 @@ export default function ProgramsListPage() {
                 }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                Swal.fire("Error", error.message || "Failed to delete program", "error");
+                Swal.fire(tAlert("error"), error.message || "Failed to delete program", "error");
             }
         }
     };

@@ -63,16 +63,24 @@ const CurriculumItemEditor = ({
                     {/* Title TH */}
                     <div className="col-span-2 md:col-span-4">
                         <div className="flex justify-between items-center mb-1">
-                            <label className="block text-[10px] font-bold text-slate-400">{t("programDetails.titleTh")}</label>
-                            <button
-                                type="button"
-                                onClick={() => onTranslate(item.id, item.title.th, (translated) => updateTitle('en', translated))}
-                                disabled={translatingField === item.id || !item.title.th}
-                                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-300"
-                            >
-                                {translatingField === item.id ? "..." : t("common.autoTranslate")}
-                            </button>
-                        </div>
+                                <label className="block text-[10px] font-bold text-slate-400">{t("programDetails.titleTh")}</label>
+                                <button
+                                    type="button"
+                                    onClick={() => onTranslate(item.id, item.title.th, (translated) => updateTitle('en', translated))}
+                                    disabled={translatingField === item.id || !item.title.th}
+                                    className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
+                                >
+                                    {(translatingField === item.id ? "..." : t("common.autoTranslate") === "...") ? (
+                                        <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                            <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                            <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                        </svg>
+                                    )}
+                                    {translatingField === item.id ? "..." : t("common.autoTranslate") === "..." ? t("common.translating") : t("common.autoTranslate")}
+                                </button>
+                            </div>
                         <input
                             type="text"
                             placeholder={t("programDetails.titleTh")}

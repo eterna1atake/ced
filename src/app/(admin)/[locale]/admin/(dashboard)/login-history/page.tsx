@@ -5,6 +5,7 @@ import { faShieldHalved, faDesktop, faMobileScreen, faCircleCheck, faCircleXmark
 import { useEffect, useState, useCallback } from "react";
 
 import Loading from "@/components/common/Loading";
+import Pagination from "@/components/common/Pagination";
 import { useTranslations } from "next-intl";
 
 // Types
@@ -29,11 +30,14 @@ type SystemLog = {
     timestamp: string;
 };
 
+const ITEMS_PER_PAGE = 50;
+
 export default function AuditLogsPage() {
     const [activeTab, setActiveTab] = useState<"login" | "system">("login");
     const [loginLogs, setLoginLogs] = useState<LoginLog[]>([]);
     const [systemLogs, setSystemLogs] = useState<SystemLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const fetchLogs = useCallback(async () => {
         try {
@@ -98,6 +102,11 @@ export default function AuditLogsPage() {
 
     const t = useTranslations("Admin.pages.auditLogs");
 
+    const currentLogs = activeTab === "login" ? loginLogs : systemLogs;
+    const totalPages = Math.max(1, Math.ceil(currentLogs.length / ITEMS_PER_PAGE));
+    const paginatedLoginLogs = loginLogs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+    const paginatedSystemLogs = systemLogs.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
     if (loading) return (
         <div className="flex h-[50vh] items-center justify-center">
             <Loading />
@@ -113,14 +122,14 @@ export default function AuditLogsPage() {
                 </div>
                 <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
                     <button
-                        onClick={() => setActiveTab("login")}
+                        onClick={() => { setActiveTab("login"); setCurrentPage(1); }}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "login" ? "bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
                     >
                         <FontAwesomeIcon icon={faUserShield} className="mr-2" />
                         Login Access
                     </button>
                     <button
-                        onClick={() => setActiveTab("system")}
+                        onClick={() => { setActiveTab("system"); setCurrentPage(1); }}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${activeTab === "system" ? "bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"}`}
                     >
                         <FontAwesomeIcon icon={faGear} className="mr-2" />
@@ -148,7 +157,7 @@ export default function AuditLogsPage() {
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {loading && loginLogs.length === 0 ? (
                                     <tr><td colSpan={5} className="p-8 text-center text-slate-400">Loading logs...</td></tr>
-                                ) : loginLogs.map((log) => (
+                                ) : paginatedLoginLogs.map((log) => (
                                     <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td className="p-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
@@ -200,7 +209,7 @@ export default function AuditLogsPage() {
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {loading && systemLogs.length === 0 ? (
                                     <tr><td colSpan={5} className="p-8 text-center text-slate-400">Loading logs...</td></tr>
-                                ) : systemLogs.map((log) => (
+                                ) : paginatedSystemLogs.map((log) => (
                                     <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td className="p-4 whitespace-nowrap">
                                             <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800 text-xs font-bold uppercase">
@@ -233,6 +242,17 @@ export default function AuditLogsPage() {
                         </table>
                     )}
                 </div>
+            
+                {totalPages > 1 && (
+                    <div className="p-4 border-t dark:border-slate-800">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            className="flex justify-center"
+                        />
+                    </div>
+                )}
             </div>
         </div>
     );

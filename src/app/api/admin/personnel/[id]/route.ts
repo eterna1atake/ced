@@ -30,6 +30,10 @@ const PersonnelSchema = z.object({
         th: z.string().trim().min(1, "Thai name is required"),
         en: z.string().trim().min(1, "English name is required"),
     }),
+    academicTitle: z.object({
+        th: z.string().trim().optional().default(""),
+        en: z.string().trim().optional().default(""),
+    }).optional(),
     position: z.object({
         th: z.string().trim().min(1, "Thai position is required"),
         en: z.string().trim().min(1, "English position is required"),
@@ -121,6 +125,10 @@ export async function PUT(
             name: {
                 th: sanitize(data.name.th),
                 en: sanitize(data.name.en),
+            },
+            academicTitle: {
+                th: sanitize(data.academicTitle?.th || ""),
+                en: sanitize(data.academicTitle?.en || ""),
             },
             position: {
                 th: sanitize(data.position.th),

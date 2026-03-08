@@ -5,12 +5,14 @@ import Image from "next/image";
 import Swal from "sweetalert2";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faShieldHalved, faCheckCircle, faCopy, faExclamationTriangle, faQrcode } from "@fortawesome/free-solid-svg-icons";
+import { useTranslations } from "next-intl";
 
 interface TwoFactorSetupProps {
     isEnabled: boolean;
 }
 
 export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorSetupProps) {
+    const tAlert = useTranslations("Admin.alerts");
     const [isEnabled, setIsEnabled] = useState(initialEnabled);
     const [step, setStep] = useState<"idle" | "setup" | "verify" | "success">("idle");
     const [secret, setSecret] = useState<string>("");
@@ -44,7 +46,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 throw new Error(data.error);
             }
         } catch {
-            Swal.fire("Error", "Failed to start setup", "error");
+            Swal.fire(tAlert("error"), "Failed to start setup", "error");
         } finally {
             setLoading(false);
         }
@@ -76,16 +78,16 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 setStep("success");
                 Swal.fire({
                     icon: "success",
-                    title: "2FA Enabled",
-                    text: "Your account is now more secure.",
+                    title: tAlert("success"),
+                    text: tAlert("updatedText"),
                     timer: 1500,
                     showConfirmButton: false
                 });
             } else {
-                Swal.fire("Invaid Code", data.error || "Verification failed", "error");
+                Swal.fire(tAlert("error"), data.error || "Verification failed", "error");
             }
         } catch {
-            Swal.fire("Error", "Verification failed", "error");
+            Swal.fire(tAlert("error"), "Verification failed", "error");
         } finally {
             setLoading(false);
         }
@@ -94,7 +96,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
     // Step 3: Disable 2FA
     const handleDisable = async () => {
         const result = await Swal.fire({
-            title: 'Are you sure?',
+            title: tAlert("deleteConfirmTitle"),
             text: "Disabling 2FA will make your account less secure.",
             icon: 'warning',
             showCancelButton: true,
@@ -131,7 +133,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                     throw new Error(data.error);
                 }
             } catch {
-                Swal.fire("Error", "Failed to disable 2FA", "error");
+                Swal.fire(tAlert("error"), "Failed to disable 2FA", "error");
             } finally {
                 setLoading(false);
             }

@@ -16,7 +16,7 @@ type PersonnelFormProps = {
 import { EducationEditor } from "./EducationEditor";
 import { CourseEditor } from "./CourseEditor";
 import { CustomLinkEditor } from "./CustomLinkEditor";
-import { POSITIONS } from "./constants";
+import { POSITIONS, ACADEMIC_TITLES } from "./constants";
 
 import { useTranslations } from "next-intl";
 import Swal from "sweetalert2";
@@ -26,6 +26,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
     const t = useTranslations("Admin.forms");
     const [formData, setFormData] = useState<Partial<Personnel>>({
         name: { th: "", en: "" },
+        academicTitle: { th: "", en: "" },
         position: { th: "", en: "" },
         email: "",
         imageSrc: "",
@@ -231,6 +232,27 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    {/* Academic Title */}
+                    <div className="md:col-span-2">
+                        <FormSelect
+                            label={t("personnel.academicTitle") || "ตำแหน่งทางวิชาการ / Academic Title"}
+                            name="academicTitle"
+                            value={formData.academicTitle?.th || ""}
+                            onChange={(e) => {
+                                const selectedTh = e.target.value;
+                                const match = ACADEMIC_TITLES.find(t => t.th === selectedTh);
+                                setFormData(prev => ({
+                                    ...prev,
+                                    academicTitle: { th: match?.th || "", en: match?.en || "" }
+                                }));
+                            }}
+                            options={ACADEMIC_TITLES.map(title => ({
+                                value: title.th,
+                                label: title.th ? `${title.th} (${title.en})` : `ไม่มี (None)`
+                            }))}
+                        />
+                    </div>
 
                     {/* Name TH */}
                     <FormInput
