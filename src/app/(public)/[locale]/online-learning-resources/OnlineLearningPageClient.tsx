@@ -105,7 +105,7 @@ export default function OnlineLearningPageClient({ initialResources }: { initial
           <section key={category.key} data-aos="fade-up" data-aos-delay={index * 100}>
             <div className="flex items-center gap-4 mb-8">
               <div className="h-8 w-1.5 bg-primary-main rounded-full"></div>
-              <h2 className="text-2xl md:text-3xl font-bold text-slate-800">
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-800">
                 {category.title}
               </h2>
             </div>
@@ -120,7 +120,7 @@ export default function OnlineLearningPageClient({ initialResources }: { initial
                     key={item.key}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="group bg-white rounded-xl p-6 shadow-sm border border-slate-100 hover:shadow-md hover:border-primary-main/30 transition-all duration-300 flex flex-col h-full"
+                    className="group bg-white rounded-lg p-6 shadow-sm border border-slate-100 hover:shadow-md hover:border-primary-main/30 transition-all duration-300 flex flex-col h-full"
                   >
                     <div className={`h-16 w-16 rounded-lg mb-6 flex items-center justify-center ${item.colorClass} group-hover:scale-110 transition-transform duration-300`}>
                       {item.imagePath ? (

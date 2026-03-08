@@ -24,6 +24,7 @@ interface OnlineResourceItem {
 import { useRouter } from "next/navigation";
 
 export default function ResourcesListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.onlineResources");
     const router = useRouter();
     const [resources, setResources] = useState<OnlineResourceItem[]>([]);
@@ -49,13 +50,13 @@ export default function ResourcesListPage() {
 
     const handleDelete = async (id: string, title: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
+            title: tAlert("deleteConfirmTitle"),
             text: `You are about to delete "${title}". This action cannot be undone.`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: tAlert("deleteConfirmButton"),
         });
 
         if (result.isConfirmed) {
@@ -74,7 +75,7 @@ export default function ResourcesListPage() {
                 });
 
                 if (res.ok) {
-                    Swal.fire("Deleted!", "Resource has been deleted.", "success");
+                    Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                     setResources(prev => prev.filter(item => item._id !== id));
                     router.refresh();
                 } else {

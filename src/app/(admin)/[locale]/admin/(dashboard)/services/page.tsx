@@ -24,6 +24,7 @@ type Service = {
 import { useRouter } from "next/navigation";
 
 export default function ServicesListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.services");
     const router = useRouter();
     const [services, setServices] = useState<Service[]>([]);
@@ -37,7 +38,7 @@ export default function ServicesListPage() {
             setServices(data);
         } catch (error) {
             console.error(error);
-            Swal.fire("Error", "Failed to load services", "error");
+            Swal.fire(tAlert("error"), "Failed to load services", "error");
         } finally {
             setIsLoading(false);
         }
@@ -45,17 +46,18 @@ export default function ServicesListPage() {
 
     useEffect(() => {
         fetchServices();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: tAlert("deleteConfirmTitle"),
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -74,7 +76,7 @@ export default function ServicesListPage() {
                 });
 
                 if (res.ok) {
-                    Swal.fire("Deleted!", "Service has been deleted.", "success");
+                    Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                     fetchServices();
                     router.refresh();
                 } else {
@@ -82,7 +84,7 @@ export default function ServicesListPage() {
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire("Error", "Failed to delete service", "error");
+                Swal.fire(tAlert("error"), "Failed to delete service", "error");
             }
         }
     };

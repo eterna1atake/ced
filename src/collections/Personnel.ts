@@ -14,6 +14,7 @@ export type ICustomLink = {
 export type IPersonnel = {
     _id?: string;
     name: { th: string; en: string };
+    academicTitle?: { th: string; en: string };
     position: { th: string; en: string };
     email: string;
     imageSrc: string;
@@ -61,6 +62,10 @@ const PersonnelSchema = new Schema<IPersonnel>(
         name: {
             th: { type: String, required: [true, 'Thai name is required'], trim: true },
             en: { type: String, required: [true, 'English name is required'], trim: true },
+        },
+        academicTitle: {
+            th: { type: String, default: "" },
+            en: { type: String, default: "" }
         },
         position: {
             th: { type: String, required: [true, 'Thai position is required'], trim: true },

@@ -26,7 +26,7 @@ export default function Footer() {
 
     const serviceLinks = [
         { key: "personnel", path: "/personnel" },
-        { key: "research", path: "https://research.kmutnb.ac.th/researcher/" },
+        { key: "research", path: "/research" },
     ];
 
     const studentLinks = [

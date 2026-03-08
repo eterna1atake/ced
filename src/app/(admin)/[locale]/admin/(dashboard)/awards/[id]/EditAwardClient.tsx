@@ -5,12 +5,14 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import AwardsForm from "@/components/admin/awards/AwardsForm";
 import type { Award } from "@/types/award";
+import { useTranslations } from "next-intl";
 
 type Props = {
     initialData: Award;
 };
 
 export default function EditAwardClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSaving, setIsSaving] = React.useState(false);
 
@@ -42,8 +44,8 @@ export default function EditAwardClient({ initialData }: Props) {
 
             const Swal = (await import("sweetalert2")).default;
             await Swal.fire({
-                title: "Updated!",
-                text: "Award has been updated successfully.",
+                title: tAlert("updated"),
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 2000,
                 showConfirmButton: false,
@@ -58,7 +60,7 @@ export default function EditAwardClient({ initialData }: Props) {
             console.error("Update error:", error);
             const Swal = (await import("sweetalert2")).default;
             Swal.fire({
-                title: "Error",
+                title: tAlert("error"),
                 text: error.message || "An unexpected error occurred.",
                 icon: "error"
             });

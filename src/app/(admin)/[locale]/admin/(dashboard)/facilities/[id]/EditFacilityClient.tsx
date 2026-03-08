@@ -5,12 +5,14 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import FacilityForm from "@/components/admin/facilities/FacilityForm";
 import type { Facility } from "@/types/facility";
+import { useTranslations } from "next-intl";
 
 interface Props {
     initialData: Facility;
 }
 
 export default function EditFacilityClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,8 +40,8 @@ export default function EditFacilityClient({ initialData }: Props) {
             }
 
             await Swal.fire({
-                title: "Updated!",
-                text: "Facility has been updated successfully.",
+                title: tAlert("updated"),
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -49,7 +51,7 @@ export default function EditFacilityClient({ initialData }: Props) {
         } catch (error: unknown) {
             console.error(error);
             const msg = error instanceof Error ? error.message : "Failed to update facility";
-            Swal.fire("Error", msg, "error");
+            Swal.fire(tAlert("error"), msg, "error");
         } finally {
             setIsLoading(false);
         }

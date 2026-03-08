@@ -66,6 +66,11 @@ export async function POST(request: NextRequest) {
             }, { status: 400 });
         }
 
+        const count = await HeroCarousel.countDocuments();
+        if (count >= 9) {
+            return NextResponse.json({ error: "Cannot add more than 9 hero images." }, { status: 400 });
+        }
+
         const newHero = await HeroCarousel.create(parsed.data);
 
         // Audit Log

@@ -11,6 +11,7 @@ import { Link } from "@/i18n/navigation";
 import HeroBanner from "@/components/common/HeroBanner";
 import { LocalizedString } from "@/types";
 import type { IPersonnel } from "@/collections/Personnel";
+import { formatPersonnelName } from "@/utils/personnel";
 
 export default function PersonnelDetailPageClient({ person }: { person: IPersonnel }) {
     const locale = useLocale();
@@ -37,7 +38,7 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                         items={[
                             { href: `/${locale}`, label: breadcrumb("home") },
                             { href: `/${locale}/personnel`, label: breadcrumb("personnel") },
-                            { label: person.name[lang] },
+                            { label: formatPersonnelName(person, lang) },
                         ]}
                     />
                 </div>
@@ -50,7 +51,7 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                     <div className="lg:col-span-4">
                         <PersonnelSidebar
                             imageSrc={person.imageSrc}
-                            name={person.name[lang]}
+                            name={formatPersonnelName(person, lang)}
                             position={person.position[lang]}
                             email={person.email}
                             room={person.room}
@@ -62,7 +63,7 @@ export default function PersonnelDetailPageClient({ person }: { person: IPersonn
                     <div className="lg:col-span-8 space-y-12">
                         <div className="hidden lg:block border-b border-slate-200 pb-8">
                             <h1 className="text-3xl font-bold text-slate-900 sm:text-4xl mb-3">
-                                {person.name[lang]}
+                                {formatPersonnelName(person, lang)}
                             </h1>
                             <p className="text-xl font-medium text-primary-main">
                                 {person.position[lang]}

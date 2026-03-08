@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import FormRequestForm from "@/components/admin/forms/FormRequestForm";
 import { useState } from "react";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 interface FormRequestItem {
     _id: string;
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default function EditFormRequestClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -57,7 +59,7 @@ export default function EditFormRequestClient({ initialData }: Props) {
             router.push("/admin/forms");
             router.refresh();
         } catch (error: unknown) {
-            Swal.fire("Error", error instanceof Error ? error.message : "An error occurred", "error");
+            Swal.fire(tAlert("error"), error instanceof Error ? error.message : "An error occurred", "error");
         } finally {
             setIsLoading(false);
         }

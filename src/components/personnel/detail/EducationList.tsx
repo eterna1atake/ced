@@ -15,6 +15,21 @@ export default function EducationList({ education }: EducationListProps) {
     const locale = useLocale();
     const lang = locale as keyof LocalizedString;
 
+    const getEducationWeight = (levelTh: string, levelEn: string) => {
+        const th = (levelTh || "").toLowerCase();
+        const en = (levelEn || "").toLowerCase();
+
+        if (th.includes('เอก') || th.includes('ดุษฎีบัณฑิต') || en.includes('doctor') || en.includes('phd') || en.includes('ph.d')) return 1;
+        if (th.includes('โท') || th.includes('มหาบัณฑิต') || en.includes('master')) return 2;
+        if (th.includes('ตรี') || th.includes('บัณฑิต') || en.includes('bachelor')) return 3;
+
+        return 4; // Others
+    };
+
+    const sortedEducation = [...(education || [])].sort((a, b) => {
+        return getEducationWeight(a.level.th, a.level.en) - getEducationWeight(b.level.th, b.level.en);
+    });
+
     return (
         <div>
             <h2 className="text-2xl font-bold text-slate-900 mb-6 flex items-center gap-2">
@@ -22,7 +37,7 @@ export default function EducationList({ education }: EducationListProps) {
                 {lang === 'th' ? "ประวัติการศึกษา" : "Education History"}
             </h2>
             <ul className="space-y-3">
-                {education.map((edu, index) => (
+                {sortedEducation.map((edu, index) => (
                     <li key={index} className="flex items-start gap-3 text-slate-700">
                         <span className="mt-2.5 w-1.5 h-1.5 bg-slate-400 rounded-full flex-shrink-0"></span>
                         <div className="text-base text-slate-800">

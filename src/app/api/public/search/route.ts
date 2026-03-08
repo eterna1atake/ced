@@ -113,7 +113,7 @@ function createSmartRegex(text: string): RegExp {
     const escapedTerms = terms.map(t => escapeRegex(t));
 
     // 3. Create Lookahead Regex: (?=.*term1)(?=.*term2) -> matches string containing both (any order)
-    const pattern = escapedTerms.map(term => `(?=.* ${term})`).join('');
+    const pattern = escapedTerms.map(term => `(?=.*${term})`).join('');
     return new RegExp(pattern, 'i');
 }
 
@@ -125,13 +125,23 @@ const STATIC_PAGES = [
     { title: { th: 'ข่าวสารและกิจกรรม', en: 'News & Events' }, url: '/newsandevents', keywords: ['news', 'event', 'activity', 'announcement', 'pr', 'ข่าว', 'กิจกรรม', 'ประกาศ', 'ประชาสัมพันธ์', 'ทุน'] },
     { title: { th: 'ติดต่อเรา', en: 'Contact Us' }, url: '/contact-us', keywords: ['contact', 'map', 'location', 'email', 'phone', 'tel', 'fax', 'ติดต่อ', 'แผนที่', 'เบอร์โทร', 'ที่อยู่', 'เดินทาง'] },
     { title: { th: 'บริการนักศึกษา', en: 'Student Services' }, url: '/student-services', keywords: ['service', 'student', 'download', 'form', 'request', 'document', 'บริการ', 'นักศึกษา', 'ดาวน์โหลด', 'แบบฟอร์ม', 'คำร้อง'] },
-    { title: { th: 'แอดมิชชั่น / รับสมัคร', en: 'Admissions' }, url: 'https://admission.kmutnb.ac.th/', keywords: ['admission', 'apply', 'register', 'entrance', 'รับสมัคร', 'สอบเข้า', 'สมัครเรียน', 'tcas'] },
+    { title: { th: 'แอดมิชชั่น / รับสมัคร', en: 'Admissions' }, url: '/apply', keywords: ['admission', 'apply', 'register', 'entrance', 'รับสมัคร', 'สอบเข้า', 'สมัครเรียน', 'การสมัครเรียน', 'การรับสมัคร', 'tcas'] },
     { title: { th: 'ผลงานและรางวัล', en: 'Awards & Achievements' }, url: '/awards', keywords: ['award', 'prize', 'competition', 'winner', 'achievement', 'รางวัล', 'ผลงาน', 'ชนะเลิศ', 'แข่งขัน'] },
-    { title: { th: 'งานวิจัยและนวัตกรรม', en: 'Research & Innovation' }, url: 'https://research.kmutnb.ac.th', keywords: ['research', 'innovation', 'paper', 'publication', 'scopus', 'วิจัย', 'นวัตกรรม', 'ตีพิมพ์', 'บทความ'] },
+    { title: { th: 'งานวิจัยและนวัตกรรม', en: 'Research & Innovation' }, url: '/research', keywords: ['research', 'innovation', 'paper', 'publication', 'scopus', 'วิจัย', 'นวัตกรรม', 'ตีพิมพ์', 'บทความ'] },
     { title: { th: 'ระบบจองห้องเรียน', en: 'Classroom Scheduler' }, url: '/facilities', keywords: ['classroom', 'room', 'booking', 'schedule', 'ห้องเรียน', 'จองห้อง', 'ตารางเรียน', 'facilities'] },
     { title: { th: 'แหล่งเรียนรู้ออนไลน์', en: 'Online Learning Resources' }, url: '/online-learning-resources', keywords: ['online', 'learning', 'resource', 'lms', 'moodle', 'tool', 'software', 'เรียนรู้', 'ออนไลน์', 'สื่อการสอน'] },
     { title: { th: 'ยื่นคำร้อง', en: 'Form Requests' }, url: '/form-requests', keywords: ['form', 'request', 'document', 'petition', 'ยื่นคำร้อง', 'แบบฟอร์ม', 'คำร้อง', 'เอกสาร'] },
 ];
+
+// OWASP Standard: Input Sanitization and Validation
+function sanitizeInput(input: string | null | undefined): string {
+    if (!input) return '';
+    // 1. Length constraint (prevent ReDoS and Buffer attacks)
+    let clean = input.slice(0, 100).trim();
+    // 2. Remove NoSQL operators ($) and HTML syntax (<, >) to prevent injection contexts
+    clean = clean.replace(/[$<>]/g, '');
+    return clean;
+}
 
 export async function GET(req: NextRequest) {
     try {
@@ -147,10 +157,13 @@ export async function GET(req: NextRequest) {
         }
         await incrementSearchLimit(ip);
 
-        // 2. Parse Query
+        // 2. Parse and Validate Query (OWASP)
         const { searchParams } = new URL(req.url);
-        const q = searchParams.get('q')?.trim();
-        const locale = searchParams.get('locale') || 'th';
+        const rawQ = searchParams.get('q');
+        const q = sanitizeInput(rawQ);
+
+        const rawLocale = searchParams.get('locale');
+        const locale = sanitizeInput(rawLocale) || 'th';
 
         if (!q || q.length < 2) {
             return NextResponse.json({ results: [] });
@@ -160,6 +173,7 @@ export async function GET(req: NextRequest) {
         await dbConnect();
 
         // 4. Generate Search Strategies
+        // The escapeRegex function prevents Regex Injection inside createSmartRegex
         const smartRegex = createSmartRegex(q);
 
         // 5. Parallel Search (+ Award, + StudentService)
@@ -170,9 +184,9 @@ export async function GET(req: NextRequest) {
             News.find({
                 status: 'published',
                 $or: [
-                    { [`title.${locale} `]: smartRegex },
+                    { [`title.${locale}`]: smartRegex },
                     { [`title.en`]: smartRegex },
-                    { [`summary.${locale} `]: smartRegex },
+                    { [`summary.${locale}`]: smartRegex },
                     { tags: smartRegex }
                 ]
             })
@@ -184,9 +198,9 @@ export async function GET(req: NextRequest) {
             // Search Personnel
             Personnel.find({
                 $or: [
-                    { [`name.${locale} `]: smartRegex },
+                    { [`name.${locale}`]: smartRegex },
                     { [`name.en`]: smartRegex },
-                    { [`position.${locale} `]: smartRegex },
+                    { [`position.${locale}`]: smartRegex },
                     { [`position.en`]: smartRegex },
                     { email: smartRegex }
                 ]
@@ -198,9 +212,9 @@ export async function GET(req: NextRequest) {
             // Search Awards
             Award.find({
                 $or: [
-                    { [`title.${locale} `]: smartRegex },
+                    { [`title.${locale}`]: smartRegex },
                     { [`title.en`]: smartRegex },
-                    { [`project.${locale} `]: smartRegex },
+                    { [`project.${locale}`]: smartRegex },
                     { [`team.th`]: smartRegex }, // Team is array of strings/objects, simplifying for now
                 ]
             })
@@ -212,7 +226,7 @@ export async function GET(req: NextRequest) {
             // Search Student Services (Downloads)
             StudentService.find({
                 $or: [
-                    { [`title.${locale} `]: smartRegex },
+                    { [`title.${locale}`]: smartRegex },
                     { [`title.en`]: smartRegex },
                 ]
             })
@@ -237,11 +251,25 @@ export async function GET(req: NextRequest) {
             keywords: page.keywords
         }));
 
+        // Hack helper for 't' function if not available in API routes (next-intl usually works in components)
+        function t(key: string) {
+            return key === 'year' ? (locale === 'th' ? 'ปี' : 'Year') : '';
+        }
+
+        function decodeHtml(html: string | undefined): string {
+            if (!html) return '';
+            return html.replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'");
+        }
+
         // 7. Standardize Items for Scoring
         const allItems: SearchResultItem[] = [
             ...pageResults.map(item => ({
                 type: 'page' as const,
-                title: (item.title[locale as 'th' | 'en'] || item.title['en']) as string,
+                title: decodeHtml((item.title[locale as 'th' | 'en'] || item.title['en']) as string),
                 subtitle: '',
                 url: item.url,
                 icon: item.icon,
@@ -252,11 +280,11 @@ export async function GET(req: NextRequest) {
             })),
             ...newsResults.map((item: NewsDoc) => ({
                 type: 'news' as const,
-                title: (item.title[locale as 'th' | 'en'] || item.title['en']) as string,
+                title: decodeHtml((item.title[locale as 'th' | 'en'] || item.title['en']) as string),
                 subtitle: new Date(item.date).toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
                 url: `/news/${item.slug}`,
                 image: item.imageSrc,
-                meta: item.category,
+                meta: decodeHtml(item.category),
                 // Scoring props
                 rawTitle: (item.title[locale as 'th' | 'en'] || item.title['en']) as string,
                 rawSummary: item.summary?.[locale as 'th' | 'en'] || '',
@@ -264,8 +292,8 @@ export async function GET(req: NextRequest) {
             })),
             ...personnelResults.map((item: PersonnelDoc) => ({
                 type: 'personnel' as const,
-                title: (item.name[locale as 'th' | 'en'] || item.name['en']) as string,
-                subtitle: (item.position[locale as 'th' | 'en'] || item.position['en']) as string,
+                title: decodeHtml((item.name[locale as 'th' | 'en'] || item.name['en']) as string),
+                subtitle: decodeHtml((item.position[locale as 'th' | 'en'] || item.position['en']) as string),
                 url: `/personnel${item.slug ? `/${item.slug}` : ''}`,
                 image: item.imageSrc,
                 // Scoring props
@@ -274,8 +302,8 @@ export async function GET(req: NextRequest) {
             })),
             ...awardResults.map((item: AwardDoc) => ({
                 type: 'award' as const,
-                title: (item.title[locale as 'th' | 'en'] || item.title['en']) as string,
-                subtitle: (item.project[locale as 'th' | 'en'] || item.project['en']) as string,
+                title: decodeHtml((item.title[locale as 'th' | 'en'] || item.title['en']) as string),
+                subtitle: decodeHtml((item.project[locale as 'th' | 'en'] || item.project['en']) as string),
                 url: `/about/awards/${item._id}`,
                 image: item.image,
                 meta: `${t('year') || 'Year'} ${item.year}`,
@@ -285,8 +313,8 @@ export async function GET(req: NextRequest) {
             })),
             ...serviceResults.map((item: StudentServiceDoc) => ({
                 type: 'service' as const,
-                title: (item.title[locale as 'th' | 'en'] || item.title['en']) as string,
-                subtitle: item.category,
+                title: decodeHtml((item.title[locale as 'th' | 'en'] || item.title['en']) as string),
+                subtitle: decodeHtml(item.category),
                 url: item.link || '/services',
                 image: undefined, // Changed from null to undefined to match SearchResultItem's image?: string
                 meta: 'Download',
@@ -295,10 +323,6 @@ export async function GET(req: NextRequest) {
             }))
         ];
 
-        // Hack helper for 't' function if not available in API routes (next-intl usually works in components)
-        function t(key: string) {
-            return key === 'year' ? (locale === 'th' ? 'ปี' : 'Year') : '';
-        }
 
         // 8. Scoring & Ranking Algorithm
         const qLower = q.toLowerCase();

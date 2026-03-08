@@ -5,8 +5,10 @@ import { useState } from "react";
 import HeroForm from "@/components/admin/hero/HeroForm";
 import type { HeroCarouselImage } from "@/types/hero";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 export default function CreateHeroPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -35,7 +37,7 @@ export default function CreateHeroPage() {
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Created!',
+                title: tAlert("created"),
                 text: 'Hero image has been added.',
                 timer: 1500
             });
@@ -46,7 +48,7 @@ export default function CreateHeroPage() {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const err = error as any;
             console.error(err);
-            Swal.fire("Error", err.message || "Failed to create hero image", "error");
+            Swal.fire(tAlert("error"), err.message || "Failed to create hero image", "error");
         } finally {
             setIsSubmitting(false);
         }

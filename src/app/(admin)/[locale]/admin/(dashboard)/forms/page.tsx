@@ -23,6 +23,7 @@ interface FormRequestItem {
 import { useRouter } from "next/navigation";
 
 export default function FormRequestsListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.forms");
     const router = useRouter();
     const [forms, setForms] = useState<FormRequestItem[]>([]);
@@ -48,13 +49,13 @@ export default function FormRequestsListPage() {
 
     const handleDelete = async (id: string, name: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
+            title: tAlert("deleteConfirmTitle"),
             text: `You are about to delete "${name}"`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!"
+            confirmButtonText: tAlert("deleteConfirmButton")
         });
 
         if (result.isConfirmed) {
@@ -72,7 +73,7 @@ export default function FormRequestsListPage() {
                     },
                 });
                 if (res.ok) {
-                    Swal.fire("Deleted!", "Document has been deleted.", "success");
+                    Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                     fetchForms();
                     router.refresh();
                 } else {

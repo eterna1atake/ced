@@ -201,19 +201,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                 <div key={idx} className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
                                     <div className="flex gap-4 items-start group">
                                         <span className="mt-3 text-slate-400 font-mono text-xs">#{idx + 1}</span>
-                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.th || ""}
-                                                    placeholder="รูปแบบหลัก (ไทย)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.programFormat?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                    }}
-                                                />
+                                        <div className="flex-1">
+                                            <div className="flex justify-end mb-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -226,23 +215,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         });
                                                     }}
                                                     disabled={isTranslating[`format-title-${idx}`] || !item.title?.th}
-                                                    className="absolute right-3 top-3 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-300"
+                                                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                 >
-                                                    {isTranslating[`format-title-${idx}`] ? "..." : t("common.autoTranslate")}
+                                                    {isTranslating[`format-title-${idx}`] ? (
+                                                        <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                            <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                            <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                        </svg>
+                                                    )}
+                                                    {isTranslating[`format-title-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
                                                 </button>
                                             </div>
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.en || ""}
-                                                    placeholder="Main Format (EN)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.programFormat?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                    }}
-                                                />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.th || ""}
+                                                        placeholder="รูปแบบหลัก (ไทย)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.programFormat?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.en || ""}
+                                                        placeholder="Main Format (EN)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.programFormat?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <button type="button" className="text-slate-400 hover:text-red-500 p-2"
@@ -261,20 +273,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                         <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sub Items</h4>
                                         {item.subItems?.map((sub, sIdx) => (
                                             <div key={sIdx} className="flex gap-4 items-start group">
-                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="relative">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="หัวข้อย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.programFormat?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                <div className="flex-1">
+                                                    <div className="flex justify-end mb-1">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
@@ -289,23 +289,45 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                                 });
                                                             }}
                                                             disabled={isTranslating[`format-${idx}-sub-${sIdx}`] || !sub.th}
-                                                            className="absolute right-2 top-2 text-[9px] font-bold text-indigo-500 hover:text-indigo-700 disabled:text-slate-300"
+                                                            className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                         >
-                                                            {isTranslating[`format-${idx}-sub-${sIdx}`] ? "..." : "AUTO"}
+                                                            {isTranslating[`format-${idx}-sub-${sIdx}`] ? (
+                                                                <div className="w-3 h-3 border-[1.5px] border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                                                                    <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                                    <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                                </svg>
+                                                            )}
+                                                            {isTranslating[`format-${idx}-sub-${sIdx}`] ? t("common.translating") : "Auto"}
                                                         </button>
                                                     </div>
-                                                    <input
-                                                        className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                        value={sub.en}
-                                                        placeholder="Sub-item (EN)"
-                                                        onChange={(e) => {
-                                                            const newItems = [...(formData.programFormat?.items || [])];
-                                                            const newSubItems = [...(newItems[idx].subItems || [])];
-                                                            newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                            newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                            setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                        }}
-                                                    />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.th}
+                                                            placeholder="หัวข้อย่อย (ไทย)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.programFormat?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.en}
+                                                            placeholder="Sub-item (EN)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.programFormat?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
                                                     onClick={() => {
@@ -367,19 +389,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                 <div key={idx} className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
                                     <div className="flex gap-4 items-start group">
                                         <span className="mt-3 text-slate-400 font-mono text-xs">#{idx + 1}</span>
-                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.th || ""}
-                                                    placeholder="หัวข้อหลัก (ไทย)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.gradAttribute?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                    }}
-                                                />
+                                        <div className="flex-1">
+                                            <div className="flex justify-end mb-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -392,23 +403,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         });
                                                     }}
                                                     disabled={isTranslating[`grad-title-${idx}`] || !item.title?.th}
-                                                    className="absolute right-3 top-3 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-300"
+                                                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                 >
-                                                    {isTranslating[`grad-title-${idx}`] ? "..." : t("common.autoTranslate")}
+                                                    {isTranslating[`grad-title-${idx}`] ? (
+                                                        <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                            <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                            <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                        </svg>
+                                                    )}
+                                                    {isTranslating[`grad-title-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
                                                 </button>
                                             </div>
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.en || ""}
-                                                    placeholder="Main Title (EN)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.gradAttribute?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                    }}
-                                                />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.th || ""}
+                                                        placeholder="หัวข้อหลัก (ไทย)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.gradAttribute?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.en || ""}
+                                                        placeholder="Main Title (EN)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.gradAttribute?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <button type="button" className="text-slate-400 hover:text-red-500 p-2"
@@ -427,20 +461,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                         <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sub Items</h4>
                                         {item.subItems?.map((sub, sIdx) => (
                                             <div key={sIdx} className="flex gap-4 items-start group">
-                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="relative">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="หัวข้อย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.gradAttribute?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                <div className="flex-1">
+                                                    <div className="flex justify-end mb-1">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
@@ -455,23 +477,45 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                                 });
                                                             }}
                                                             disabled={isTranslating[`grad-${idx}-sub-${sIdx}`] || !sub.th}
-                                                            className="absolute right-2 top-2 text-[9px] font-bold text-indigo-500 hover:text-indigo-700 disabled:text-slate-300"
+                                                            className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                         >
-                                                            {isTranslating[`grad-${idx}-sub-${sIdx}`] ? "..." : "AUTO"}
+                                                            {isTranslating[`grad-${idx}-sub-${sIdx}`] ? (
+                                                                <div className="w-3 h-3 border-[1.5px] border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                                                                    <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                                    <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                                </svg>
+                                                            )}
+                                                            {isTranslating[`grad-${idx}-sub-${sIdx}`] ? t("common.translating") : "Auto"}
                                                         </button>
                                                     </div>
-                                                    <input
-                                                        className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                        value={sub.en}
-                                                        placeholder="Sub-item (EN)"
-                                                        onChange={(e) => {
-                                                            const newItems = [...(formData.gradAttribute?.items || [])];
-                                                            const newSubItems = [...(newItems[idx].subItems || [])];
-                                                            newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                            newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                            setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                        }}
-                                                    />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.th}
+                                                            placeholder="หัวข้อย่อย (ไทย)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.gradAttribute?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.en}
+                                                            placeholder="Sub-item (EN)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.gradAttribute?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
                                                     onClick={() => {
@@ -533,19 +577,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                 <div key={idx} className="bg-slate-50 dark:bg-slate-800/30 p-4 rounded-xl border border-slate-200 dark:border-slate-700 space-y-4">
                                     <div className="flex gap-4 items-start group">
                                         <span className="mt-3 text-slate-400 font-mono text-xs">#{idx + 1}</span>
-                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.th || ""}
-                                                    placeholder="กลุ่มอาชีพหลัก (ไทย)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.suitableFor?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                    }}
-                                                />
+                                        <div className="flex-1">
+                                            <div className="flex justify-end mb-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => {
@@ -558,23 +591,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         });
                                                     }}
                                                     disabled={isTranslating[`suitable-title-${idx}`] || !item.title?.th}
-                                                    className="absolute right-3 top-3 text-[10px] font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-300"
+                                                    className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                 >
-                                                    {isTranslating[`suitable-title-${idx}`] ? "..." : t("common.autoTranslate")}
+                                                    {isTranslating[`suitable-title-${idx}`] ? (
+                                                        <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                    ) : (
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                            <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                            <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                        </svg>
+                                                    )}
+                                                    {isTranslating[`suitable-title-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
                                                 </button>
                                             </div>
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
-                                                <input
-                                                    className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
-                                                    value={item.title?.en || ""}
-                                                    placeholder="Career Group (EN)"
-                                                    onChange={(e) => {
-                                                        const newItems = [...(formData.suitableFor?.items || [])];
-                                                        newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
-                                                        setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                    }}
-                                                />
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.th || ""}
+                                                        placeholder="กลุ่มอาชีพหลัก (ไทย)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.suitableFor?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className="relative">
+                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <input
+                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        value={item.title?.en || ""}
+                                                        placeholder="Career Group (EN)"
+                                                        onChange={(e) => {
+                                                            const newItems = [...(formData.suitableFor?.items || [])];
+                                                            newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
+                                                            setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <button type="button" className="text-slate-400 hover:text-red-500 p-2"
@@ -593,20 +649,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                         <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Career Details</h4>
                                         {item.subItems?.map((sub, sIdx) => (
                                             <div key={sIdx} className="flex gap-4 items-start group">
-                                                <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                    <div className="relative">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="อาชีพย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.suitableFor?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                <div className="flex-1">
+                                                    <div className="flex justify-end mb-1">
                                                         <button
                                                             type="button"
                                                             onClick={() => {
@@ -621,23 +665,45 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                                 });
                                                             }}
                                                             disabled={isTranslating[`suitable-${idx}-sub-${sIdx}`] || !sub.th}
-                                                            className="absolute right-2 top-2 text-[9px] font-bold text-indigo-500 hover:text-indigo-700 disabled:text-slate-300"
+                                                            className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
                                                         >
-                                                            {isTranslating[`suitable-${idx}-sub-${sIdx}`] ? "..." : "AUTO"}
+                                                            {isTranslating[`suitable-${idx}-sub-${sIdx}`] ? (
+                                                                <div className="w-3 h-3 border-[1.5px] border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                                                            ) : (
+                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                                                                    <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                                    <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                                </svg>
+                                                            )}
+                                                            {isTranslating[`suitable-${idx}-sub-${sIdx}`] ? t("common.translating") : "Auto"}
                                                         </button>
                                                     </div>
-                                                    <input
-                                                        className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                        value={sub.en}
-                                                        placeholder="Specific Career (EN)"
-                                                        onChange={(e) => {
-                                                            const newItems = [...(formData.suitableFor?.items || [])];
-                                                            const newSubItems = [...(newItems[idx].subItems || [])];
-                                                            newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                            newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                            setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                        }}
-                                                    />
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.th}
+                                                            placeholder="อาชีพย่อย (ไทย)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.suitableFor?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                        <input
+                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
+                                                            value={sub.en}
+                                                            placeholder="Specific Career (EN)"
+                                                            onChange={(e) => {
+                                                                const newItems = [...(formData.suitableFor?.items || [])];
+                                                                const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                            }}
+                                                        />
+                                                    </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
                                                     onClick={() => {
@@ -694,10 +760,36 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {formData.documents?.map((doc, idx) => (
                             <div key={idx} className="flex gap-4 items-start pb-4 border-b border-gray-50 last:border-0 relative group">
                                 <div className="flex-1 space-y-3">
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="relative">
-                                            <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameTh")}</span>
-                                            <input
+                                    <div className="flex justify-end mb-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const text = doc.name.th;
+                                                    const key = `doc-${idx}`;
+                                                    translate(key, text, (translated) => {
+                                                        const newDocs = [...(formData.documents || [])];
+                                                        newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, en: translated } };
+                                                        setFormData(prev => ({ ...prev, documents: newDocs }));
+                                                    });
+                                                }}
+                                                disabled={isTranslating[`doc-${idx}`] || !doc.name.th}
+                                                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
+                                            >
+                                                {isTranslating[`doc-${idx}`] ? (
+                                                    <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                                ) : (
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                    </svg>
+                                                )}
+                                                {isTranslating[`doc-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
+                                            </button>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="relative">
+                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameTh")}</span>
+                                                <input
                                                 className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
                                                 value={doc.name.th}
                                                 onChange={(e) => {
@@ -705,10 +797,10 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                     newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, th: e.target.value } };
                                                     setFormData(prev => ({ ...prev, documents: newDocs }));
                                                 }} />
-                                        </div>
-                                        <div className="relative">
-                                            <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameEn")}</span>
-                                            <input
+                                            </div>
+                                            <div className="relative">
+                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameEn")}</span>
+                                                <input
                                                 className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
                                                 value={doc.name.en}
                                                 onChange={(e) => {
@@ -716,8 +808,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                     newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, en: e.target.value } };
                                                     setFormData(prev => ({ ...prev, documents: newDocs }));
                                                 }} />
+                                            </div>
                                         </div>
-                                    </div>
                                     <div className="pl-1">
                                         <FileUpload label="" value={doc.url} accept=".pdf"
                                             folder="ced_web/programs"

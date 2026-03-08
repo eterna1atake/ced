@@ -86,7 +86,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
       `img-src 'self' blob: data: https://res.cloudinary.com https://*.facebook.com https://scontent.xx.fbcdn.net https://external.xx.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' https://fonts.gstatic.com data:; ` +
-      `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com; ` +
+      `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com ` +
       `object-src 'self' https://res.cloudinary.com blob:; ` +
       `worker-src 'self' blob:; ` +
       `connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net https://analytics.google.com https://*.googleapis.com https://res.cloudinary.com; ` +

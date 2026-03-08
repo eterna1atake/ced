@@ -11,6 +11,7 @@ import Loading from "../loading";
 import { useTranslations } from "next-intl";
 
 export default function NewsListPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.news");
     const [news, setNews] = useState<NewsSeedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -35,7 +36,7 @@ export default function NewsListPage() {
             setNews(sortedData);
         } catch (error) {
             console.error("Error fetching news:", error);
-            Swal.fire("Error", "Failed to load news items", "error");
+            Swal.fire(tAlert("error"), "Failed to load news items", "error");
         } finally {
             setIsLoading(false);
         }
@@ -43,6 +44,7 @@ export default function NewsListPage() {
 
     useEffect(() => {
         fetchNews();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const toggleSort = () => {
@@ -60,13 +62,13 @@ export default function NewsListPage() {
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
+            title: tAlert("deleteConfirmTitle"),
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
+            confirmButtonText: tAlert("deleteConfirmButton"),
         });
 
         if (result.isConfirmed) {
@@ -85,11 +87,11 @@ export default function NewsListPage() {
                 });
                 if (!res.ok) throw new Error("Failed to delete");
 
-                await Swal.fire("Deleted!", "Your news item has been deleted.", "success");
+                await Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
                 fetchNews(); // Refresh list
             } catch (error) {
                 console.error("Delete error:", error);
-                Swal.fire("Error", "Failed to delete item", "error");
+                Swal.fire(tAlert("error"), "Failed to delete item", "error");
             }
         }
     };
@@ -156,7 +158,7 @@ export default function NewsListPage() {
 
         } catch (error) {
             console.error("Archive error:", error);
-            Swal.fire("Error", "Failed to update status", "error");
+            Swal.fire(tAlert("error"), "Failed to update status", "error");
         }
     };
 
@@ -233,7 +235,7 @@ export default function NewsListPage() {
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                             <span className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-                                                {item.category}
+                                                {item.category?.replace(/&amp;/g, '&')}
                                             </span>
                                         </td>
                                         <td className="p-4 whitespace-nowrap">

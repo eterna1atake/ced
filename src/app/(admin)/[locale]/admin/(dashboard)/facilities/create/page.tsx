@@ -5,8 +5,10 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import FacilityForm from "@/components/admin/facilities/FacilityForm";
 import type { Facility } from "@/types/facility";
+import { useTranslations } from "next-intl";
 
 export default function CreateFacilityPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -33,8 +35,8 @@ export default function CreateFacilityPage() {
             }
 
             await Swal.fire({
-                title: "Created!",
-                text: "Facility has been created successfully.",
+                title: tAlert("created"),
+                text: tAlert("createdText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -44,7 +46,7 @@ export default function CreateFacilityPage() {
         } catch (error: unknown) {
             console.error(error);
             const msg = error instanceof Error ? error.message : "Failed to create facility";
-            Swal.fire("Error", msg, "error");
+            Swal.fire(tAlert("error"), msg, "error");
         } finally {
             setIsLoading(false);
         }

@@ -9,6 +9,7 @@ import ProgramPreviewPanel from "@/components/admin/programs/ProgramPreviewPanel
 import type { ProgramItem, ProgramDetailData } from "@/types/program";
 
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 export default function EditProgramClient({
     initialData,
@@ -17,6 +18,7 @@ export default function EditProgramClient({
     initialData: ProgramItem,
     initialDetailData?: ProgramDetailData
 }) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'general' | 'detail'>('general');
@@ -51,16 +53,16 @@ export default function EditProgramClient({
 
             await Swal.fire({
                 title: "Success!",
-                text: "Program General Info updated successfully.",
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
             });
             router.refresh();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error updating program:", error);
-            Swal.fire("Error", error.message || "Failed to update program", "error");
+            Swal.fire(tAlert("error"), error.message || "Failed to update program", "error");
         } finally {
             setIsLoading(false);
         }
@@ -91,16 +93,16 @@ export default function EditProgramClient({
 
             await Swal.fire({
                 title: "Success!",
-                text: "Program Details updated successfully.",
+                text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
             });
             router.refresh();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Error updating details:", error);
-            Swal.fire("Error", error.message || "Failed to update details", "error");
+            Swal.fire(tAlert("error"), error.message || "Failed to update details", "error");
         } finally {
             setIsLoading(false);
         }

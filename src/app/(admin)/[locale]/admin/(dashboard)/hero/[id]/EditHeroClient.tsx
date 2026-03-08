@@ -5,6 +5,7 @@ import { useState } from "react";
 import HeroForm from "@/components/admin/hero/HeroForm";
 import type { HeroCarouselImage } from "@/types/hero"; // Consider updating this type definition later
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 // Extend the type to include _id which might be missing in original type
 type ExtendedHeroImage = HeroCarouselImage & { _id?: string };
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function EditHeroClient({ initialData }: Props) {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -46,8 +48,8 @@ export default function EditHeroClient({ initialData }: Props) {
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Updated!',
-                text: 'Hero image has been updated.',
+                title: tAlert("updated"),
+                text: tAlert("updatedText"),
                 timer: 1500
             });
 
@@ -55,7 +57,7 @@ export default function EditHeroClient({ initialData }: Props) {
             router.refresh();
         } catch (error) {
             console.error(error);
-            Swal.fire("Error", "Failed to update hero image", "error");
+            Swal.fire(tAlert("error"), "Failed to update hero image", "error");
         } finally {
             setIsSubmitting(false);
         }

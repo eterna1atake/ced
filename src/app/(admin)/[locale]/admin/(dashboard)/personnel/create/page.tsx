@@ -5,8 +5,10 @@ import PersonnelForm from "@/components/admin/personnel/PersonnelForm";
 import type { Personnel } from "@/types/personnel";
 import Swal from "sweetalert2";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export default function CreatePersonnelPage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +41,7 @@ export default function CreatePersonnelPage() {
 
             await Swal.fire({
                 title: "Success!",
-                text: "Personnel profile created successfully.",
+                text: tAlert("createdText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -51,7 +53,7 @@ export default function CreatePersonnelPage() {
             console.error("Create error:", error);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const msg = (error as any).message || "Unknown error occurred";
-            Swal.fire("Error", msg, "error");
+            Swal.fire(tAlert("error"), msg, "error");
         } finally {
             setIsSubmitting(false);
         }

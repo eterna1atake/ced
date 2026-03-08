@@ -62,18 +62,25 @@ export default function Navbar() {
 
   // Debounced Search Effect
   useEffect(() => {
+    const controller = new AbortController();
+
     const delayDebounceFn = setTimeout(async () => {
       if (searchQuery.length >= 2) {
         setIsSearching(true);
         try {
-          const res = await fetch(`/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`);
+          const res = await fetch(`/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
+            signal: controller.signal
+          });
           if (res.ok) {
             const data = await res.json();
             setSearchResults(data.results || []);
           } else {
             setSearchResults([]);
           }
-        } catch (error) {
+        } catch (error: any) {
+          if (error.name === 'AbortError') {
+            return; // Ignore abort errors
+          }
           console.error("Search error:", error);
           setSearchResults([]);
         } finally {
@@ -81,10 +88,14 @@ export default function Navbar() {
         }
       } else {
         setSearchResults([]);
+        setIsSearching(false);
       }
-    }, 500);
+    }, 300);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      clearTimeout(delayDebounceFn);
+      controller.abort();
+    };
   }, [searchQuery, locale]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {

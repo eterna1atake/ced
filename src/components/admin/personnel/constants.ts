@@ -12,3 +12,10 @@ export const POSITIONS = [
     { th: "เจ้าหน้าที่", en: "Staff" },
     { th: "อื่นๆ", en: "Other" }
 ];
+
+export const ACADEMIC_TITLES = [
+    { th: "", en: "" },
+    { th: "ศาสตราจารย์", en: "Prof." },
+    { th: "รองศาสตราจารย์", en: "Assoc. Prof." },
+    { th: "ผู้ช่วยศาสตราจารย์", en: "Asst. Prof." }
+];

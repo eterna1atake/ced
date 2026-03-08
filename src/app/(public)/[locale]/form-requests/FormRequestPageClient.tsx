@@ -169,7 +169,7 @@ export default function FormRequestPageClient({ initialForms = [] }: FormRequest
                                         </button>
 
                                         {expandedSections[section.id] && (
-                                            <div className="px-3 pt-0 border-t border-slate-50 animate-slide-down">
+                                            <div className="px-3 py-4 pt-0 border-t border-slate-50 animate-slide-down">
                                                 {sectionForms.length > 0 ? (
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
                                                         {sectionForms.map((item) => (

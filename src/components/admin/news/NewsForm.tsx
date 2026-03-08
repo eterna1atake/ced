@@ -68,12 +68,12 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         summary: { en: "", th: "" },
         content: { en: "", th: "" },
         imageSrc: "",
-        category: "",
         author: { en: "", th: "" },
         date: new Date().toISOString().split('T')[0],
         status: "draft",
         tags: [],
         ...initialData,
+        category: initialData?.category?.replace(/&amp;/g, '&') || "",
     });
 
     // Set default author name from session if not provided in initialData

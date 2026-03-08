@@ -5,8 +5,10 @@ import { useState } from "react";
 import ServiceForm from "@/components/admin/services/ServiceForm";
 import type { Service } from "@/types/service";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 export default function CreateServicePage() {
+    const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSaving, setIsSaving] = useState(false);
 
@@ -34,8 +36,8 @@ export default function CreateServicePage() {
             }
 
             await Swal.fire({
-                title: "Success",
-                text: "Service created successfully",
+                title: tAlert("success"),
+                text: tAlert("createdText"),
                 icon: "success",
                 timer: 1500,
                 showConfirmButton: false
@@ -46,7 +48,7 @@ export default function CreateServicePage() {
         } catch (error: unknown) {
             console.error("Create error:", error);
             const message = error instanceof Error ? error.message : "Something went wrong";
-            Swal.fire("Error", message, "error");
+            Swal.fire(tAlert("error"), message, "error");
         } finally {
             setIsSaving(false);
         }
