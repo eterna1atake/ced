@@ -33,6 +33,8 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
         alt: initialAlt,
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     const handleAltChange = (lang: 'th' | 'en', val: string) => {
         setFormData(prev => ({
             ...prev,
@@ -41,6 +43,14 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                 [lang]: val
             }
         }));
+
+        if (errors[`alt.${lang}`]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[`alt.${lang}`];
+                return newErrors;
+            });
+        }
     };
 
     const handleTranslate = () => {
@@ -50,9 +60,30 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
         });
     };
 
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.src) newErrors.src = t("common.required");
+        if (!(formData.alt as LocalizedString)?.th) newErrors['alt.th'] = t("common.required");
+        if (!(formData.alt as LocalizedString)?.en) newErrors['alt.en'] = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
+
         const result = await Swal.fire({
             title: t("common.saveConfirmTitle") || "Are you sure?",
             text: t("common.saveConfirmText") || "Do you want to save these changes?",
@@ -84,9 +115,20 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                     <FileUpload
                         label={t("hero.heroImage")}
                         value={formData.src}
-                        onChange={(url) => setFormData(prev => ({ ...prev, src: url }))}
+                        onChange={(url) => {
+                            setFormData(prev => ({ ...prev, src: url }));
+                            if (errors.src) {
+                                setErrors(prev => {
+                                    const newErrors = { ...prev };
+                                    delete newErrors.src;
+                                    return newErrors;
+                                });
+                            }
+                        }}
                         accept="image/*"
                         folder="ced_web/hero"
+                        required
+                        error={errors.src}
                     />
                 </div>
 
@@ -98,6 +140,17 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                     onTranslate={handleTranslate}
                     isTranslating={isTranslating.alt}
                     placeholder={{ th: t("hero.altTextPlaceholderTh"), en: t("hero.altTextPlaceholderEn") }}
+                    required
+                    error={{ th: errors['alt.th'], en: errors['alt.en'] }}
+                    onFocus={(lang) => {
+                        if (errors[`alt.${lang}`]) {
+                            setErrors(prev => {
+                                const newErrors = { ...prev };
+                                delete newErrors[`alt.${lang}`];
+                                return newErrors;
+                            });
+                        }
+                    }}
                 />
 
             </div>
@@ -106,6 +159,7 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                 <SaveButton
                     isLoading={isLoading}
                     label={t("hero.saveImage")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

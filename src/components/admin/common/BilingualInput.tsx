@@ -9,6 +9,9 @@ type BilingualInputProps = {
     rows?: number;
     onTranslate?: () => void;
     isTranslating?: boolean;
+    error?: { th?: string; en?: string };
+    required?: boolean;
+    onFocus?: (lang: 'th' | 'en') => void;
 };
 
 export const BilingualInput: React.FC<BilingualInputProps> = ({
@@ -19,13 +22,16 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
     placeholder,
     rows = 3,
     onTranslate,
-    isTranslating = false
+    isTranslating = false,
+    error,
+    required = false,
+    onFocus
 }) => {
     return (
         <div className="py-2">
             <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-bold text-slate-700 dark:text-slate-300">
-                    {label}
+                    {label} {required && <span className="text-red-500">*</span>}
                 </span>
                 {onTranslate && (
                     <button
@@ -57,7 +63,9 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
                             rows={rows}
                             value={value.th || ""}
                             onChange={(e) => onChange("th", e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                            onFocus={() => onFocus?.('th')}
+                            className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 ${error?.th ? "border-red-500 focus:ring-red-200 dark:focus:ring-red-900/50" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main"
+                                }`}
                             placeholder={placeholder?.th}
                         />
                     ) : (
@@ -65,10 +73,13 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
                             type="text"
                             value={value.th || ""}
                             onChange={(e) => onChange("th", e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                            onFocus={() => onFocus?.('th')}
+                            className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 ${error?.th ? "border-red-500 focus:ring-red-200 dark:focus:ring-red-900/50" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main"
+                                }`}
                             placeholder={placeholder?.th}
                         />
                     )}
+                    {error?.th && <p className="text-[10px] text-red-500 mt-0.5 ml-1">{error.th}</p>}
                 </div>
                 <div className="relative">
                     <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -79,7 +90,9 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
                             rows={rows}
                             value={value.en || ""}
                             onChange={(e) => onChange("en", e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                            onFocus={() => onFocus?.('en')}
+                            className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 ${error?.en ? "border-red-500 focus:ring-red-200 dark:focus:ring-red-900/50" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main"
+                                }`}
                             placeholder={placeholder?.en}
                         />
                     ) : (
@@ -87,10 +100,13 @@ export const BilingualInput: React.FC<BilingualInputProps> = ({
                             type="text"
                             value={value.en || ""}
                             onChange={(e) => onChange("en", e.target.value)}
-                            className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                            onFocus={() => onFocus?.('en')}
+                            className={`w-full px-4 py-3 border rounded-lg text-sm outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 ${error?.en ? "border-red-500 focus:ring-red-200 dark:focus:ring-red-900/50" : "border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main"
+                                }`}
                             placeholder={placeholder?.en}
                         />
                     )}
+                    {error?.en && <p className="text-[10px] text-red-500 mt-0.5 ml-1">{error.en}</p>}
                 </div>
             </div>
         </div >

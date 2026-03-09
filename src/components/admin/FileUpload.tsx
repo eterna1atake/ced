@@ -12,6 +12,9 @@ type FileUploadProps = {
     maxSizeMB?: number;       // default 5
     helperText?: string;
     folder?: string;          // Cloudinary folder
+    error?: string;
+    required?: boolean;
+    onFocus?: () => void;
 };
 
 export default function FileUpload({
@@ -21,15 +24,20 @@ export default function FileUpload({
     accept = "image/*",
     maxSizeMB = 5,
     helperText,
-    folder
+    folder,
+    error: externalError,
+    required,
+    onFocus
 }: FileUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [isDragging, setIsDragging] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [internalError, setInternalError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const error = externalError || internalError;
+
     const validateAndUpload = async (file: File) => {
-        setError(null);
+        setInternalError(null);
 
         // Security & Format Validation
         const allowedExtensions = accept.split(",").map(ext => ext.trim());
@@ -49,12 +57,12 @@ export default function FileUpload({
         });
 
         if (!isValidType && accept !== "*") {
-            setError(`Invalid file type. Expected: ${accept}`);
+            setInternalError(`Invalid file type. Expected: ${accept}`);
             return;
         }
 
         if (file.size > maxSizeMB * 1024 * 1024) {
-            setError(`File size exceeds ${maxSizeMB}MB`);
+            setInternalError(`File size exceeds ${maxSizeMB}MB`);
             return;
         }
 
@@ -87,7 +95,7 @@ export default function FileUpload({
             const data = await res.json();
             onChange(data.url);
         } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "Upload failed");
+            setInternalError(err instanceof Error ? err.message : "Upload failed");
         } finally {
             setIsUploading(false);
             if (fileInputRef.current) fileInputRef.current.value = "";
@@ -118,7 +126,7 @@ export default function FileUpload({
 
     const clearFile = () => {
         onChange("");
-        setError(null);
+        setInternalError(null);
     };
 
     const isImage = value && /\.(jpeg|jpg|gif|png|webp|svg|bmp|ico|tiff)$/i.test(value);
@@ -129,10 +137,12 @@ export default function FileUpload({
 
     return (
         <div className="space-y-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{label}</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
 
             {value ? (
-                <div className="relative group border rounded-md overflow-hidden bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700">
+                <div className={`relative group border rounded-md overflow-hidden bg-slate-50 dark:bg-slate-800 transition-colors ${error ? "border-red-500" : "border-slate-200 dark:border-slate-700"}`}>
                     {isImage ? (
                         <div className="relative w-full h-48 bg-slate-200 dark:bg-slate-900">
                             <Image
@@ -176,16 +186,20 @@ export default function FileUpload({
                 </div>
             ) : (
                 <div
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => {
+                        onFocus?.();
+                        fileInputRef.current?.click();
+                    }}
                     onDragOver={handleDragOver}
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     className={`
                         border-2 border-dashed rounded-md p-6 flex flex-col items-center justify-center cursor-pointer transition-all
                         ${isUploading ? "bg-slate-50 dark:bg-slate-800/50 border-slate-300 dark:border-slate-700 pointer-events-none" : ""}
+                        ${error ? "border-red-500 bg-red-50/30 dark:bg-red-900/10" : "border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"}
                         ${isDragging
                             ? "bg-indigo-50 dark:bg-indigo-900/10 border-indigo-500 dark:border-indigo-500 scale-[1.02]"
-                            : "hover:bg-indigo-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-slate-500 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900"}
+                            : "hover:bg-indigo-50 dark:hover:bg-slate-800 hover:border-indigo-300 dark:hover:border-slate-500"}
                     `}
                 >
                     {isUploading ? (

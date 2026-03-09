@@ -23,11 +23,9 @@ export default function NewsListPage() {
             const res = await fetch("/api/admin/news");
             if (!res.ok) throw new Error("Failed to fetch news");
             const data = await res.json();
-            // Map _id to id if necessary, or ensure type compatibility
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mappedData = data.map((item: any) => ({
                 ...item,
-                id: item._id || item.id, // Handle both cases
+                id: item._id || item.id,
             }));
             // Sort by date desc initially
             const sortedData = mappedData.sort((a: NewsSeedItem, b: NewsSeedItem) =>
@@ -69,6 +67,7 @@ export default function NewsListPage() {
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
             confirmButtonText: tAlert("deleteConfirmButton"),
+            cancelButtonText: tAlert("cancelButton"),
         });
 
         if (result.isConfirmed) {
@@ -97,30 +96,10 @@ export default function NewsListPage() {
     };
 
     const handleToggleArchive = async (item: NewsSeedItem) => {
-        // newStatus was unused. Logic depends on current status.
-
-        // If it was draft, maybe stick to published or draft? 
-        // Logic: If archived -> unarchive to DRAFT or PUBLISHED? 
-        // Let's assume unarchive -> draft is safer, or back to previous status if we tracked it.
-        // Simple logic for now: Archive <-> Published (or Draft).
-        // Actually, if it's draft, archiving it makes sense. Unarchiving should probably go to draft to be safe.
-        // But user might want quick publish. Let's ask via logic? No, simple toggle:
-        // Archive -> Draft (Safe)
-        // Published/Draft -> Archived
-
-        // Wait, the UI button is 'Archive/Unarchive'.
-        // If status is 'archived', unarchive to 'draft'.
-        // If status is not 'archived', set to 'archived'.
 
         const targetStatus = item.status === 'archived' ? 'published' : 'archived';
 
         try {
-            // We need to send the whole object for PUT usually due to validator, 
-            // BUT we implemented PUT to validate the whole object schema. 
-            // Although our PUT implementation accepts full body, we should probably fetch current object details then update?
-            // Or... simply send what we have in `item` with updated status. `item` from list might be incomplete?
-            // List usually has all fields for NewsSeedItem.
-            // Let's try sending `item` with updated status.
 
             const updatedItem = { ...item, status: targetStatus };
 

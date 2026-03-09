@@ -55,7 +55,8 @@ export default function FormRequestsListPage() {
             showCancelButton: true,
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
-            confirmButtonText: tAlert("deleteConfirmButton")
+            confirmButtonText: tAlert("deleteConfirmButton"),
+            cancelButtonText: tAlert("cancelButton"),
         });
 
         if (result.isConfirmed) {

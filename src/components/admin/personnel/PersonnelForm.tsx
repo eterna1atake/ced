@@ -82,10 +82,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-
+    const handleClearError = (name: string) => {
         if (errors[name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -93,6 +90,13 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 return newErrors;
             });
         }
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
     };
 
     const handleLocalizedChange = (field: 'name' | 'position', lang: 'th' | 'en', value: string) => {
@@ -105,13 +109,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         }));
 
         const errorKey = field === 'name' ? (lang === 'th' ? 'nameTh' : 'nameEn') : (lang === 'th' ? 'posTh' : 'posEn');
-        if (errors[errorKey]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[errorKey];
-                return newErrors;
-            });
-        }
+        handleClearError(errorKey);
     };
 
     // Calculate initial position type based on current value matching presets
@@ -180,12 +178,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         if (missingFields.length > 0) {
             Swal.fire({
                 title: t("common.missingInfoTitle"),
-                html: `
-                    <p class="mb-2">${t("common.missingInfoText")}</p>
-                    <ul class="text-left text-sm list-disc pl-6 text-slate-600 dark:text-slate-300">
-                        ${missingFields.map(field => `<li>${field}</li>`).join("")}
-                    </ul>
-                `,
+                text: t("common.missingInfoText"),
                 icon: "error",
                 confirmButtonColor: "#f43f5e",
             });
@@ -264,6 +257,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         placeholder={t("personnel.nameThPlaceholder")}
                         error={errors.nameTh}
+                        onFocus={() => handleClearError("nameTh")}
                         suffix={
                             <button
                                 type="button"
@@ -294,6 +288,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         placeholder={t("personnel.nameEnPlaceholder")}
                         error={errors.nameEn}
+                        onFocus={() => handleClearError("nameEn")}
                     />
 
                     {/* Position Selection */}
@@ -320,6 +315,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                                     required
                                     placeholder={t("personnel.positionThPlaceholder")}
                                     error={errors.posTh}
+                                    onFocus={() => handleClearError("posTh")}
                                     suffix={
                                         <button
                                             type="button"
@@ -348,6 +344,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                                     placeholder={t("personnel.positionEnPlaceholder")}
                                     className="font-sans"
                                     error={errors.posEn}
+                                    onFocus={() => handleClearError("posEn")}
                                 />
                             </div>
                         )}
@@ -361,6 +358,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         value={formData.email || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("email")}
                         onBlur={(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData(prev => ({ ...prev, email: e.target.value.trim() }))}
                         placeholder="example@kmutnb.ac.th"
                         error={errors.email}
@@ -386,21 +384,16 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 </div>
 
                 <div className="mt-4">
-                    <label className={`block text-sm font-medium mb-2 ${errors.imageSrc ? "text-red-500" : "text-slate-700"}`}>
-                        {t("personnel.image")} {errors.imageSrc && <span className="text-xs font-normal">({errors.imageSrc})</span>}
-                    </label>
                     <FileUpload
+                        label={t("personnel.image")}
+                        required
+                        error={errors.imageSrc}
                         value={formData.imageSrc}
                         onChange={(url) => {
                             setFormData(prev => ({ ...prev, imageSrc: url }));
-                            if (errors.imageSrc) {
-                                setErrors(prev => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.imageSrc;
-                                    return newErrors;
-                                });
-                            }
+                            handleClearError("imageSrc");
                         }}
+                        onFocus={() => handleClearError("imageSrc")}
                         accept="image/*"
                         folder="ced_web/personnel"
                     />
@@ -487,6 +480,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 <SaveButton
                     isLoading={isLoading}
                     label={t("personnel.savePersonnel")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

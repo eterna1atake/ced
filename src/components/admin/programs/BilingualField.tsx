@@ -42,6 +42,9 @@ type BilingualFieldProps = {
     multiline?: boolean;
     thPlaceholder?: string;
     enPlaceholder?: string;
+    required?: boolean;
+    error?: { th?: string; en?: string };
+    onFocus?: (lang: 'th' | 'en') => void;
 };
 
 export default function BilingualField({
@@ -49,7 +52,10 @@ export default function BilingualField({
     path,
     multiline = false,
     thPlaceholder,
-    enPlaceholder
+    enPlaceholder,
+    required,
+    error,
+    onFocus
 }: BilingualFieldProps) {
     const context = useContext(BilingualFieldContext);
     if (!context) {
@@ -80,6 +86,9 @@ export default function BilingualField({
             onTranslate={() => onTranslate(thPath)}
             isTranslating={isPathTranslating(thPath)}
             placeholder={{ th: thPlaceholder || t("common.thai"), en: enPlaceholder || t("common.english") }}
+            required={required}
+            error={error}
+            onFocus={onFocus}
         />
     );
 }

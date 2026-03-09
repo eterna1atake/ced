@@ -52,12 +52,23 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         en: { name: initialData?.en?.name || "" },
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = () => {
         translate("name", formData.th.name, (translated) => {
             handleNameChange("en", translated);
         });
+    };
+
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -68,6 +79,8 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
+
+        handleClearError(name);
     };
 
     const handleNameChange = (lang: 'th' | 'en', value: string) => {
@@ -75,10 +88,33 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
             ...prev,
             [lang]: { name: value }
         }));
+
+        const errorKey = lang === 'th' ? "nameTh" : "nameEn";
+        handleClearError(errorKey);
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.th.name) newErrors.nameTh = t("common.required");
+        if (!formData.en.name) newErrors.nameEn = t("common.required");
+        if (!formData.url) newErrors.url = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
 
         const result = await Swal.fire({
             title: t("common.saveConfirmTitle") || "Are you sure?",
@@ -106,6 +142,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     name="categoryId"
                     value={formData.categoryId}
                     onChange={handleChange}
+                    onFocus={() => handleClearError("categoryId")}
                     options={CATEGORIES.map(c => ({ value: c.id, label: `${c.en} / ${c.th}` }))}
                 />
 
@@ -114,6 +151,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     name="sectionId"
                     value={formData.sectionId}
                     onChange={handleChange}
+                    onFocus={() => handleClearError("sectionId")}
                     options={(SECTIONS[formData.categoryId] || []).map(s => ({ value: s.id, label: `${s.en} / ${s.th}` }))}
                 />
             </div>
@@ -122,10 +160,22 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                 <FileUpload
                     label={t("formRequest.file")}
                     value={formData.url}
-                    onChange={(url) => setFormData(prev => ({ ...prev, url: url }))}
+                    onChange={(url) => {
+                        setFormData(prev => ({ ...prev, url: url }));
+                        if (errors.url) {
+                            setErrors(prev => {
+                                const newErrors = { ...prev };
+                                delete newErrors.url;
+                                return newErrors;
+                            });
+                        }
+                    }}
                     accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
                     folder="ced_web/forms"
                     helperText={t("formRequest.fileHint")}
+                    required
+                    error={errors.url}
+                    onFocus={() => handleClearError("url")}
                 />
             </div>
 
@@ -137,6 +187,9 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     placeholder={{ th: t("formRequest.namePlaceholderTh"), en: t("formRequest.namePlaceholderEn") }}
                     onTranslate={handleTranslate}
                     isTranslating={isTranslating.name}
+                    required
+                    error={{ th: errors.nameTh, en: errors.nameEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
                 />
             </div>
 
@@ -144,7 +197,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                 <SaveButton
                     isLoading={isLoading}
                     label={t("formRequest.save")}
-                    disabled={!formData.url}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

@@ -69,7 +69,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         content: { en: "", th: "" },
         imageSrc: "",
         author: { en: "", th: "" },
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD in local time
         status: "draft",
         tags: [],
         ...initialData,
@@ -98,6 +98,16 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         });
     };
 
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => {
@@ -109,14 +119,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             return { ...prev, ...updates };
         });
 
-        // Clear error for the field
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
+        handleClearError(name);
     };
 
     const generateSlug = (text: string) => {
@@ -156,16 +159,10 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                 field === "content" ? (locale === 'en' ? 'contentEn' : 'contentTh') :
                     (locale === 'en' ? 'authorEn' : 'authorTh');
 
-        if (errors[nameKey]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[nameKey];
-                // Also clear slug error if auto-generated
-                if (field === "title" && locale === "en") {
-                    delete newErrors.slug;
-                }
-                return newErrors;
-            });
+        handleClearError(nameKey);
+        // Also clear slug error if auto-generated
+        if (field === "title" && locale === "en") {
+            handleClearError('slug');
         }
     };
 
@@ -173,6 +170,12 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         const newErrors: Record<string, string> = {};
         if (!formData.title?.en) newErrors.titleEn = t("common.required");
         if (!formData.title?.th) newErrors.titleTh = t("common.required");
+
+        if (!formData.summary?.th) newErrors.summaryTh = t("common.required");
+        if (!formData.summary?.en) newErrors.summaryEn = t("common.required");
+
+        if (!formData.content?.th) newErrors.contentTh = t("common.required");
+        if (!formData.content?.en) newErrors.contentEn = t("common.required");
 
         // If slug is missing but English title exists, auto-generate it
         if (!formData.slug && formData.title?.en) {
@@ -239,6 +242,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="titleTh"
                         value={formData.title?.th || ""}
                         onChange={(e) => handleLocalizedChange("title", "th", e.target.value)}
+                        onFocus={() => handleClearError("titleTh")}
                         required
                         placeholder={t("news.titleThPlaceholder")}
                         error={errors.titleTh}
@@ -267,6 +271,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="titleEn"
                         value={formData.title?.en || ""}
                         onChange={(e) => handleLocalizedChange("title", "en", e.target.value)}
+                        onFocus={() => handleClearError("titleEn")}
                         required
                         placeholder={t("news.titleEnPlaceholder")}
                         error={errors.titleEn}
@@ -280,6 +285,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="slug"
                         value={formData.slug || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("slug")}
                         required
                         placeholder={t("news.slugPlaceholder")}
                         error={errors.slug}
@@ -290,8 +296,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="date"
                         type="date"
                         value={formData.date || ""}
-                        onChange={() => { }} // No-op
-                        disabled // Read-only as per request
+                        onChange={handleChange}
                         required
                     />
                 </div>
@@ -303,6 +308,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="category"
                         value={formData.category || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("category")}
                         error={errors.category}
                         options={[
                             { value: "", label: t("news.selectCategory") },
@@ -341,8 +347,49 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         placeholder={t("news.authorEnPlaceholder")}
                     />
                 </div>
-
-
+                {/* Section 5: Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormTextarea
+                        label={t("news.summaryTh")}
+                        name="summaryTh"
+                        rows={3}
+                        value={formData.summary?.th || ""}
+                        onChange={(e) => handleLocalizedChange("summary", "th", e.target.value)}
+                        onFocus={() => handleClearError("summaryTh")}
+                        placeholder={t("news.summaryThPlaceholder")}
+                        required
+                        error={errors.summaryTh}
+                        hint={
+                            <button
+                                type="button"
+                                onClick={() => handleTranslate("summary", formData.summary?.th || "")}
+                                disabled={isTranslating.summary || !formData.summary?.th}
+                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 mt-1 transition-colors flex items-center gap-1"
+                            >
+                                {isTranslating.summary ? (
+                                    <div className="w-2 h-2 border border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                ) : (
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                    </svg>
+                                )}
+                                {isTranslating.summary ? t("common.translating") : t("common.autoTranslate")}
+                            </button>
+                        }
+                    />
+                    <FormTextarea
+                        label={t("news.summaryEn")}
+                        name="summaryEn"
+                        rows={3}
+                        value={formData.summary?.en || ""}
+                        onChange={(e) => handleLocalizedChange("summary", "en", e.target.value)}
+                        onFocus={() => handleClearError("summaryEn")}
+                        placeholder={t("news.summaryEnPlaceholder")}
+                        required
+                        error={errors.summaryEn}
+                    />
+                </div>
 
                 {/* Section 6: Content */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -352,7 +399,10 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         rows={12}
                         value={formData.content?.th || ""}
                         onChange={(e) => handleLocalizedChange("content", "th", e.target.value)}
+                        onFocus={() => handleClearError("contentTh")}
                         placeholder={t("news.contentThPlaceholder")}
+                        required
+                        error={errors.contentTh}
                         hint={
                             <button
                                 type="button"
@@ -378,7 +428,10 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         rows={12}
                         value={formData.content?.en || ""}
                         onChange={(e) => handleLocalizedChange("content", "en", e.target.value)}
+                        onFocus={() => handleClearError("contentEn")}
                         placeholder={t("news.contentEnPlaceholder")}
+                        required
+                        error={errors.contentEn}
                     />
                 </div>
 
@@ -393,17 +446,14 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         </label>
                         <FileUpload
                             value={formData.imageSrc}
+                            onFocus={() => handleClearError("imageSrc")}
                             onChange={(url) => {
                                 setFormData(prev => ({ ...prev, imageSrc: url }));
-                                if (errors.imageSrc) {
-                                    setErrors(prev => {
-                                        const newErrors = { ...prev };
-                                        delete newErrors.imageSrc;
-                                        return newErrors;
-                                    });
-                                }
+                                handleClearError("imageSrc");
                             }}
                             accept="image/*"
+                            error={errors.imageSrc}
+                            required
                         />
                     </div>
 
@@ -468,19 +518,21 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             </div>
 
             <div className="flex justify-end items-center gap-4 pt-6 border-t mt-8">
-                <button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={() => handleSubmit('draft')}
-                    className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
-                >
-                    {t("common.saveAsDraft")}
-                </button>
+                {!initialData?.id && (
+                    <button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => handleSubmit('draft')}
+                        className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
+                    >
+                        {t("common.saveAsDraft")}
+                    </button>
+                )}
                 <SaveButton
                     isLoading={isLoading}
                     onClick={() => handleSubmit('published')}
-                    label={t("news.publishNews")}
-                    loadingLabel={t("news.publishing")}
+                    label={initialData?.id ? t("common.saveChanges") : t("news.publishNews")}
+                    loadingLabel={initialData?.id ? t("common.saving") : t("news.publishing")}
                     type="button"
                 />
             </div>

@@ -87,6 +87,7 @@ const COLOR_PRESETS = [
 ];
 
 import { useTranslations } from "next-intl";
+import Swal from "sweetalert2";
 
 
 export default function ResourceForm({ initialData, onSubmit, isLoading = false }: ResourceFormProps) {
@@ -108,6 +109,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
         },
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'title' | 'description') => {
@@ -119,9 +121,21 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
     const [visualType, setVisualType] = useState<"icon" | "image">(initialData?.imagePath ? "image" : "icon");
 
 
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
     };
 
     const handleFieldChange = (field: "title" | "description", lang: "th" | "en", value: string) => {
@@ -132,10 +146,37 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                 [field]: value
             }
         }));
+
+        const errorKey = field === 'title' ? (lang === 'th' ? "titleTh" : "titleEn") : "";
+        if (errorKey) {
+            handleClearError(errorKey);
+        }
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.th.title) newErrors.titleTh = t("common.required");
+        if (!formData.en.title) newErrors.titleEn = t("common.required");
+        if (!formData.key) newErrors.key = t("common.required");
+        if (!formData.link) newErrors.link = t("common.required");
+        if (visualType === "image" && !formData.imagePath) newErrors.imagePath = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
+
         const submissionData = { ...formData };
         if (visualType === "icon") {
             submissionData.imagePath = "";
@@ -158,6 +199,9 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     placeholder={{ th: t("resource.titlePlaceholderTh"), en: t("resource.titlePlaceholderEn") }}
                     onTranslate={() => handleTranslate("title")}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
                 <BilingualInput
                     label={t("resource.description")}
@@ -180,6 +224,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     required
                     placeholder="e.g. microsoft_teams"
                     className="capitalize"
+                    error={errors.key}
+                    onFocus={() => handleClearError("key")}
                 />
 
                 <FormInput
@@ -190,6 +236,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     onChange={handleChange}
                     required
                     placeholder="https://teams.microsoft.com"
+                    error={errors.link}
+                    onFocus={() => handleClearError("link")}
                 />
 
                 <FormSelect
@@ -210,7 +258,10 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 text-xs font-bold">
                         <button
                             type="button"
-                            onClick={() => setVisualType("icon")}
+                            onClick={() => {
+                                setVisualType("icon");
+                                setErrors(prev => { const n = { ...prev }; delete n.imagePath; return n; });
+                            }}
                             className={`px-4 py-2 rounded-md transition-all ${visualType === "icon" ? "bg-white dark:bg-slate-700 text-primary-main shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}
                         >
                             {t("resource.typeIcon")}
@@ -247,9 +298,21 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <FileUpload
                         label={t("resource.uploadLogo")}
                         value={formData.imagePath}
-                        onChange={(url) => setFormData(prev => ({ ...prev, imagePath: url }))}
+                        onChange={(url) => {
+                            setFormData(prev => ({ ...prev, imagePath: url }));
+                            if (errors.imagePath) {
+                                setErrors(prev => {
+                                    const newErrors = { ...prev };
+                                    delete newErrors.imagePath;
+                                    return newErrors;
+                                });
+                            }
+                        }}
                         accept="image/*"
                         folder="ced_web/resources"
+                        required
+                        error={errors.imagePath}
+                        onFocus={() => handleClearError("imagePath")}
                     />
                 )}
             </div>
@@ -297,6 +360,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <SaveButton
                         isLoading={isLoading}
                         label={initialData?._id ? t("resource.update") : t("resource.create")}
+                        loadingLabel={t("common.saving")}
                     />
                 </div>
             </div>

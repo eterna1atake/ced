@@ -40,6 +40,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
         ...initialData
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = async (field: "name" | "description", text: string) => {
@@ -53,12 +54,40 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                     en: translatedText
                 }
             }));
+
         });
+    };
+
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        handleClearError(name);
+    };
+
+    const handleLocalizedChange = (field: "name" | "description", lang: "th" | "en", value: string) => {
+        setFormData(prev => ({
+            ...prev,
+            [field]: {
+                ...prev[field]!,
+                [lang]: value
+            }
+        }));
+
+        const errorKey = field === "name" ? (lang === "th" ? "nameTh" : "nameEn") :
+            field === "description" ? (lang === "th" ? "descriptionTh" : "descriptionEn") : "";
+        if (errorKey) {
+            handleClearError(errorKey);
+        }
     };
 
     const handleEquipmentChange = (index: number, value: string) => {
@@ -77,25 +106,40 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
         setFormData(prev => ({ ...prev, equipment: newEquipment }));
     };
 
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.id) newErrors.id = t("common.required");
+        if (!formData.name?.th) newErrors.nameTh = t("common.required");
+        if (!formData.name?.en) newErrors.nameEn = t("common.required");
+        if (!formData.description?.th) newErrors.descriptionTh = t("common.required");
+        if (!formData.description?.en) newErrors.descriptionEn = t("common.required");
+        if (!formData.image) newErrors.image = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name?.th || !formData.name?.en || !formData.id) {
+        if (!validate()) {
             Swal.fire({
-                title: safeT("common.missingInfoTitle", "Missing Information"),
-                text: safeT("common.missingInfoText", "Please fill in all required fields"),
-                icon: "warning"
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
             });
             return;
         }
 
         // ID Validation: Must start with 44- or 52-
-        if (!/^(44|52)-/.test(formData.id)) {
+        if (!/^(44|52)-/.test(formData.id!)) {
             Swal.fire({
                 title: "Invalid Room ID",
                 text: "Room ID must start with a building number (44- or 52-), for example: 52-205",
                 icon: "warning"
             });
+            setErrors(prev => ({ ...prev, id: "Must start with 44- or 52-" }));
             return;
         }
 
@@ -121,6 +165,8 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                         required
                         placeholder={t("facilities.roomNumberPlaceholder")}
                         hint={t("facilities.roomNumberHint")}
+                        error={errors.id}
+                        onFocus={() => handleClearError("id")}
                     />
                     <FormInput
                         label={t("facilities.capacity")}
@@ -135,28 +181,28 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                 <BilingualInput
                     label={t("facilities.roomName")}
                     value={formData.name || { th: "", en: "" }}
-                    onChange={(lang, value) => setFormData(prev => ({
-                        ...prev,
-                        name: { ...prev.name!, [lang]: value }
-                    }))}
+                    onChange={(lang, value) => handleLocalizedChange("name", lang, value)}
                     placeholder={{ th: t("facilities.roomNamePlaceholderTh"), en: t("facilities.roomNamePlaceholderEn") }}
                     onTranslate={() => handleTranslate("name", formData.name?.th || "")}
                     isTranslating={isTranslating.name}
+                    required
+                    error={{ th: errors.nameTh, en: errors.nameEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
                 />
 
                 {/* Bilingual Description */}
                 <BilingualInput
                     label={t("facilities.description")}
                     value={formData.description || { th: "", en: "" }}
-                    onChange={(lang, value) => setFormData(prev => ({
-                        ...prev,
-                        description: { ...prev.description!, [lang]: value }
-                    }))}
+                    onChange={(lang, value) => handleLocalizedChange("description", lang, value)}
                     multiline
                     rows={3}
                     placeholder={{ th: t("facilities.descriptionPlaceholderTh"), en: t("facilities.descriptionPlaceholderEn") }}
                     onTranslate={() => handleTranslate("description", formData.description?.th || "")}
                     isTranslating={isTranslating.description}
+                    required
+                    error={{ th: errors.descriptionTh, en: errors.descriptionEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "descriptionTh" : "descriptionEn")}
                 />
             </div>
 
@@ -204,12 +250,16 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                 <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">{safeT("common.media", "Media")}</h4>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {safeT("common.coverImage", "Cover Image")}
-                    </label>
                     <FileUpload
+                        label={safeT("common.coverImage", "Cover Image")}
                         value={formData.image}
-                        onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                        required
+                        error={errors.image}
+                        onChange={(url) => {
+                            setFormData(prev => ({ ...prev, image: url }));
+                            handleClearError("image");
+                        }}
+                        onFocus={() => handleClearError("image")}
                         accept="image/*"
                         folder="ced_web/facilities"
                     />
@@ -251,7 +301,11 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
             </div>
 
             <div className="flex justify-end pt-6 border-t dark:border-slate-800">
-                <SaveButton isLoading={isLoading} label={t("facilities.saveFacility")} />
+                <SaveButton
+                    isLoading={isLoading}
+                    label={t("facilities.saveFacility")}
+                    loadingLabel={t("common.saving")}
+                />
             </div>
         </form>
     );
