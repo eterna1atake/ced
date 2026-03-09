@@ -115,7 +115,7 @@ export default function SitemapPageClient() {
                                             rel={node.isExternal ? "noopener noreferrer" : undefined}
                                             className="inline-flex items-center gap-2.5"
                                         >
-                                            <span className={`text-[#1F242D]hover:underline ${level === 0 ? "font-bold text-xl uppercase tracking-tight" : "text-base font-normal"}`}>
+                                            <span className={`text-[#1F242D]hover:underline ${level === 0 ? "font-bold text-base md:text-xl uppercase tracking-tight" : "text-base font-normal"}`}>
                                                 {node.label}
                                             </span>
                                             {node.isExternal && (
@@ -123,7 +123,7 @@ export default function SitemapPageClient() {
                                             )}
                                         </Link>
                                     ) : (
-                                        <span className={`${level === 0 ? "font-bold text-xl text-[#1F242D] uppercase tracking-tight" : "font-semibold text-primary-main"}`}>
+                                        <span className={`${level === 0 ? "font-bold text-base text-[#1F242D] uppercase tracking-tight" : "font-semibold text-primary-main"}`}>
                                             {node.label}
                                         </span>
                                     )}
@@ -159,11 +159,11 @@ export default function SitemapPageClient() {
             </section>
 
             <section className="mx-auto w-full max-w-6xl px-6 py-10 lg:px-10">
-                <div className="flex flex-col gap-2 mb-8">
-                    <h2 className="text-3xl font-bold text-[#1F242D]">
+                <div className="flex flex-col gap-2 mb-6">
+                    <h2 className="text-2xl md:text-3xl font-bold text-[#1F242D]">
                         {t("title")}
                     </h2>
-                    <p className="text-slate-500 text-lg">
+                    <p className="text-slate-500 text-base">
                         {t("description")}
                     </p>
                 </div>
