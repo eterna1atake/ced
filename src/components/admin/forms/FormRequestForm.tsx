@@ -8,6 +8,7 @@ import { FormSelect } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // These matches FORM_REQUESTS_DATA structure but will be stored in and fetched from DB
 const CATEGORIES = [
@@ -53,6 +54,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = () => {
@@ -73,6 +75,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         if (name === "categoryId") {
             const firstSection = SECTIONS[value][0].id;
             setFormData(prev => ({ ...prev, categoryId: value, sectionId: firstSection }));
@@ -84,6 +87,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
     };
 
     const handleNameChange = (lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: { name: value }
@@ -128,12 +132,13 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         });
 
         if (result.isConfirmed) {
+            setIsDirty(false);
             await onSubmit(formData);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("formRequest.details")}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -156,11 +161,26 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                 />
             </div>
 
+            <div>
+                <BilingualInput
+                    label={t("formRequest.name")}
+                    value={{ th: formData.th.name, en: formData.en.name }}
+                    onChange={handleNameChange}
+                    placeholder={{ th: t("formRequest.namePlaceholderTh"), en: t("formRequest.namePlaceholderEn") }}
+                    onTranslate={handleTranslate}
+                    isTranslating={isTranslating.name}
+                    required
+                    error={{ th: errors.nameTh, en: errors.nameEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
+                />
+            </div>
+
             <div className="col-span-2">
                 <FileUpload
                     label={t("formRequest.file")}
                     value={formData.url}
                     onChange={(url) => {
+                        setIsDirty(true);
                         setFormData(prev => ({ ...prev, url: url }));
                         if (errors.url) {
                             setErrors(prev => {
@@ -176,20 +196,6 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     required
                     error={errors.url}
                     onFocus={() => handleClearError("url")}
-                />
-            </div>
-
-            <div>
-                <BilingualInput
-                    label={t("formRequest.name")}
-                    value={{ th: formData.th.name, en: formData.en.name }}
-                    onChange={handleNameChange}
-                    placeholder={{ th: t("formRequest.namePlaceholderTh"), en: t("formRequest.namePlaceholderEn") }}
-                    onTranslate={handleTranslate}
-                    isTranslating={isTranslating.name}
-                    required
-                    error={{ th: errors.nameTh, en: errors.nameEn }}
-                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
                 />
             </div>
 

@@ -10,6 +10,7 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 import type { NewsSeedItem } from "@/types/news";
 import FileUpload from "@/components/admin/FileUpload";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 type NewsFormProps = {
@@ -90,6 +91,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     }, [session, initialData]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = async (field: "title" | "summary" | "content", text: string) => {
@@ -110,6 +112,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData((prev) => {
             const updates: Partial<NewsSeedItem> = { [name]: value };
             // Clear tags if category changes
@@ -130,6 +133,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     };
 
     const handleLocalizedChange = (field: "title" | "summary" | "content" | "author", locale: "en" | "th", value: string) => {
+        setIsDirty(true);
         setFormData((prev) => {
             const updates = {
                 [field]: {
@@ -221,6 +225,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             updatedAt: new Date().toISOString(),
         } as NewsSeedItem;
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -320,6 +325,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="tags"
                         value={formData.tags?.[0] || ""}
                         onChange={(e) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, tags: [e.target.value] }));
                         }}
                         options={[
@@ -448,6 +454,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                             value={formData.imageSrc}
                             onFocus={() => handleClearError("imageSrc")}
                             onChange={(url) => {
+                                setIsDirty(true);
                                 setFormData(prev => ({ ...prev, imageSrc: url }));
                                 handleClearError("imageSrc");
                             }}
@@ -478,6 +485,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                                         <button
                                             type="button"
                                             onClick={() => {
+                                                setIsDirty(true);
                                                 const newGallery = [...(formData.galleryImages || [])];
                                                 newGallery.splice(index, 1);
                                                 setFormData(prev => ({ ...prev, galleryImages: newGallery }));
@@ -499,6 +507,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                                 label={t("common.addGalleryImage")}
                                 onChange={(url) => {
                                     if (url) {
+                                        setIsDirty(true);
                                         setFormData(prev => ({
                                             ...prev,
                                             galleryImages: [...(prev.galleryImages || []), url]

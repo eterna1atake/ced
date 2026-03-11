@@ -35,18 +35,16 @@ export default function CreateAwardPage() {
 
             const Swal = (await import("sweetalert2")).default;
             await Swal.fire({
-                title: tAlert("created"),
-                text: "New award has been added successfully.",
+                title: "Success!",
+                text: tAlert("createdText"),
                 icon: "success",
-                timer: 2000,
+                timer: 1500,
                 showConfirmButton: false,
-                toast: true,
-                position: "top-end"
             });
 
             router.push("/admin/awards");
             router.refresh();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             console.error("Create error:", error);
             const Swal = (await import("sweetalert2")).default;

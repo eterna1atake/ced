@@ -10,6 +10,7 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 import { useTranslations } from "next-intl";
 import type { ProgramItem } from "@/types/program";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 type ProgramDetailsFormProps = {
@@ -23,7 +24,8 @@ type ProgramDetailsFormProps = {
 
 export default function ProgramDetailsForm({ initialData, generalData, onSubmit, isLoading = false, onFormDataChange }: ProgramDetailsFormProps) {
     const t = useTranslations("Admin.forms");
-    const [formData, setFormData] = useState<Partial<ProgramDetailData>>({
+    const { setIsDirty } = useUnsavedChanges();
+    const [formData, _setFormData] = useState<Partial<ProgramDetailData>>({
         id: "",
         name: { th: "", en: "" },
         degree: { full: { th: "", en: "" }, short: { th: "", en: "" } },
@@ -39,6 +41,11 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
         admission: { th: "", en: "" },
         ...initialData,
     });
+
+    const setFormData: typeof _setFormData = useCallback((value) => {
+        setIsDirty(true);
+        _setFormData(value);
+    }, [setIsDirty]);
 
     const syncFromGeneral = () => {
         if (!generalData) return;
@@ -65,7 +72,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
     const [lastInitialData, setLastInitialData] = useState(initialData);
     if (initialData !== lastInitialData) {
         setLastInitialData(initialData);
-        setFormData(prev => ({ ...prev, ...initialData }));
+        _setFormData(prev => ({ ...prev, ...initialData }));
     }
 
     // Debounce onFormDataChange to prevent focus loss during typing
@@ -265,6 +272,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
             return;
         }
 
+        setIsDirty(false);
         onSubmit(formData as ProgramDetailData);
     };
 

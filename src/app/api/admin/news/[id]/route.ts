@@ -110,7 +110,7 @@ export async function PUT(
         // Check if slug is taken by ANOTHER item
         const existingSlug = await News.findOne({ slug: sanitizedData.slug, _id: { $ne: id } });
         if (existingSlug) {
-            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug." }, { status: 409 });
+            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug.", code: "SLUG_EXISTS" }, { status: 409 });
         }
 
         const updatedNews = await News.findByIdAndUpdate(id, sanitizedData, { new: true });

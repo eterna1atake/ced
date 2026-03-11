@@ -120,7 +120,7 @@ export async function POST(request: NextRequest) {
         // Check for duplicate slug
         const existing = await News.findOne({ slug: sanitizedData.slug });
         if (existing) {
-            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug." }, { status: 409 });
+            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug.", code: "SLUG_EXISTS" }, { status: 409 });
         }
 
         const newNews = await News.create(sanitizedData);

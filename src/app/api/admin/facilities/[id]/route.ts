@@ -26,7 +26,7 @@ const FacilityUpdateSchema = z.object({
     image: z.string().trim().min(1).optional(),
     description: DescriptionSchema.optional(),
     gallery: z.array(z.string()).optional(),
-    capacity: z.string().trim().optional(),
+    capacity: DescriptionSchema.optional(),
     equipment: z.array(z.string()).optional(),
 });
 
@@ -113,7 +113,12 @@ export async function PUT(
         }
         if (data.image !== undefined) updateData.image = data.image; // URL
         if (data.gallery !== undefined) updateData.gallery = data.gallery; // URLs
-        if (data.capacity !== undefined) updateData.capacity = sanitize(data.capacity);
+        if (data.capacity) {
+            updateData.capacity = {
+                th: sanitize(data.capacity.th),
+                en: sanitize(data.capacity.en),
+            };
+        }
         if (data.equipment !== undefined) updateData.equipment = data.equipment.map(e => sanitize(e));
 
         const updatedFacility = await Facility.findOneAndUpdate(
