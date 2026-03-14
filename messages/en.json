@@ -621,7 +621,13 @@
       "news": {
         "title": "News & Events",
         "description": "Manage all news articles and events.",
-        "add": "Create New"
+        "add": "Create New",
+        "pin": "Pin News",
+        "unpin": "Unpin News",
+        "pinned": "News pinned successfully",
+        "unpinned": "News unpinned successfully",
+        "pinLimitTitle": "Pin Limit Reached",
+        "pinLimitText": "You can pin up to {max} news items. Please unpin another item first."
       },
       "personnel": {
         "title": "Personnel",

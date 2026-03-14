@@ -34,13 +34,23 @@ export default function LatestNewsSection({
 
   return (
     <section className="p-8 md:px-6 lg:px-32">
-      <h2 className="text-center lg:text-start text-2xl lg:text-3xl font-medium text-black">{title}</h2>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <h2 className="text-2xl lg:text-3xl font-bold uppercase tracking-tight text-slate-900 border-l-4 border-primary-main pl-4">
+          LATEST NEWS
+        </h2>
+        <Link
+          href={seeMoreHref}
+          className="hidden md:inline-flex items-center gap-2 text-primary-main font-semibold hover:underline"
+        >
+          {seeMoreLabel} →
+        </Link>
+      </div>
 
       {displayItems.length === 0 ? (
         <p className="mt-4 text-center text-sm text-slate-500">{emptyLabel}</p>
       ) : null}
 
-      <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {displayItems.map((item) => (
           <NewsCard
             key={item.slug || item.id}
@@ -55,11 +65,12 @@ export default function LatestNewsSection({
             locale={locale}
             readMoreLabel={readMoreLabel}
             makeWholeCardClickable
+            isPinned={item.isPinned}
           />
         ))}
       </div>
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8 flex justify-center md:hidden">
         <Link
           href={seeMoreHref}
           className="inline-flex items-center gap-2 rounded-md border border-primary-main px-6 py-2 text-sm font-semibold text-white bg-primary-main transition-colors duration-200 hover:bg-white hover:text-primary-main"

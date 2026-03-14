@@ -9,6 +9,10 @@ import Swal from "sweetalert2";
 import type { NewsSeedItem } from "@/types/news";
 import Loading from "../loading";
 import { useTranslations } from "next-intl";
+import Pagination from "@/components/common/Pagination";
+
+const ITEMS_PER_PAGE = 10;
+const MAX_PINNED = 3;
 
 export default function NewsListPage() {
     const tAlert = useTranslations("Admin.alerts");
@@ -16,22 +20,40 @@ export default function NewsListPage() {
     const [news, setNews] = useState<NewsSeedItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const sortAndSeparate = (items: NewsSeedItem[], order: 'asc' | 'desc') => {
+        // Separate pinned and unpinned
+        const pinned = items.filter(n => n.isPinned).sort((a, b) => {
+            const dateA = new Date(a.pinnedAt || 0).getTime();
+            const dateB = new Date(b.pinnedAt || 0).getTime();
+            return dateB - dateA; // Most recently pinned first
+        });
+        const unpinned = items.filter(n => !n.isPinned).sort((a, b) => {
+            const dateA = new Date(a.date).getTime();
+            const dateB = new Date(b.date).getTime();
+            return order === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+        return [...pinned, ...unpinned];
+    };
 
     const fetchNews = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/admin/news");
+            // Add cache: 'no-store' and a timestamp to prevent stale data
+            const res = await fetch(`/api/admin/news?t=${Date.now()}`, {
+                cache: 'no-store'
+            });
             if (!res.ok) throw new Error("Failed to fetch news");
             const data = await res.json();
+            console.log(`[DEBUG] NewsListPage - Raw API data:`, data.slice(0, 5));
             const mappedData = data.map((item: any) => ({
                 ...item,
                 id: item._id || item.id,
+                isPinned: !!item.isPinned, // Ensure boolean
             }));
-            // Sort by date desc initially
-            const sortedData = mappedData.sort((a: NewsSeedItem, b: NewsSeedItem) =>
-                new Date(b.date).getTime() - new Date(a.date).getTime()
-            );
-            setNews(sortedData);
+            console.log(`[DEBUG] NewsListPage - Mapped items (pinned):`, mappedData.filter((n: any) => n.isPinned));
+            setNews(sortAndSeparate(mappedData, sortOrder));
         } catch (error) {
             console.error("Error fetching news:", error);
             Swal.fire(tAlert("error"), "Failed to load news items", "error");
@@ -48,14 +70,76 @@ export default function NewsListPage() {
     const toggleSort = () => {
         const newOrder = sortOrder === 'desc' ? 'asc' : 'desc';
         setSortOrder(newOrder);
+        setCurrentPage(1);
+        setNews(prev => sortAndSeparate(prev, newOrder));
+    };
 
-        const sortedNews = [...news].sort((a, b) => {
-            const dateA = new Date(a.date).getTime();
-            const dateB = new Date(b.date).getTime();
-            return newOrder === 'asc' ? dateA - dateB : dateB - dateA;
-        });
+    const totalPages = Math.max(1, Math.ceil(news.length / ITEMS_PER_PAGE));
+    const paginatedNews = news.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
-        setNews(sortedNews);
+    const pinnedCount = news.filter(n => n.isPinned).length;
+
+    const handleTogglePin = async (item: NewsSeedItem) => {
+        // If trying to pin and already at max
+        if (!item.isPinned && pinnedCount >= MAX_PINNED) {
+            Swal.fire({
+                icon: "warning",
+                title: t("pinLimitTitle"),
+                text: t("pinLimitText", { max: MAX_PINNED }),
+            });
+            return;
+        }
+
+        try {
+            const csrfToken = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("ced_csrf_token="))
+                ?.split("=")[1];
+
+            console.log(`[DEBUG] handleTogglePin for item: ${item.id}, current isPinned: ${item.isPinned}`);
+            const res = await fetch(`/api/admin/news/${item.id}/pin`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || "",
+                },
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                if (errorData.code === "MAX_PINNED") {
+                    Swal.fire({
+                        icon: "warning",
+                        title: t("pinLimitTitle"),
+                        text: t("pinLimitText", { max: MAX_PINNED }),
+                    });
+                    return;
+                }
+                throw new Error("Failed to toggle pin");
+            }
+
+            const resData = await res.json();
+            console.log(`[DEBUG] Toggle pin response:`, resData);
+
+            // Fetch the latest news to ensure the list is correct and sorted
+            await fetchNews();
+
+            const toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+            toast.fire({
+                icon: 'success',
+                title: item.isPinned ? t("unpinned") : t("pinned"),
+            });
+
+        } catch (error) {
+            console.error("Pin error:", error);
+            Swal.fire(tAlert("error"), "Failed to toggle pin", "error");
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -72,7 +156,6 @@ export default function NewsListPage() {
 
         if (result.isConfirmed) {
             try {
-                // [Fix] Add CSRF Token to headers
                 const csrfToken = document.cookie
                     .split("; ")
                     .find((row) => row.startsWith("ced_csrf_token="))
@@ -87,7 +170,7 @@ export default function NewsListPage() {
                 if (!res.ok) throw new Error("Failed to delete");
 
                 await Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                fetchNews(); // Refresh list
+                fetchNews();
             } catch (error) {
                 console.error("Delete error:", error);
                 Swal.fire(tAlert("error"), "Failed to delete item", "error");
@@ -103,7 +186,6 @@ export default function NewsListPage() {
 
             const updatedItem = { ...item, status: targetStatus };
 
-            // [Fix] Add CSRF Token to headers
             const csrfToken = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("ced_csrf_token="))
@@ -120,7 +202,6 @@ export default function NewsListPage() {
 
             if (!res.ok) throw new Error("Failed to update status");
 
-            // Optimistic update or refresh
             fetchNews();
 
             const toast = Swal.mixin({
@@ -152,7 +233,10 @@ export default function NewsListPage() {
                     <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("title")}</h1>
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 items-center">
+                    <span className="text-xs text-slate-400 dark:text-slate-500 mr-2">
+                        📌 {pinnedCount}/{MAX_PINNED}
+                    </span>
                     <AddButton
                         href="/admin/news/create"
                         label={t("add")}
@@ -170,6 +254,7 @@ export default function NewsListPage() {
                         <table className="min-w-full text-left border-collapse">
                             <thead>
                                 <tr className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 text-slate-600 dark:text-slate-200 text-sm uppercase tracking-wider">
+                                    <th className="p-4 font-semibold whitespace-nowrap w-10">📌</th>
                                     <th className="p-4 font-semibold whitespace-nowrap">Image</th>
                                     <th className="p-4 font-semibold whitespace-nowrap">Title</th>
                                     <th className="p-4 font-semibold whitespace-nowrap">Category</th>
@@ -192,8 +277,27 @@ export default function NewsListPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                {news.map((item) => (
-                                    <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                {paginatedNews.map((item) => (
+                                    <tr key={item.id} className={`hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${item.isPinned ? 'bg-amber-50/50 dark:bg-amber-900/10' : ''}`}>
+                                        <td className="p-4 w-10">
+                                            <button
+                                                type="button"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    e.stopPropagation();
+                                                    handleTogglePin(item);
+                                                }}
+                                                className={`p-1.5 rounded-full transition-all ${item.isPinned
+                                                    ? "text-amber-500 hover:text-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                                                    : "text-slate-300 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20"
+                                                    }`}
+                                                title={item.isPinned ? t("unpin") : t("pin")}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                                    <path d="M16 2c.183 0 .366.07.506.21L20.79 6.5a.717.717 0 01-.012 1.012l-3.128 3.128 1.148 5.578a.717.717 0 01-1.196.66L13 12.276l-1.602 1.602V18c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-4.872l-.901.9a.717.717 0 01-1.012.012l-4.285-4.29a.717.717 0 01.012-1.012l.9-.9H.75A.75.75 0 010 7.088c0-.414.336-.75.75-.75h4.122l1.602-1.602L1.872 .134A.717.717 0 012.532-.527L8.11 4.05l3.128-3.128A.717.717 0 0111.75 .71V2h4.25zM12 3.42v-.17l-2.78 2.78-5.578-1.148 3.426 3.426 1.148 5.578L11 10.54l-2.78 2.78h.17L12 9.708l3.61 3.61.17-.001L13 10.54l2.783-2.783-5.578-1.148 3.426-3.426-1.148-5.578L12 .384v3.036z" />
+                                                </svg>
+                                            </button>
+                                        </td>
                                         <td className="p-4 w-24">
                                             <div className="w-16 h-10 relative rounded overflow-hidden bg-slate-100 dark:bg-slate-800">
                                                 {item.imageSrc ? (
@@ -209,7 +313,14 @@ export default function NewsListPage() {
                                             </div>
                                         </td>
                                         <td className="p-4 min-w-[200px]">
-                                            <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.en}</div>
+                                            <div className="flex items-center gap-2">
+                                                {item.isPinned && (
+                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                        📌 PIN
+                                                    </span>
+                                                )}
+                                                <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.en}</div>
+                                            </div>
                                             <div className="text-xs text-slate-400 line-clamp-1">{item.summary.en}</div>
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
@@ -265,6 +376,17 @@ export default function NewsListPage() {
                         </div>
                     )}
                 </div>
+
+                {totalPages > 1 && (
+                    <div className="p-4 border-t dark:border-slate-800">
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={setCurrentPage}
+                            className="flex justify-center"
+                        />
+                    </div>
+                )}
             </div>
         </div >
     );
