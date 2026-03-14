@@ -5,6 +5,7 @@ import FileUpload from "@/components/admin/FileUpload";
 import { BilingualInput } from '../common/BilingualInput';
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 type ProgramFormProps = {
     initialData?: Partial<ProgramItem>;
@@ -42,6 +43,8 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         setFormData(prev => ({ ...prev, ...initialData }));
     }
 
+    const { setIsDirty } = useUnsavedChanges();
+
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
@@ -64,7 +67,22 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setIsDirty(true);
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+
+            // Auto-generate path when id or level changes
+            if (name === "id" || name === "level") {
+                const newId = name === "id" ? value : prev.id;
+                const newLevel = name === "level" ? value : prev.level;
+                if (newId) {
+                    newData.link = `/programs/${newLevel}/${newId}`;
+                } else {
+                    newData.link = "";
+                }
+            }
+            return newData;
+        });
 
         handleClearError(name);
     };
@@ -74,6 +92,7 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         field: keyof ProgramItem['th'],
         value: string
     ) => {
+        setIsDirty(true);
         setFormData((prev) => ({
             ...prev,
             [lang]: {
@@ -99,6 +118,7 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         if (!formData.en?.subtitle) newErrors.subtitleEn = t("common.required");
         if (!formData.th?.description) newErrors.descriptionTh = t("common.required");
         if (!formData.en?.description) newErrors.descriptionEn = t("common.required");
+        if (!formData.imageAlt) newErrors.imageAlt = t("common.required");
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -119,11 +139,12 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
             return;
         }
 
+        setIsDirty(false);
         onSubmit(formData as ProgramItem);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("programs.generalInfo")}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -176,17 +197,12 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                         type="text"
                         name="link"
                         value={formData.link}
-                        onChange={handleChange}
-                        onFocus={() => handleClearError("link")}
+                        readOnly
                         placeholder="/programs/bachelor/ced"
-                        required
-                        className={`w-full px-4 py-2 border rounded-md outline-none focus:ring-2 ${errors.link
-                            ? "border-red-500 focus:ring-red-500/20"
-                            : "border-slate-200 dark:border-slate-700 focus:ring-indigo-500"
-                            } bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100`}
+                        className="w-full px-4 py-2 border rounded-md outline-none bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed border-slate-200 dark:border-slate-700"
                     />
                     {errors.link && <p className="text-[10px] text-red-500 mt-1">{errors.link}</p>}
-                    <p className="text-[10px] text-slate-400 mt-1">Specify the internal path to the detailed information page.</p>
+                    <p className="text-[10px] text-slate-400 mt-1">This path is automatically generated from the program level and ID.</p>
                 </div>
 
                 {/* Image Upload */}
@@ -195,6 +211,7 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                         label={t("programs.coverImage")}
                         value={formData.imageSrc}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, imageSrc: url }));
                             handleClearError("imageSrc");
                         }}
@@ -208,15 +225,20 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
 
                 {/* Alt Text */}
                 <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t("programs.imageAlt")}</label>
+                    <label className={`block text-sm font-medium mb-1 ${errors.imageAlt ? "text-red-500" : "text-slate-700 dark:text-slate-300"}`}>{t("programs.imageAlt")}</label>
                     <input
                         type="text"
                         name="imageAlt"
                         value={formData.imageAlt}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("imageAlt")}
                         required
-                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        className={`w-full px-4 py-2 border rounded-md outline-none focus:ring-2 ${errors.imageAlt
+                            ? "border-red-500 focus:ring-red-500/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-indigo-500"
+                            }`}
                     />
+                    {errors.imageAlt && <p className="text-[10px] text-red-500 mt-1">{errors.imageAlt}</p>}
                 </div>
             </div>
 

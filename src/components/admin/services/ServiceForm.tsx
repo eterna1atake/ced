@@ -9,6 +9,7 @@ import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 type ServiceFormProps = {
     initialData?: Partial<Service>;
@@ -37,6 +38,7 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = () => {
@@ -57,12 +59,14 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData((prev) => ({ ...prev, [name]: value }));
 
         handleClearError(name);
     }, [errors]);
 
     const handleTitleChange = useCallback((lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             title: {
@@ -115,17 +119,19 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                 ...formData,
                 id: formData.id || `service-${Date.now()}`,
             } as Service;
+            setIsDirty(false);
             onSubmit(submissionData);
         }
     };
 
     const handleIconChange = useCallback((url: string) => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, icon: url }));
         handleClearError("icon");
-    }, [errors.icon]);
+    }, [errors.icon, setIsDirty]);
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4">{t("services.details")}</h3>
 
             <div className="space-y-6">

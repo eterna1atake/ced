@@ -36,7 +36,11 @@ export default function EditFacilityClient({ initialData }: Props) {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to update");
+                let errorMsg = errorData.error || "Failed to update";
+                if (errorData.details) {
+                    errorMsg += ": " + JSON.stringify(errorData.details);
+                }
+                throw new Error(errorMsg);
             }
 
             await Swal.fire({

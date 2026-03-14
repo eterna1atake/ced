@@ -161,7 +161,7 @@ export default function FacilitiesListPage() {
                                     Building {item.building}
                                 </td>
                                 <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                                    {item.capacity}
+                                    {getLocalized(item.capacity)}
                                 </td>
                                 <td className="p-4 text-right">
                                     <ActionButtons

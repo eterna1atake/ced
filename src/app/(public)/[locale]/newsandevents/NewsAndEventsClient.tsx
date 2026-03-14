@@ -62,7 +62,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
   const filteredNews = useMemo(() => {
     const normalizedSearch = searchTerm.trim().toLowerCase();
 
-    return newsItems.filter((item) => {
+    const filtered = newsItems.filter((item) => {
       const matchesCategory = selectedCategory === "all" || item.category === selectedCategory;
       const matchesTag =
         selectedTag === "all" || (item.tags ?? []).some((tag) => tag === selectedTag);
@@ -83,6 +83,20 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
 
       return matchesCategory && matchesTag && matchesSearch;
     });
+
+    // Sort pinned items to the top, unpinned items by date descending
+    const pinned = filtered.filter(item => item.isPinned).sort((a, b) => {
+      const dateA = new Date(a.pinnedAt || 0).getTime();
+      const dateB = new Date(b.pinnedAt || 0).getTime();
+      return dateB - dateA;
+    });
+    const unpinned = filtered.filter(item => !item.isPinned).sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateB - dateA;
+    });
+
+    return [...pinned, ...unpinned];
   }, [newsItems, searchTerm, selectedCategory, selectedTag]);
 
   const totalPages = Math.max(1, Math.ceil(filteredNews.length / ITEMS_PER_PAGE));
@@ -293,6 +307,7 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
               locale={locale}
               readMoreLabel={t("readMore")}
               makeWholeCardClickable
+              isPinned={item.isPinned}
             />
           ))}
         </div>

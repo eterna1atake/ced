@@ -6,8 +6,8 @@ import { z } from "zod";
 import { signOut } from "next-auth/react";
 import SaveButton from '../common/SaveButton';
 import { FormInput } from "@/components/admin/common/FormInputs";
-
 import { useTranslations } from "next-intl";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 export default function ChangePasswordForm() {
@@ -17,6 +17,7 @@ export default function ChangePasswordForm() {
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
 
     // Visibility States
     const [showCurrent, setShowCurrent] = useState(false);
@@ -89,6 +90,7 @@ export default function ChangePasswordForm() {
                 });
 
                 // Auto Logout
+                setIsDirty(false);
                 await signOut({ callbackUrl: "/admin/login" });
 
             } else {
@@ -145,6 +147,7 @@ export default function ChangePasswordForm() {
                     type={showCurrent ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => {
+                        setIsDirty(true);
                         setCurrentPassword(e.target.value);
                         if (errors.currentPassword) setErrors(prev => { const n = { ...prev }; delete n.currentPassword; return n; });
                     }}
@@ -160,6 +163,7 @@ export default function ChangePasswordForm() {
                         type={showNew ? "text" : "password"}
                         value={newPassword}
                         onChange={(e) => {
+                            setIsDirty(true);
                             setNewPassword(e.target.value);
                             if (errors.newPassword) setErrors(prev => { const n = { ...prev }; delete n.newPassword; return n; });
                         }}
@@ -174,6 +178,7 @@ export default function ChangePasswordForm() {
                         type={showConfirm ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => {
+                            setIsDirty(true);
                             setConfirmPassword(e.target.value);
                             if (errors.confirmPassword) setErrors(prev => { const n = { ...prev }; delete n.confirmPassword; return n; });
                         }}

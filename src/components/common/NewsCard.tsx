@@ -20,6 +20,7 @@ export interface NewsCardProps {
   dateFormatOptions?: Intl.DateTimeFormatOptions;
   readMoreLabel?: string;
   makeWholeCardClickable?: boolean;
+  isPinned?: boolean;
 }
 
 /**
@@ -41,9 +42,11 @@ export default function NewsCard({
   dateFormatOptions,
   readMoreLabel = "Read more",
   makeWholeCardClickable = false,
+  isPinned = false,
 }: NewsCardProps) {
   const cardClasses = [
-    "group relative flex h-full w-full max-w-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg min-w-0",
+    "group relative flex h-full w-full max-w-full flex-col rounded-lg border bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg min-w-0",
+    isPinned ? "border-emerald-500 bg-emerald-50/30 shadow-emerald-100/50 overflow-visible z-10" : "border-slate-200 overflow-hidden",
     className,
   ]
     .filter(Boolean)
@@ -97,20 +100,30 @@ export default function NewsCard({
             priority={false}
           />
 
-          {category && (
-            <span className="absolute left-4 top-4 rounded-lg bg-primary-main/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-md">
-              {category}
-            </span>
-          )}
+          <div className="absolute inset-0 flex flex-col justify-between p-4 pointer-events-none">
+            <div className="flex justify-between items-start w-full">
+              {category && (
+                <span className="rounded-lg bg-primary-main/90 backdrop-blur-sm px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white shadow-md pointer-events-auto">
+                  {category}
+                </span>
+              )}
+            </div>
+          </div>
         </div>
       ) : (
-        category && (
-          <div className="px-4 pt-4 md:px-6 md:pt-6">
+        <div className="px-4 pt-4 md:px-6 md:pt-6 flex justify-between items-center">
+          {category ? (
             <span className="inline-flex items-center rounded-lg bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
               {category}
             </span>
-          </div>
-        )
+          ) : <div />}
+        </div>
+      )}
+
+      {isPinned && (
+        <div className="absolute -top-10 -right-12 z-50 text-5xl md:text-6xl drop-shadow-2xl pointer-events-none select-none">
+          📌
+        </div>
       )}
 
       <div className="flex flex-1 flex-col gap-3 md:gap-4 p-4 md:p-6 min-w-0">

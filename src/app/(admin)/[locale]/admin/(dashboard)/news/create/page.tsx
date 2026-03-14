@@ -12,17 +12,14 @@ export default function CreateNewsPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const tForm = useTranslations("Admin.forms.news");
 
     const handleCreate = async (data: NewsSeedItem) => {
         setIsSubmitting(true);
         try {
-            // Remove the client-side ID if it exists and is not needed for creation (API usually generates _id)
-            // But NewsForm might generate a dummy ID. Let's send what we have, API can ignore/overwrite ID.
-            // Our API creates _id automatically.
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...submitData } = data;
 
-            // [Fix] Add CSRF Token to headers
             const csrfToken = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("ced_csrf_token="))
@@ -37,9 +34,19 @@ export default function CreateNewsPage() {
                 body: JSON.stringify(submitData),
             });
 
+            const responseData = await res.json();
+
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to create news item");
+                if (res.status === 409 && responseData.code === "SLUG_EXISTS") {
+                    await Swal.fire({
+                        title: tForm("slugErrorTitle"),
+                        text: tForm("slugErrorText"),
+                        icon: "warning",
+                        confirmButtonColor: "#f59e0b",
+                    });
+                    return;
+                }
+                throw new Error(responseData.error || "Failed to create news item");
             }
 
             await Swal.fire({
@@ -53,7 +60,6 @@ export default function CreateNewsPage() {
             router.push("/admin/news");
         } catch (error: unknown) {
             console.error("Create error:", error);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const msg = (error as any).message || "Unknown error occurred";
             Swal.fire(tAlert("error"), msg, "error");
         } finally {

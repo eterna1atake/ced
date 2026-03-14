@@ -2,10 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // SVG Icons for generic usage
 const Icons = {
@@ -39,8 +40,10 @@ export default function AdminSidebar({
     setIsCollapsed?: (val: boolean) => void;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const t = useTranslations("Admin.sidebar");
     const locale = useLocale();
+    const { isDirty, setIsDirty } = useUnsavedChanges();
 
     // Prevent scrolling when mobile sidebar is open
     useEffect(() => {
@@ -199,15 +202,42 @@ export default function AdminSidebar({
 
                             <div className="space-y-1">
                                 {group.items.map((item) => {
-                                    const isActive = pathname === item.href;
+                                    const isActive = item.href === `/${locale}/admin`
+                                        ? pathname === item.href
+                                        : pathname.startsWith(item.href) && (pathname.length === item.href.length || pathname[item.href.length] === '/');
                                     const Icon = item.icon;
                                     return (
                                         <Link
                                             key={item.label}
                                             href={item.href}
-                                            onClick={() => {
-                                                setIsOpen(false);
-                                                if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                            onClick={(e) => {
+                                                if (isDirty) {
+                                                    e.preventDefault();
+                                                    import("sweetalert2").then((Swal) => {
+                                                        Swal.default.fire({
+                                                            title: locale === 'th' ? "แจ้งเตือนการเปลี่ยนหน้า" : "Unsaved Changes",
+                                                            text: locale === 'th'
+                                                                ? "คุณกำลังกรอกข้อมูลอยู่หน้านี้ คุณแน่ใจใช่ไหมว่าต้องการเปลี่ยนหน้า?"
+                                                                : "You have unsaved changes. Are you sure you want to leave?",
+                                                            icon: "warning",
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: "#3085d6",
+                                                            cancelButtonColor: "#d33",
+                                                            confirmButtonText: locale === 'th' ? "แน่ใจ, เปลี่ยนหน้า" : "Yes, leave",
+                                                            cancelButtonText: locale === 'th' ? "ยกเลิก" : "Cancel",
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                setIsDirty(false);
+                                                                setIsOpen(false);
+                                                                if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                                                router.push(item.href);
+                                                            }
+                                                        });
+                                                    });
+                                                } else {
+                                                    setIsOpen(false);
+                                                    if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                                }
                                             }}
                                             title={isCollapsed ? item.label : undefined}
                                             className={`

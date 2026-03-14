@@ -24,9 +24,9 @@ const FacilitySchema = z.object({
     id: z.string().trim().min(1, "ID is required").regex(/^(44|52)-/, "ID must start with 44- or 52-"),
     name: LocalizedStringSchema,
     image: z.string().trim().min(1, "Cover image is required"),
-    description: DescriptionSchema,
+    description: DescriptionSchema.optional(),
     gallery: z.array(z.string()).optional().default([]),
-    capacity: z.string().trim().optional().default(""),
+    capacity: DescriptionSchema.optional(),
     equipment: z.array(z.string()).optional().default([]),
 });
 
@@ -100,10 +100,13 @@ export async function POST(request: NextRequest) {
                 en: sanitizeStrict(data.name.en),
             },
             description: {
-                th: sanitizeContent(data.description.th),
-                en: sanitizeContent(data.description.en),
+                th: sanitizeContent(data.description?.th || ""),
+                en: sanitizeContent(data.description?.en || ""),
             },
-            capacity: sanitizeStrict(data.capacity),
+            capacity: {
+                th: sanitizeStrict(data.capacity?.th || ""),
+                en: sanitizeStrict(data.capacity?.en || ""),
+            },
             equipment: data.equipment.map(e => sanitizeStrict(e)),
             // Images are URLs
         };

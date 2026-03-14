@@ -31,7 +31,11 @@ export default function CreateFacilityPage() {
 
             if (!res.ok) {
                 const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to create");
+                let errorMsg = errorData.error || "Failed to create";
+                if (errorData.details) {
+                    errorMsg += ": " + JSON.stringify(errorData.details);
+                }
+                throw new Error(errorMsg);
             }
 
             await Swal.fire({

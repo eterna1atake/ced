@@ -8,6 +8,7 @@ import { FormInput } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import FileUpload from "@/components/admin/FileUpload";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // We need a partial type that matches the structure of TrainingSeed but relaxed for the form
 type TrainingSeed = {
@@ -48,6 +49,7 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'title' | 'summary' | 'category') => {
@@ -69,12 +71,14 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData((prev) => ({ ...prev, [name]: value }));
 
         handleClearError(name);
     };
 
     const handleFieldChange = (field: 'title' | 'summary' | 'category', lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: {
@@ -124,6 +128,7 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
             href: formData.href || `/training/${formData.slug}`,
         } as TrainingSeed;
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -213,6 +218,7 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                         label={t("training.coverImage")}
                         value={formData.imageSrc}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, imageSrc: url }));
                             handleClearError("imageSrc");
                         }}

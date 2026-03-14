@@ -6,11 +6,12 @@ import FileUpload from "@/components/admin/FileUpload";
 import SaveButton from "@/components/admin/common/SaveButton";
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import type { Facility } from "@/types/facility";
 import Swal from "sweetalert2";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 interface FacilityFormProps {
     initialData?: Partial<Facility>;
@@ -33,7 +34,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
         id: "",
         name: { th: "", en: "" },
         description: { th: "", en: "" },
-        capacity: "",
+        capacity: { th: "", en: "" },
         equipment: [],
         gallery: [],
         image: "",
@@ -41,6 +42,13 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [capacityValue, setCapacityValue] = useState<string>(() => {
+        // Extract numbers from initial capacity string if it exists
+        const cap = initialData?.capacity;
+        const val = typeof cap === 'string' ? cap : (cap?.th || "");
+        return val.replace(/\D/g, "");
+    });
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = async (field: "name" | "description", text: string) => {
@@ -70,11 +78,13 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
         handleClearError(name);
     };
 
     const handleLocalizedChange = (field: "name" | "description", lang: "th" | "en", value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [field]: {
@@ -91,16 +101,19 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
     };
 
     const handleEquipmentChange = (index: number, value: string) => {
+        setIsDirty(true);
         const newEquipment = [...(formData.equipment || [])];
         newEquipment[index] = value;
         setFormData(prev => ({ ...prev, equipment: newEquipment }));
     };
 
     const addEquipment = () => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, equipment: [...(prev.equipment || []), ""] }));
     };
 
     const removeEquipment = (index: number) => {
+        setIsDirty(true);
         const newEquipment = [...(formData.equipment || [])];
         newEquipment.splice(index, 1);
         setFormData(prev => ({ ...prev, equipment: newEquipment }));
@@ -113,6 +126,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
         if (!formData.name?.en) newErrors.nameEn = t("common.required");
         if (!formData.description?.th) newErrors.descriptionTh = t("common.required");
         if (!formData.description?.en) newErrors.descriptionEn = t("common.required");
+        if (!capacityValue) newErrors.capacity = t("common.required");
         if (!formData.image) newErrors.image = t("common.required");
 
         setErrors(newErrors);
@@ -143,11 +157,19 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
             return;
         }
 
-        onSubmit(formData as Facility);
+        setIsDirty(false);
+        const submissionData = {
+            ...formData,
+            capacity: {
+                th: capacityValue ? `${capacityValue} คน` : "",
+                en: capacityValue ? `${capacityValue} students` : ""
+            }
+        };
+        onSubmit(submissionData as Facility);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <div className="border-b dark:border-slate-800 pb-4">
                 <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
                     {initialData?.id ? t("facilities.editFacility") : t("facilities.newFacility")}
@@ -171,9 +193,20 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                     <FormInput
                         label={t("facilities.capacity")}
                         name="capacity"
-                        value={formData.capacity || ""}
-                        onChange={handleChange}
+                        type="text"
+                        inputMode="numeric"
+                        value={capacityValue}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            setCapacityValue(val);
+                            setIsDirty(true);
+                            handleClearError("capacity");
+                        }}
+                        required
+                        error={errors.capacity}
+                        onFocus={() => handleClearError("capacity")}
                         placeholder={t("facilities.capacityPlaceholder")}
+                        suffix={<span className="text-slate-400 text-sm pr-2">คน / students</span>}
                     />
                 </div>
 
@@ -256,6 +289,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                         required
                         error={errors.image}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, image: url }));
                             handleClearError("image");
                         }}
@@ -267,7 +301,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {safeT("common.galleryImages", "Gallery Images")} ({formData.gallery?.length || 0})
+                        {safeT("common.galleryImages", "Gallery Images")} ({formData.gallery?.length || 0}/2)
                     </label>
                     {/* Gallery Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -278,24 +312,30 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        setIsDirty(true);
                                         const newGallery = [...(formData.gallery || [])];
                                         newGallery.splice(index, 1);
                                         setFormData(prev => ({ ...prev, gallery: newGallery }));
                                     }}
-                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 z-10"
                                 >
-                                    <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
+                                    <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         ))}
-                        <FileUpload
-                            label={safeT("common.addGalleryImage", "Add Image")}
-                            onChange={(url) => {
-                                if (url) setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), url] }));
-                            }}
-                            accept="image/*"
-                            folder="ced_web/facilities/gallery"
-                        />
+                        {(!formData.gallery || formData.gallery.length < 2) && (
+                            <FileUpload
+                                label={safeT("common.addGalleryImage", "Add Image")}
+                                onChange={(url) => {
+                                    if (url) {
+                                        setIsDirty(true);
+                                        setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), url] }));
+                                    }
+                                }}
+                                accept="image/*"
+                                folder="ced_web/facilities/gallery"
+                            />
+                        )}
                     </div>
                 </div>
             </div>

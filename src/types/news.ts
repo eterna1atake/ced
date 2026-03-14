@@ -14,6 +14,8 @@ export interface NewsSeedItem {
     date: string;
     author: LocalizedString;
     status: 'published' | 'draft' | 'archived';
+    isPinned?: boolean;
+    pinnedAt?: string | null;
     createdAt: string;
     updatedAt: string;
     tags?: string[];

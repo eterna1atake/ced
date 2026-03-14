@@ -17,22 +17,13 @@ export default function EditNewsClient({ initialData }: Props) {
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const tForm = useTranslations("Admin.forms.news");
+
     const handleUpdate = async (data: NewsSeedItem) => {
         setIsSubmitting(true);
         try {
-            // Ensure we use the ID from initialData if data.id is missing or different, though it should be consistent
-            // MongoDB _id vs mock id. The data.id passed from form might be the mock one or mongo one.
-            // The initialData passed to this component comes from the page, which will fetch from API later.
-            // So initialData._id should be reliable.
-            // We use initialData._id (or id if mapped) for the URL, and send the body.
-            // But NewsSeedItem has 'id' string. Mongoose has '_id'. We need to be careful with mapping.
-            // When we fetch in page.tsx, we should map _id to id or ensure types align.
-
-            // Assuming the ID in the URL/Page param is what we need.
-            // But here we rely on data.id being correct.
             const targetId = data.id || initialData.id;
 
-            // [Fix] Add CSRF Token to headers
             const csrfToken = document.cookie
                 .split("; ")
                 .find((row) => row.startsWith("ced_csrf_token="))
@@ -47,9 +38,19 @@ export default function EditNewsClient({ initialData }: Props) {
                 body: JSON.stringify(data),
             });
 
+            const responseData = await res.json();
+
             if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || "Failed to update news item");
+                if (res.status === 409 && responseData.code === "SLUG_EXISTS") {
+                    await Swal.fire({
+                        title: tForm("slugErrorTitle"),
+                        text: tForm("slugErrorText"),
+                        icon: "warning",
+                        confirmButtonColor: "#f59e0b",
+                    });
+                    return;
+                }
+                throw new Error(responseData.error || "Failed to update news item");
             }
 
             await Swal.fire({
@@ -63,7 +64,6 @@ export default function EditNewsClient({ initialData }: Props) {
             router.push("/admin/news");
         } catch (error: unknown) {
             console.error("Update error:", error);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const msg = (error as any).message || "Unknown error occurred";
             Swal.fire(tAlert("error"), msg, "error");
         } finally {

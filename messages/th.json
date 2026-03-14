@@ -40,7 +40,7 @@
     "closeMenu": "ปิดเมนู",
     "close": "ปิด",
     "menuItem1": "หน้าหลัก",
-    "menuItem2": "บุคคลากร",
+    "menuItem2": "บุคลากร",
     "menuItem3": "วิชาการ",
     "menuItem4": "งานวิจัย",
     "menuItem5": "ข่าวสารและกิจกรรม",
@@ -621,7 +621,13 @@
       "news": {
         "title": "ข่าวสารและกิจกรรม",
         "description": "จัดการบทความข่าวและกิจกรรมทั้งหมด",
-        "add": "สร้างใหม่"
+        "add": "สร้างใหม่",
+        "pin": "ปักหมุดข่าว",
+        "unpin": "เลิกปักหมุด",
+        "pinned": "ปักหมุดข่าวแล้ว",
+        "unpinned": "เลิกปักหมุดแล้ว",
+        "pinLimitTitle": "ปักหมุดเต็มแล้ว",
+        "pinLimitText": "สามารถปักหมุดข่าวได้สูงสุด {max} รายการ กรุณาเลิกปักหมุดข่าวอื่นก่อน"
       },
       "personnel": {
         "title": "บุคลากร",
@@ -822,7 +828,9 @@
         "summaryThPlaceholder": "บทคัดย่อ (ภาษาไทย)",
         "summaryEnPlaceholder": "Abstract/Summary (English)",
         "contentThPlaceholder": "เนื้อหา (ภาษาไทย)",
-        "contentEnPlaceholder": "Content (English)"
+        "contentEnPlaceholder": "Content (English)",
+        "slugErrorTitle": "สลัก (Slug) นี้มีอยู่แล้ว",
+        "slugErrorText": "สลัก หรือ ชื่อภาษาอังกฤษนี้ถูกใช้งานไปแล้วในข่าวอื่น กรุณาเปลี่ยนสลักให้ไม่ซ้ำกัน"
       },
       "awards": {
         "details": "รายละเอียดรางวัล",
@@ -842,7 +850,7 @@
         "additionalInfo": "ข้อมูลเพิ่มเติม",
         "year": "ปี (พ.ศ.)",
         "yearPlaceholder": "2568",
-        "fullDate": "วันที่เต็ม (ไม่บังคับ)",
+        "fullDate": "วัน/เดือน/ปี ของรางวัล",
         "fullDatePlaceholder": "12 มกราคม 2568",
         "awardImage": "รูปภาพรางวัล",
         "saveAward": "บันทึกข้อมูลรางวัล"
@@ -885,8 +893,8 @@
       "services": {
         "details": "รายละเอียดบริการ",
         "serviceTitle": "ชื่อบริการ",
-        "titlePlaceholderTh": "ชื่อบริการ (ไทย)",
-        "titlePlaceholderEn": "ชื่อบริการ (อังกฤษ)",
+        "titlePlaceholderTh": "ชื่อบริการ (ภาษาไทย)",
+        "titlePlaceholderEn": "Service name (English)",
         "category": "หมวดหมู่",
         "categories": {
           "software": "ซอฟต์แวร์ / ใบอนุญาต",

@@ -9,6 +9,7 @@ import { FormInput } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // --- Types & Interfaces ---
 
@@ -50,10 +51,13 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
             : (initialData?.year ? `${initialData.year}-01-01` : new Date().toISOString().split('T')[0]),
     });
 
+    const { setIsDirty } = useUnsavedChanges();
+
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
-    }, []);
+    }, [setIsDirty]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
@@ -69,6 +73,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
     };
 
     const handleFieldChange = (field: 'title' | 'project' | 'team' | 'advisors', lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [field]: {
@@ -89,9 +94,10 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
     };
 
     const handleImageChange = useCallback((url: string) => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, image: url }));
         handleClearError("image");
-    }, [errors.image]);
+    }, [errors.image, setIsDirty]);
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
@@ -147,6 +153,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
             date: formData.date
         };
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -264,6 +271,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                                     <button
                                         type="button"
                                         onClick={() => {
+                                            setIsDirty(true);
                                             setFormData(prev => ({
                                                 ...prev,
                                                 gallery: prev.gallery.filter((_, i) => i !== index)
@@ -286,6 +294,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                             label={t("common.addGalleryImage")}
                             onChange={(url) => {
                                 if (url) {
+                                    setIsDirty(true);
                                     setFormData(prev => ({
                                         ...prev,
                                         gallery: [...(prev.gallery || []), url]

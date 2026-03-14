@@ -7,6 +7,7 @@ import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Validation Schema
 const LocalizedStringSchema = z.object({
@@ -30,6 +31,8 @@ const NewsSchema = z.object({
     author: LocalizedStringSchema,
     status: z.enum(['published', 'draft', 'archived']).default('draft'),
     tags: z.array(z.string()).optional().default([]),
+    isPinned: z.boolean().optional().default(false),
+    pinnedAt: z.string().or(z.date()).optional().nullable().transform((val) => val ? new Date(val) : null),
 });
 
 import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
@@ -53,9 +56,25 @@ export async function GET() {
 
     try {
         await dbConnect();
-        // Return everything for admin, sorted by created date desc
-        const news = await News.find({}).sort({ createdAt: -1 });
-        return NextResponse.json(news);
+        // Force dynamic behavior by using headers or setting revalidate
+        await headers(); // Ensure dynamic behavior in Next.js 15+
+        
+        const news = await News.find({})
+            .sort({ isPinned: -1, pinnedAt: -1, date: -1 })
+            .lean();
+
+        console.log(`[DEBUG] GET /api/admin/news - Received ${news.length} items.`);
+        news.slice(0, 5).forEach((n: any, i: number) => {
+            console.log(`[DEBUG] Item ${i}: id=${n._id}, title=${n.title?.en}, isPinned=${n.isPinned}`);
+        });
+            
+        return NextResponse.json(news, {
+            headers: {
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            }
+        });
     } catch (error) {
         console.error("Error fetching news:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
@@ -120,7 +139,7 @@ export async function POST(request: NextRequest) {
         // Check for duplicate slug
         const existing = await News.findOne({ slug: sanitizedData.slug });
         if (existing) {
-            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug." }, { status: 409 });
+            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug.", code: "SLUG_EXISTS" }, { status: 409 });
         }
 
         const newNews = await News.create(sanitizedData);

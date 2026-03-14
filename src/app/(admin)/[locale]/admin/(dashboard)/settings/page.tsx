@@ -45,11 +45,47 @@ export default function SettingsPage() {
         fetchSettings();
     }, []);
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!settings.contactDepartmentTh) newErrors.contactDepartmentTh = tCommon("required");
+        if (!settings.contactDepartmentEn) newErrors.contactDepartmentEn = tCommon("required");
+        if (!settings.contactEmail) newErrors.contactEmail = tCommon("required");
+        if (!settings.phoneNumber) newErrors.phoneNumber = tCommon("required");
+        if (!settings.addressTh) newErrors.addressTh = tCommon("required");
+        if (!settings.addressEn) newErrors.addressEn = tCommon("required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleChange = (key: string, value: string) => {
         setSettings(prev => ({ ...prev, [key]: value }));
+        handleClearError(key);
     };
 
     const handleSave = async () => {
+        if (!validate()) {
+            Swal.fire({
+                title: tCommon("missingInfoTitle"),
+                text: tCommon("missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
+
         setLoading(true);
         try {
             // Get CSRF Token from cookie
@@ -177,22 +213,30 @@ export default function SettingsPage() {
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Department (TH)</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Contact Department (TH) <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={settings.contactDepartmentTh}
                                     onChange={(e) => handleChange('contactDepartmentTh', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    onFocus={() => handleClearError('contactDepartmentTh')}
+                                    className={`w-full px-4 py-2 rounded-lg border ${errors.contactDepartmentTh ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                 />
+                                {errors.contactDepartmentTh && <p className="mt-1 text-xs text-red-500">{errors.contactDepartmentTh}</p>}
                             </div>
                             <div className="col-span-2">
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Department (EN)</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Contact Department (EN) <span className="text-red-500">*</span>
+                                </label>
                                 <input
                                     type="text"
                                     value={settings.contactDepartmentEn}
                                     onChange={(e) => handleChange('contactDepartmentEn', e.target.value)}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                    onFocus={() => handleClearError('contactDepartmentEn')}
+                                    className={`w-full px-4 py-2 rounded-lg border ${errors.contactDepartmentEn ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                 />
+                                {errors.contactDepartmentEn && <p className="mt-1 text-xs text-red-500">{errors.contactDepartmentEn}</p>}
                             </div>
                         </div>
                     </section>
@@ -201,52 +245,68 @@ export default function SettingsPage() {
                     <section>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contact Email</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Contact Email <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faEnvelope} /></span>
                                     <input
                                         type="email"
                                         value={settings.contactEmail}
                                         onChange={(e) => handleChange('contactEmail', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                        onFocus={() => handleClearError('contactEmail')}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.contactEmail ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                     />
                                 </div>
+                                {errors.contactEmail && <p className="mt-1 text-xs text-red-500">{errors.contactEmail}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Phone Number <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faPhone} /></span>
                                     <input
                                         type="tel"
                                         value={settings.phoneNumber}
                                         onChange={(e) => handleChange('phoneNumber', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                        onFocus={() => handleClearError('phoneNumber')}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.phoneNumber ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                     />
                                 </div>
+                                {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address (TH)</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Address (TH) <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
                                     <textarea
                                         rows={3}
                                         value={settings.addressTh}
                                         onChange={(e) => handleChange('addressTh', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                        onFocus={() => handleClearError('addressTh')}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.addressTh ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                     ></textarea>
                                 </div>
+                                {errors.addressTh && <p className="mt-1 text-xs text-red-500">{errors.addressTh}</p>}
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Address (EN)</label>
+                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                    Address (EN) <span className="text-red-500">*</span>
+                                </label>
                                 <div className="relative">
                                     <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
                                     <textarea
                                         rows={3}
                                         value={settings.addressEn}
                                         onChange={(e) => handleChange('addressEn', e.target.value)}
-                                        className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all"
+                                        onFocus={() => handleClearError('addressEn')}
+                                        className={`w-full pl-10 pr-4 py-2 rounded-lg border ${errors.addressEn ? 'border-red-500 animate-shake' : 'border-slate-300 dark:border-slate-700'} dark:bg-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-primary-main focus:border-transparent transition-all`}
                                     ></textarea>
                                 </div>
+                                {errors.addressEn && <p className="mt-1 text-xs text-red-500">{errors.addressEn}</p>}
                             </div>
                         </div>
                     </section>

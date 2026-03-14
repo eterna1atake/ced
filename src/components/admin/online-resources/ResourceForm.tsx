@@ -88,7 +88,7 @@ const COLOR_PRESETS = [
 
 import { useTranslations } from "next-intl";
 import Swal from "sweetalert2";
-
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 export default function ResourceForm({ initialData, onSubmit, isLoading = false }: ResourceFormProps) {
     const t = useTranslations("Admin.forms");
@@ -110,6 +110,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
     });
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'title' | 'description') => {
@@ -133,12 +134,14 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
 
         handleClearError(name);
     };
 
     const handleFieldChange = (field: "title" | "description", lang: "th" | "en", value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: {
@@ -147,7 +150,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
             }
         }));
 
-        const errorKey = field === 'title' ? (lang === 'th' ? "titleTh" : "titleEn") : "";
+        const errorKey = field === 'title' ? (lang === 'th' ? "titleTh" : "titleEn") :
+            field === 'description' ? (lang === 'th' ? "descriptionTh" : "descriptionEn") : "";
         if (errorKey) {
             handleClearError(errorKey);
         }
@@ -157,6 +161,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
         const newErrors: Record<string, string> = {};
         if (!formData.th.title) newErrors.titleTh = t("common.required");
         if (!formData.en.title) newErrors.titleEn = t("common.required");
+        if (!formData.th.description) newErrors.descriptionTh = t("common.required");
+        if (!formData.en.description) newErrors.descriptionEn = t("common.required");
         if (!formData.key) newErrors.key = t("common.required");
         if (!formData.link) newErrors.link = t("common.required");
         if (visualType === "image" && !formData.imagePath) newErrors.imagePath = t("common.required");
@@ -183,11 +189,12 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
         } else {
             submissionData.iconName = "image";
         }
+        setIsDirty(false);
         await onSubmit(submissionData);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("resource.details")}</h3>
 
             <div className="space-y-4">
@@ -212,6 +219,9 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     placeholder={{ th: t("resource.descriptionPlaceholderTh"), en: t("resource.descriptionPlaceholderEn") }}
                     onTranslate={() => handleTranslate("description")}
                     isTranslating={isTranslating.description}
+                    required
+                    error={{ th: errors.descriptionTh, en: errors.descriptionEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "descriptionTh" : "descriptionEn")}
                 />
             </div>
 
@@ -259,6 +269,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                         <button
                             type="button"
                             onClick={() => {
+                                setIsDirty(true);
                                 setVisualType("icon");
                                 setErrors(prev => { const n = { ...prev }; delete n.imagePath; return n; });
                             }}
@@ -268,7 +279,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                         </button>
                         <button
                             type="button"
-                            onClick={() => setVisualType("image")}
+                            onClick={() => { setIsDirty(true); setVisualType("image"); }}
                             className={`px-4 py-2 rounded-md transition-all ${visualType === "image" ? "bg-white dark:bg-slate-700 text-primary-main shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}
                         >
                             {t("resource.typeImage")}
@@ -282,7 +293,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                             <button
                                 key={item.id}
                                 type="button"
-                                onClick={() => setFormData(prev => ({ ...prev, iconName: item.id }))}
+                                onClick={() => { setIsDirty(true); setFormData(prev => ({ ...prev, iconName: item.id })); }}
                                 className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all aspect-square ${formData.iconName === item.id
                                     ? "border-primary-main bg-primary-main/5 text-primary-main ring-2 ring-primary-main/20"
                                     : "border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-main/50 text-slate-400 dark:text-slate-500"
@@ -299,6 +310,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                         label={t("resource.uploadLogo")}
                         value={formData.imagePath}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, imagePath: url }));
                             if (errors.imagePath) {
                                 setErrors(prev => {
@@ -327,7 +339,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                                 <button
                                     key={preset.id}
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, colorClass: preset.class }))}
+                                    onClick={() => { setIsDirty(true); setFormData(prev => ({ ...prev, colorClass: preset.class })); }}
                                     className={`
                                         w-8 h-8 rounded-full shadow-sm border-2 transition-all flex items-center justify-center
                                         ${preset.color}

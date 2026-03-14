@@ -135,9 +135,16 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
       <div className="mx-auto w-full max-w-5xl px-6 py-6 lg:px-8">
         <article className="space-y-8">
           <header className="space-y-2 md:space-y-4">
-            <span className="inline-flex items-center rounded-full bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
-              {newsItem.category ? t(`categories.${newsItem.category.replace(/&amp;/g, '&')}`) : t("categoryLabel")}
-            </span>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center rounded-full bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
+                {newsItem.category ? t(`categories.${newsItem.category.replace(/&amp;/g, '&')}`) : t("categoryLabel")}
+              </span>
+              {newsItem.isPinned && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-700 shadow-sm">
+                  📌 {t("pin") || "Pinned"}
+                </span>
+              )}
+            </div>
             <h1 className="text-2xl md:text-3xl font-semibold text-slate-900 sm:text-4xl">
               {newsItem.title[locale as "en" | "th"]}
             </h1>

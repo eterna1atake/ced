@@ -31,6 +31,8 @@ const NewsSchema = z.object({
     author: LocalizedStringSchema,
     status: z.enum(['published', 'draft', 'archived']).default('draft'),
     tags: z.array(z.string()).optional().default([]),
+    isPinned: z.boolean().optional().default(false),
+    pinnedAt: z.string().or(z.date()).optional().nullable().transform((val) => val ? new Date(val) : null),
 });
 
 import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
@@ -105,12 +107,14 @@ export async function PUT(
             author: { th: sanitize(data.author.th), en: sanitize(data.author.en) },
             category: sanitize(data.category),
             tags: data.tags.map(t => sanitize(t)),
+            isPinned: data.isPinned,
+            pinnedAt: data.pinnedAt,
         };
 
         // Check if slug is taken by ANOTHER item
         const existingSlug = await News.findOne({ slug: sanitizedData.slug, _id: { $ne: id } });
         if (existingSlug) {
-            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug." }, { status: 409 });
+            return NextResponse.json({ error: "Slug already exists. Please choose a unique slug.", code: "SLUG_EXISTS" }, { status: 409 });
         }
 
         const updatedNews = await News.findByIdAndUpdate(id, sanitizedData, { new: true });

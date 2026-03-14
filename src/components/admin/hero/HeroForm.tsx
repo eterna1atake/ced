@@ -11,6 +11,7 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import { LocalizedString } from "@/types/common";
 import { useTranslations } from "next-intl";
 import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 type HeroFormProps = {
@@ -20,6 +21,7 @@ type HeroFormProps = {
 };
 export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormProps) {
     const t = useTranslations("Admin.forms");
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     // Ensure alt is an object if it comes as a string or is undefined
@@ -36,6 +38,7 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleAltChange = (lang: 'th' | 'en', val: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             alt: {
@@ -101,6 +104,7 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                 id: formData.id || `hero-${Date.now()}`,
             } as HeroCarouselImage;
 
+            setIsDirty(false);
             onSubmit(submissionData);
         }
     };
@@ -116,6 +120,7 @@ export default function HeroForm({ initialData, onSubmit, isLoading }: HeroFormP
                         label={t("hero.heroImage")}
                         value={formData.src}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, src: url }));
                             if (errors.src) {
                                 setErrors(prev => {
