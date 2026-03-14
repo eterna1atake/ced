@@ -91,7 +91,7 @@ export default function ChangePasswordForm() {
 
                 // Auto Logout
                 setIsDirty(false);
-                await signOut({ callbackUrl: "/admin/login" });
+                await signOut({ callbackUrl: "/ced-portal/login" });
 
             } else {
                 Swal.fire({

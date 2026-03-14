@@ -63,40 +63,40 @@ export default function AdminSidebar({
         {
             title: t("content"),
             items: [
-                { label: t("dashboard"), href: `/${locale}/admin`, icon: Icons.Dashboard },
-                { label: t("hero"), href: `/${locale}/admin/hero`, icon: Icons.Content },
-                { label: t("news"), href: `/${locale}/admin/news`, icon: Icons.News },
-                { label: t("awards"), href: `/${locale}/admin/awards`, icon: Icons.Award },
-                { label: t("training"), href: `/${locale}/admin/training`, icon: Icons.Training },
+                { label: t("dashboard"), href: `/${locale}/ced-portal`, icon: Icons.Dashboard },
+                { label: t("hero"), href: `/${locale}/ced-portal/hero`, icon: Icons.Content },
+                { label: t("news"), href: `/${locale}/ced-portal/news`, icon: Icons.News },
+                { label: t("awards"), href: `/${locale}/ced-portal/awards`, icon: Icons.Award },
+                { label: t("training"), href: `/${locale}/ced-portal/training`, icon: Icons.Training },
             ]
         },
         {
             title: t("people"),
             items: [
-                { label: t("personnel"), href: `/${locale}/admin/personnel`, icon: Icons.Person },
+                { label: t("personnel"), href: `/${locale}/ced-portal/personnel`, icon: Icons.Person },
             ]
         },
         {
             title: t("academic"),
             items: [
-                { label: t("programs"), href: `/${locale}/admin/programs`, icon: Icons.Program },
-                { label: t("facilities"), href: `/${locale}/admin/facilities`, icon: Icons.Room },
-                { label: t("onlineResources"), href: `/${locale}/admin/online-resources`, icon: Icons.Globe },
+                { label: t("programs"), href: `/${locale}/ced-portal/programs`, icon: Icons.Program },
+                { label: t("facilities"), href: `/${locale}/ced-portal/facilities`, icon: Icons.Room },
+                { label: t("onlineResources"), href: `/${locale}/ced-portal/online-resources`, icon: Icons.Globe },
             ]
         },
         {
             title: t("services"),
             items: [
-                { label: t("studentServices"), href: `/${locale}/admin/services`, icon: Icons.Service },
-                { label: t("formRequests"), href: `/${locale}/admin/forms`, icon: Icons.Form },
+                { label: t("studentServices"), href: `/${locale}/ced-portal/services`, icon: Icons.Service },
+                { label: t("formRequests"), href: `/${locale}/ced-portal/forms`, icon: Icons.Form },
             ]
         },
         {
             title: t("system"),
             items: [
-                { label: t("loginHistory"), href: `/${locale}/admin/login-history`, icon: Icons.History },
-                { label: t("settings"), href: `/${locale}/admin/settings`, icon: Icons.Settings },
-                { label: t("myProfile"), href: `/${locale}/admin/profile`, icon: Icons.Person },
+                { label: t("loginHistory"), href: `/${locale}/ced-portal/login-history`, icon: Icons.History },
+                { label: t("settings"), href: `/${locale}/ced-portal/settings`, icon: Icons.Settings },
+                { label: t("myProfile"), href: `/${locale}/ced-portal/profile`, icon: Icons.Person },
             ]
         }
     ];
@@ -202,7 +202,7 @@ export default function AdminSidebar({
 
                             <div className="space-y-1">
                                 {group.items.map((item) => {
-                                    const isActive = item.href === `/${locale}/admin`
+                                    const isActive = item.href === `/${locale}/ced-portal`
                                         ? pathname === item.href
                                         : pathname.startsWith(item.href) && (pathname.length === item.href.length || pathname[item.href.length] === '/');
                                     const Icon = item.icon;

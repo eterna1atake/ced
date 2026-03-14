@@ -4,13 +4,13 @@ const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET || "default_dev_
 const ALG = "HS256"; // Using HMAC-SHA-256 for simplicity and speed
 
 export interface TrustedDevicePayload {
-    email: string;
+    username: string; // Admin Alias (primary identifier - email is optional)
     tokenId: string;
 }
 
 export async function signTrustedDeviceToken(payload: TrustedDevicePayload): Promise<string> {
     return new SignJWT({
-        email: payload.email,
+        username: payload.username,
         tokenId: payload.tokenId
     })
         .setProtectedHeader({ alg: ALG })
@@ -22,15 +22,14 @@ export async function signTrustedDeviceToken(payload: TrustedDevicePayload): Pro
 export async function verifyTrustedDeviceToken(token: string): Promise<TrustedDevicePayload | null> {
     try {
         const { payload } = await jwtVerify(token, SECRET);
-        if (typeof payload.email === "string" && typeof payload.tokenId === "string") {
+        if (typeof payload.username === "string" && typeof payload.tokenId === "string") {
             return {
-                email: payload.email,
+                username: payload.username,
                 tokenId: payload.tokenId
             };
         }
         return null;
     } catch {
-        // console.error("Token verification failed"); 
         // Silent fail is fine, treat as untrusted
         return null;
     }

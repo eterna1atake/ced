@@ -93,22 +93,26 @@ export async function POST(req: NextRequest) {
         await resetChangePasswordLimit(ip, email);
 
         // 7. Audit Log
-        // 7. Audit Log
         try {
             const { logSystemEvent } = await import("@/lib/audit");
 
             await logSystemEvent({
                 action: "CHANGE_PASSWORD",
-                actorEmail: email,
+                actorEmail: user.username || email,
                 ip,
                 userAgent,
                 targetId: String(user._id),
                 details: "User changed their own password"
             });
 
-            // [New] Notification Email
-            const { sendLoginNotification } = await import("@/lib/mail");
-            sendLoginNotification(email, "SUCCESS", ip, userAgent, "Your password has been changed successfully.");
+            // [New] Notification Email - Send to the configured admin notification email strictly
+            const notificationSetting = await db.collection("settings").findOne({ key: "adminNotificationEmail" });
+            const notificationEmail = notificationSetting?.value;
+
+            if (notificationEmail) {
+                const { sendLoginNotification } = await import("@/lib/mail");
+                sendLoginNotification(notificationEmail, "SUCCESS", ip, userAgent, `Password has been changed successfully for account: ${user.username || email}`);
+            }
         } catch (auditErr) {
             console.error("Audit/Notification log failed:", auditErr);
         }

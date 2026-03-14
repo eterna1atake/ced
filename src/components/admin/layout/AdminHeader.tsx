@@ -207,7 +207,7 @@ export default function AdminHeader({
 
                                             if (result.isConfirmed) {
                                                 await signOut({
-                                                    callbackUrl: `/${locale}/admin/login`,
+                                                    callbackUrl: `/${locale}/ced-portal/login`,
                                                 });
                                             }
                                         }}

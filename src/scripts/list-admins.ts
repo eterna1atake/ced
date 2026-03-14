@@ -7,7 +7,7 @@ async function main() {
     const users = await db.collection("users").find({ role: "superuser" }).toArray();
 
     console.log("Superusers found:");
-    users.forEach(u => console.log(`- ${u.email}`));
+    users.forEach(u => console.log(`- Alias: ${u.username || "N/A"} | Email: ${u.email}`));
     process.exit(0);
 }
 

@@ -9,7 +9,7 @@ export const authConfig = {
         updateAge: 60,   // Update every 1 minute
     },
     pages: {
-        //signIn: "/admin/login",
+        //signIn: "/ced-portal/login",
     },
     callbacks: {
         async redirect({ url, baseUrl }) {
@@ -22,6 +22,7 @@ export const authConfig = {
         async jwt({ token, user }) {
             if (user) {
                 token.role = (user as any).role; // eslint-disable-line @typescript-eslint/no-explicit-any
+                token.username = (user as any).username; // eslint-disable-line @typescript-eslint/no-explicit-any
                 token.personnelId = (user as any).personnelId ?? null; // eslint-disable-line @typescript-eslint/no-explicit-any
             }
             return token;
@@ -29,6 +30,7 @@ export const authConfig = {
         async session({ session, token }) {
             if (session.user) {
                 (session.user as any).role = (token as any).role ?? null; // eslint-disable-line @typescript-eslint/no-explicit-any
+                (session.user as any).username = (token as any).username ?? null; // eslint-disable-line @typescript-eslint/no-explicit-any
                 (session.user as any).personnelId = (token as any).personnelId ?? null; // eslint-disable-line @typescript-eslint/no-explicit-any
             }
             return session;

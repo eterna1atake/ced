@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /th/admin/
+Disallow: /en/admin/
+
+Sitemap: https://ced.kmutnb.ac.th/sitemap.xml

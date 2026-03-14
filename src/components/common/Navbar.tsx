@@ -170,6 +170,7 @@ export default function Navbar() {
               src="/images/logo/logo_1.png"
               alt="CED Logo"
               fill
+              sizes="(max-width: 768px) 160px, (max-width: 1024px) 192px, 200px"
               className="object-contain object-left"
               priority
             />
@@ -372,6 +373,7 @@ export default function Navbar() {
               alt="CED Logo"
               width={60}
               height={30}
+              style={{ width: '60px', height: 'auto' }}
               priority
             />
           </div>
