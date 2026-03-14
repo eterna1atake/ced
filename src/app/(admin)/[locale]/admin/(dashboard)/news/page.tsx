@@ -10,6 +10,8 @@ import type { NewsSeedItem } from "@/types/news";
 import Loading from "../loading";
 import { useTranslations } from "next-intl";
 import Pagination from "@/components/common/Pagination";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faThumbtack, faThumbtackSlash } from "@fortawesome/free-solid-svg-icons";
 
 const ITEMS_PER_PAGE = 10;
 const MAX_PINNED = 3;
@@ -293,9 +295,10 @@ export default function NewsListPage() {
                                                     }`}
                                                 title={item.isPinned ? t("unpin") : t("pin")}
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                                    <path d="M16 2c.183 0 .366.07.506.21L20.79 6.5a.717.717 0 01-.012 1.012l-3.128 3.128 1.148 5.578a.717.717 0 01-1.196.66L13 12.276l-1.602 1.602V18c0 .414-.336.75-.75.75s-.75-.336-.75-.75v-4.872l-.901.9a.717.717 0 01-1.012.012l-4.285-4.29a.717.717 0 01.012-1.012l.9-.9H.75A.75.75 0 010 7.088c0-.414.336-.75.75-.75h4.122l1.602-1.602L1.872 .134A.717.717 0 012.532-.527L8.11 4.05l3.128-3.128A.717.717 0 0111.75 .71V2h4.25zM12 3.42v-.17l-2.78 2.78-5.578-1.148 3.426 3.426 1.148 5.578L11 10.54l-2.78 2.78h.17L12 9.708l3.61 3.61.17-.001L13 10.54l2.783-2.783-5.578-1.148 3.426-3.426-1.148-5.578L12 .384v3.036z" />
-                                                </svg>
+                                                <FontAwesomeIcon
+                                                    icon={item.isPinned ? faThumbtackSlash : faThumbtack}
+                                                    className="w-4 h-4"
+                                                />
                                             </button>
                                         </td>
                                         <td className="p-4 w-24">
@@ -315,8 +318,9 @@ export default function NewsListPage() {
                                         <td className="p-4 min-w-[200px]">
                                             <div className="flex items-center gap-2">
                                                 {item.isPinned && (
-                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
-                                                        📌 PIN
+                                                    <span className="inline-flex items-center gap-1 whitespace-nowrap px-1.5 py-0.5 rounded text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                                                        <span className="text-amber-500">📌</span>
+                                                        <span>{t("pin")}</span>
                                                     </span>
                                                 )}
                                                 <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.en}</div>

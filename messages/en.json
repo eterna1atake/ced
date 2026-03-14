@@ -129,6 +129,7 @@
     "title": "News & Events",
     "description": "Browse the latest updates from the Department of Computer Education.",
     "readMore": "READ MORE",
+    "pin": "Pin News",
     "noNews": "No news items are available right now.",
     "loading": "Loading news...",
     "fetchError": "Unable to load news at the moment. Please try again later.",
