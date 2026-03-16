@@ -77,8 +77,8 @@ export default function Navbar() {
           } else {
             setSearchResults([]);
           }
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
+        } catch (error: unknown) { // Changed 'any' to 'unknown' for better type safety
+          if (error instanceof Error && error.name === 'AbortError') {
             return; // Ignore abort errors
           }
           console.error("Search error:", error);
@@ -137,7 +137,7 @@ export default function Navbar() {
 
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false);
-  }, []);
+  }, []); // Added missing dependency array for useCallback
 
   const handleMenuNavigate = useCallback(
     (href: string) => {

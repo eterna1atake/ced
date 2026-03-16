@@ -23,6 +23,7 @@ type Props = {
 export default function EditFormRequestClient({ initialData }: Props) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.forms");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleUpdate = async (data: Omit<FormRequestItem, "_id">) => {
@@ -56,7 +57,7 @@ export default function EditFormRequestClient({ initialData }: Props) {
                 showConfirmButton: false,
             });
 
-            router.push("/admin/forms");
+            router.push("/ced-portal/forms");
             router.refresh();
         } catch (error: unknown) {
             Swal.fire(tAlert("error"), error instanceof Error ? error.message : "An error occurred", "error");
@@ -69,8 +70,14 @@ export default function EditFormRequestClient({ initialData }: Props) {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Document</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Update file details.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
                 </div>
             </div>
             <FormRequestForm initialData={initialData} onSubmit={handleUpdate} isLoading={isLoading} />

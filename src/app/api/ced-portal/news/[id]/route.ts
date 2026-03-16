@@ -21,7 +21,7 @@ const NewsSchema = z.object({
         th: z.string().trim().min(1, "Thai title is required"),
         en: z.string().trim().min(1, "English title is required"),
     }),
-    summary: LocalizedStringSchema,
+
     content: LocalizedStringSchema,
     imageSrc: z.string().optional().default(""),
     imageAlt: z.string().optional().default(""),
@@ -99,7 +99,7 @@ export async function PUT(
             ...data,
             slug: sanitize(data.slug),
             title: { th: sanitize(data.title.th), en: sanitize(data.title.en) },
-            summary: { th: sanitize(data.summary.th), en: sanitize(data.summary.en) },
+
             content: {
                 th: sanitizeContent(data.content.th),
                 en: sanitizeContent(data.content.en)

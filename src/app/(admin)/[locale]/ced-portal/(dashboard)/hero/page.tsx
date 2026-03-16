@@ -117,7 +117,7 @@ export default function HeroListPage() {
                     </button>
                 ) : (
                     <Link
-                        href="/admin/hero/create"
+                        href="/ced-portal/hero/create"
                         className="bg-primary-main/90 hover:bg-primary-hover text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center gap-2"
                     >
                         <span className="hidden md:block"><FontAwesomeIcon icon={faPlus} /> {t("add")}</span>
@@ -144,7 +144,7 @@ export default function HeroListPage() {
                                 />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                                     <Link
-                                        href={`/admin/hero/${item._id}`}
+                                        href={`/ced-portal/hero/${item._id}`}
                                         className="bg-white text-slate-900 px-3 py-1.5 rounded-full text-sm font-medium hover:bg-slate-100 flex items-center gap-1"
                                     >
                                         <FontAwesomeIcon icon={faEdit} className="w-3 h-3" /> Edit

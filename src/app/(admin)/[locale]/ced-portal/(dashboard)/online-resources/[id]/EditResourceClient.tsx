@@ -14,6 +14,7 @@ export default function EditResourceClient({ initialData }: EditResourceClientPr
     const tAlert = useTranslations("Admin.alerts");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const t = useTranslations("Admin.pages.onlineResources");
 
     const handleUpdate = async (data: IOnlineResourceForm) => {
         setIsLoading(true);
@@ -51,7 +52,7 @@ export default function EditResourceClient({ initialData }: EditResourceClientPr
                 confirmButtonColor: "#35622F",
             });
 
-            router.push("/admin/online-resources");
+            router.push("/ced-portal/online-resources");
             router.refresh();
         } catch (error: unknown) {
             console.error("Update error:", error);
@@ -70,8 +71,14 @@ export default function EditResourceClient({ initialData }: EditResourceClientPr
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Resource</h1>
-                <p className="text-slate-500 dark:text-slate-400">Update configuration for {initialData.en.title}.</p>
+                <button
+                    onClick={() => router.back()}
+                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                >
+                    ← {t("backToList")}
+                </button>
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
             </div>
 
             <ResourceForm initialData={initialData} onSubmit={handleUpdate} isLoading={isLoading} />

@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 export default function CreateProgramClient() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.programs");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (data: ProgramItem) => {
@@ -45,9 +46,9 @@ export default function CreateProgramClient() {
             });
 
             // Redirect to the edit page of the newly created program
-            router.push(`/admin/programs/${created.id}`);
+            router.push(`/ced-portal/programs/${created.id}`);
             router.refresh();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             Swal.fire({
                 title: tAlert("error"),
@@ -64,11 +65,12 @@ export default function CreateProgramClient() {
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => router.back()}
-                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-600 dark:text-slate-400"
+                    className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-600 dark:text-slate-400 flex items-center gap-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+                    <span className="text-sm font-medium">{t("backToList")}</span>
                 </button>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Create New Program</h1>
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
             </div>
 
             <ProgramForm

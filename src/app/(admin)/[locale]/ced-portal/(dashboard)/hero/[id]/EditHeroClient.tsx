@@ -17,6 +17,7 @@ type Props = {
 export default function EditHeroClient({ initialData }: Props) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.hero");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleUpdate = async (data: HeroCarouselImage) => {
@@ -53,7 +54,7 @@ export default function EditHeroClient({ initialData }: Props) {
                 timer: 1500
             });
 
-            router.push("/admin/hero");
+            router.push("/ced-portal/hero");
             router.refresh();
         } catch (error) {
             console.error(error);
@@ -67,8 +68,14 @@ export default function EditHeroClient({ initialData }: Props) {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Hero Image</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Update banner details.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
                 </div>
             </div>
             <HeroForm

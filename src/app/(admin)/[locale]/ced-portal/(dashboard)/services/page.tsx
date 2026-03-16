@@ -106,7 +106,7 @@ export default function ServicesListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/services/create"
+                    href="/ced-portal/services/create"
                     label={t("add")}
                 />
             </div>
@@ -160,7 +160,7 @@ export default function ServicesListPage() {
                                     </td>
                                     <td className="p-4 text-right whitespace-nowrap">
                                         <ActionButtons
-                                            editUrl={`/admin/services/${item._id}`}
+                                            editUrl={`/ced-portal/services/${item._id}`}
                                             onDelete={() => handleDelete(item._id)}
                                         />
                                     </td>

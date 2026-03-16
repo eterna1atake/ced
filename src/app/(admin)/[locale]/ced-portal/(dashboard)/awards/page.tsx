@@ -80,7 +80,7 @@ export default function AwardsListPage() {
                 <div className="flex gap-2">
 
                     <AddButton
-                        href="/admin/awards/create"
+                        href="/ced-portal/awards/create"
                         label={t("add")}
                     />
                 </div>
@@ -133,7 +133,7 @@ export default function AwardsListPage() {
                                         </td>
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
-                                                editUrl={`/admin/awards/${id}`}
+                                                editUrl={`/ced-portal/awards/${id}`}
                                                 onDelete={() => handleDelete(id)}
                                             />
                                         </td>

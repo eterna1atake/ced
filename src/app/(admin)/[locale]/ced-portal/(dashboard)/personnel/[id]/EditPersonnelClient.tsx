@@ -18,6 +18,7 @@ type Props = {
 export default function EditPersonnelClient({ initialData }: Props) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.personnel");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Adapt IPersonnel to Personnel for the form
@@ -61,7 +62,7 @@ export default function EditPersonnelClient({ initialData }: Props) {
                 showConfirmButton: false
             });
 
-            router.push("/admin/personnel");
+            router.push("/ced-portal/personnel");
             router.refresh();
         } catch (error: unknown) {
             console.error("Update error:", error);
@@ -77,8 +78,14 @@ export default function EditPersonnelClient({ initialData }: Props) {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Personnel</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Update profile information.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
                 </div>
             </div>
             {/* 

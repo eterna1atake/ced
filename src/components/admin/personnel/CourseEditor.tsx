@@ -13,6 +13,7 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
     isStaff?: boolean,
     errors?: Record<string, string>,
     onClearError?: (name: string) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     t: any
 }) => {
     const addEntry = () => onChange([...value, { courseId: "", th: "", en: "" }]);

@@ -19,6 +19,7 @@ interface FormRequestItem {
 export default function CreateFormRequestPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.forms");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: Omit<FormRequestItem, "_id">) => {
@@ -52,7 +53,7 @@ export default function CreateFormRequestPage() {
                 showConfirmButton: false,
             });
 
-            router.push("/admin/forms");
+            router.push("/ced-portal/forms");
             router.refresh();
         } catch (error: unknown) {
             Swal.fire(tAlert("error"), error instanceof Error ? error.message : "An error occurred", "error");
@@ -65,8 +66,14 @@ export default function CreateFormRequestPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add Document</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Upload a new form or file.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 

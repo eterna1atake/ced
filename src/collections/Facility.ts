@@ -1,4 +1,4 @@
-import mongoose, { Schema, model, models } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export type IFacility = {
     _id?: string;
@@ -69,7 +69,7 @@ if (process.env.NODE_ENV === 'development') {
     try {
         mongoose.deleteModel('Facility');
         console.log("DEBUG: Deleted Facility model for schema refresh");
-    } catch (e) {
+    } catch {
         // Model might not exist yet
     }
 }

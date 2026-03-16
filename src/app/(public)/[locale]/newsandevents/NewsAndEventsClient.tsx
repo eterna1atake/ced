@@ -70,8 +70,8 @@ export default function NewsAndEventsClient({ initialNews }: Props) {
       const searchPool = [
         item.title["en"],
         item.title["th"],
-        item.summary["en"],
-        item.summary["th"],
+        item.content["en"],
+        item.content["th"],
         item.category ?? "",
         ...(item.tags ?? []),
       ];

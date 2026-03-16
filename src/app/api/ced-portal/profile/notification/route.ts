@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import clientPromise from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
 
 export async function PUT(req: NextRequest) {
     try {
         const session = await auth();
-        const user = session?.user as any;
+        const user = session?.user as { role?: string; username?: string };
         if (!session || user?.role !== "superuser") {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }

@@ -243,7 +243,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
             if (publicKey) {
                 try {
                     passwordToSend = await encryptPassword(password, publicKey);
-                } catch (e) {
+                } catch {
                     setError("เกิดข้อผิดพลาดในการเข้ารหัสข้อมูล");
                     setLoading(false);
                     return;
@@ -333,7 +333,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                     router.refresh();
                 });
             }
-        } catch (err) {
+        } catch {
             setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
             setLoading(false);
         } finally {

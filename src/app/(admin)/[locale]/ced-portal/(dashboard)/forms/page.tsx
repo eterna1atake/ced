@@ -102,7 +102,7 @@ export default function FormRequestsListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/forms/create"
+                    href="/ced-portal/forms/create"
                     label={t("add")}
                 />
             </div>
@@ -149,7 +149,7 @@ export default function FormRequestsListPage() {
                                         </td>
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
-                                                editUrl={`/admin/forms/${item._id}`}
+                                                editUrl={`/ced-portal/forms/${item._id}`}
                                                 onDelete={() => handleDelete(item._id, item.en.name)}
                                             />
                                         </td>

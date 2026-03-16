@@ -10,10 +10,11 @@ import { useTranslations } from "next-intl";
 export default function CreateServicePage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
-    const [isSaving, setIsSaving] = useState(false);
+    const t = useTranslations("Admin.pages.services");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: Service) => {
-        setIsSaving(true);
+        setIsLoading(true);
         try {
             // [Fix] Add CSRF Token to headers
             const csrfToken = document.cookie
@@ -43,14 +44,14 @@ export default function CreateServicePage() {
                 showConfirmButton: false
             });
 
-            router.push("/admin/services");
+            router.push("/ced-portal/services");
             router.refresh();
         } catch (error: unknown) {
             console.error("Create error:", error);
             const message = error instanceof Error ? error.message : "Something went wrong";
             Swal.fire(tAlert("error"), message, "error");
         } finally {
-            setIsSaving(false);
+            setIsLoading(false);
         }
     };
 
@@ -62,14 +63,14 @@ export default function CreateServicePage() {
                         onClick={() => router.back()}
                         className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
                     >
-                        ← Back to List
+                        ← {t("backToList")}
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add Service</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Create a new student service link.</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 
-            <ServiceForm onSubmit={handleCreate} isLoading={isSaving} />
+            <ServiceForm onSubmit={handleCreate} isLoading={isLoading} />
         </div>
     );
 }

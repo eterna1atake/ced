@@ -15,6 +15,7 @@ type Props = {
 export default function EditServiceClient({ initialData }: Props) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.services");
     const [isSaving, setIsSaving] = useState(false);
 
     const handleUpdate = async (data: Service) => {
@@ -48,7 +49,7 @@ export default function EditServiceClient({ initialData }: Props) {
                 showConfirmButton: false
             });
 
-            router.push("/admin/services");
+            router.push("/ced-portal/services");
             router.refresh();
         } catch (error: unknown) {
             console.error("Update error:", error);
@@ -67,10 +68,10 @@ export default function EditServiceClient({ initialData }: Props) {
                         onClick={() => router.back()}
                         className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
                     >
-                        ← Back to List
+                        ← {t("backToList")}
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Service</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Update service details.</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
                 </div>
             </div>
             <ServiceForm initialData={initialData} onSubmit={handleUpdate} isLoading={isSaving} />

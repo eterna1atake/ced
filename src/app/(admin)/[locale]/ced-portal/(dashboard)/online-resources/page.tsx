@@ -102,7 +102,7 @@ export default function ResourcesListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/online-resources/create"
+                    href="/ced-portal/online-resources/create"
                     label={t("add")}
                 />
             </div>
@@ -153,7 +153,7 @@ export default function ResourcesListPage() {
                                     </td>
                                     <td className="p-4 text-right whitespace-nowrap">
                                         <ActionButtons
-                                            editUrl={`/admin/online-resources/${item._id}`}
+                                            editUrl={`/ced-portal/online-resources/${item._id}`}
                                             onDelete={() => handleDelete(item._id, item.en.title)}
                                         />
                                     </td>

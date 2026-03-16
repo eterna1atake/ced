@@ -100,7 +100,7 @@ export default function FacilitiesListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/facilities/create"
+                    href="/ced-portal/facilities/create"
                     label={t("add")}
                 />
             </div>
@@ -165,7 +165,7 @@ export default function FacilitiesListPage() {
                                 </td>
                                 <td className="p-4 text-right">
                                     <ActionButtons
-                                        editUrl={`/admin/facilities/${encodeURIComponent(item.id)}`}
+                                        editUrl={`/ced-portal/facilities/${encodeURIComponent(item.id)}`}
                                         onDelete={() => handleDelete(item.id)}
                                     />
                                 </td>

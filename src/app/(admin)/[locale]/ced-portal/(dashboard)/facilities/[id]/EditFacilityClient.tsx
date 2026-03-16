@@ -14,6 +14,7 @@ interface Props {
 export default function EditFacilityClient({ initialData }: Props) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.facilities");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (data: Facility) => {
@@ -51,7 +52,7 @@ export default function EditFacilityClient({ initialData }: Props) {
                 showConfirmButton: false
             });
 
-            router.push("/admin/facilities");
+            router.push("/ced-portal/facilities");
         } catch (error: unknown) {
             console.error(error);
             const msg = error instanceof Error ? error.message : "Failed to update facility";
@@ -65,8 +66,14 @@ export default function EditFacilityClient({ initialData }: Props) {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Facility</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Update facility details.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("editSubtitle")}</p>
                 </div>
             </div>
             <FacilityForm initialData={initialData} onSubmit={handleSubmit} isLoading={isLoading} />

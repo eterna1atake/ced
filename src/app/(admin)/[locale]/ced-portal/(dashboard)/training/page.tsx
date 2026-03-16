@@ -111,20 +111,20 @@ export default function TrainingPage() {
         if (!embeds.embed1 || !embeds.embed2 || !embeds.embed3) {
             Swal.fire({
                 icon: 'warning',
-                title: 'Incomplete Data',
-                text: 'Please provide all 3 Facebook Embed URLs.',
+                title: t('incompleteTitle'),
+                text: t('incompleteText'),
                 confirmButtonColor: '#3085d6',
             });
             return;
         }
 
         const result = await Swal.fire({
-            title: t("common.saveConfirmTitle") || "Are you sure?",
-            text: t("common.saveConfirmText") || "Do you want to save these training embeds?",
+            title: t("common.saveConfirmTitle"),
+            text: t("common.saveConfirmText"),
             icon: "question",
             showCancelButton: true,
-            confirmButtonText: t("common.save") || "Save",
-            cancelButtonText: t("common.cancel") || "Cancel",
+            confirmButtonText: t("common.save"),
+            cancelButtonText: t("common.cancel"),
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
         });
@@ -157,18 +157,18 @@ export default function TrainingPage() {
             }
             await Swal.fire({
                 icon: 'success',
-                title: 'Saved!',
-                text: 'Training embeds saved successfully!',
+                title: t('saveSuccessTitle'),
+                text: t('saveSuccessText'),
                 showConfirmButton: false,
                 timer: 1500
             });
             router.refresh();
         } catch (error: unknown) {
             console.error("Failed to save embeds:", error);
-            const message = error instanceof Error ? error.message : 'Something went wrong';
+            const message = error instanceof Error ? error.message : t("somethingWentWrong");
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
+                title: t('errorTitle'),
                 text: message,
                 confirmButtonColor: '#d33',
             });
@@ -178,15 +178,15 @@ export default function TrainingPage() {
     };
 
     if (fetching) {
-        return <div className="p-8 text-center text-slate-500">Loading settings...</div>;
+        return <div className="p-8 text-center text-slate-500">{t("fetching")}</div>;
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Training & Events</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Manage Facebook embedded posts for the training section.</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("title")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
             </div>
 
@@ -195,14 +195,14 @@ export default function TrainingPage() {
                     <section>
                         <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
                             <FontAwesomeIcon icon={faGlobe} className="text-primary-main" />
-                            Facebook Embed URLs
+                            {t("fbEmbedTitle")}
                         </h3>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* Embed 1 */}
                             <div className="flex flex-col gap-3">
                                 <label className="text-lg md:text-xl font-medium text-slate-800 dark:text-slate-200">
-                                    Post #1
-                                    <span className="block text-base font-normal text-slate-400 mt-1">Paste full post URL or iframe src</span>
+                                    {t("post", { number: 1 })}
+                                    <span className="block text-base font-normal text-slate-400 mt-1">{t("postHint")}</span>
                                 </label>
                                 <input
                                     type="url"
@@ -217,7 +217,7 @@ export default function TrainingPage() {
                                             <FacebookPostEmbedPreview embedUrl={embeds.embed1} />
                                         </div>
                                     ) : (
-                                        <span className="text-sm text-slate-400">Preview area</span>
+                                        <span className="text-sm text-slate-400">{t("previewArea")}</span>
                                     )}
                                 </div>
                             </div>
@@ -225,8 +225,8 @@ export default function TrainingPage() {
                             {/* Embed 2 */}
                             <div className="flex flex-col gap-3">
                                 <label className="text-lg md:text-xl font-medium text-slate-800 dark:text-slate-200">
-                                    Post #2
-                                    <span className="block text-base font-normal text-slate-400 mt-1">Paste full post URL or iframe src</span>
+                                    {t("post", { number: 2 })}
+                                    <span className="block text-base font-normal text-slate-400 mt-1">{t("postHint")}</span>
                                 </label>
                                 <input
                                     type="url"
@@ -241,7 +241,7 @@ export default function TrainingPage() {
                                             <FacebookPostEmbedPreview embedUrl={embeds.embed2} />
                                         </div>
                                     ) : (
-                                        <span className="text-sm text-slate-400">Preview area</span>
+                                        <span className="text-sm text-slate-400">{t("previewArea")}</span>
                                     )}
                                 </div>
                             </div>
@@ -249,8 +249,8 @@ export default function TrainingPage() {
                             {/* Embed 3 */}
                             <div className="flex flex-col gap-3">
                                 <label className="text-lg md:text-xl font-medium text-slate-800 dark:text-slate-200">
-                                    Post #3
-                                    <span className="block text-base font-normal text-slate-400 mt-1">Paste full post URL or iframe src</span>
+                                    {t("post", { number: 3 })}
+                                    <span className="block text-base font-normal text-slate-400 mt-1">{t("postHint")}</span>
                                 </label>
                                 <input
                                     type="url"
@@ -265,7 +265,7 @@ export default function TrainingPage() {
                                             <FacebookPostEmbedPreview embedUrl={embeds.embed3} />
                                         </div>
                                     ) : (
-                                        <span className="text-sm text-slate-400">Preview area</span>
+                                        <span className="text-sm text-slate-400">{t("previewArea")}</span>
                                     )}
                                 </div>
                             </div>
@@ -279,7 +279,7 @@ export default function TrainingPage() {
                             className={`px-6 py-2.5 rounded-lg bg-primary-main hover:bg-primary-main/80 text-white font-medium shadow-sm hover:shadow transition-all flex items-center gap-2 ${loading ? 'opacity-70 cursor-not-allowed' : ''}`}
                         >
                             <FontAwesomeIcon icon={faSave} />
-                            {loading ? "Saving..." : "Save Changes"}
+                            {loading ? t("saving") : t("saveChanges")}
                         </button>
                     </div>
                 </div>

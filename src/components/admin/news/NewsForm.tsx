@@ -66,7 +66,6 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     const [formData, setFormData] = useState<Partial<NewsSeedItem>>({
         title: { en: "", th: "" },
         slug: "",
-        summary: { en: "", th: "" },
         content: { en: "", th: "" },
         imageSrc: "",
         author: { en: "", th: "" },
@@ -94,7 +93,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
-    const handleTranslate = async (field: "title" | "summary" | "content", text: string) => {
+    const handleTranslate = async (field: "title" | "content", text: string) => {
         await translate(field, text, (translated) => {
             handleLocalizedChange(field, "en", translated);
         });
@@ -132,7 +131,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             .replace(/ +/g, '-');
     };
 
-    const handleLocalizedChange = (field: "title" | "summary" | "content" | "author", locale: "en" | "th", value: string) => {
+    const handleLocalizedChange = (field: "title" | "content" | "author", locale: "en" | "th", value: string) => {
         setIsDirty(true);
         setFormData((prev) => {
             const updates = {
@@ -159,9 +158,8 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         // Clear error
         // Let's use simpler keys based on input names
         const nameKey = field === "title" ? (locale === 'en' ? 'titleEn' : 'titleTh') :
-            field === "summary" ? (locale === 'en' ? 'summaryEn' : 'summaryTh') :
-                field === "content" ? (locale === 'en' ? 'contentEn' : 'contentTh') :
-                    (locale === 'en' ? 'authorEn' : 'authorTh');
+            field === "content" ? (locale === 'en' ? 'contentEn' : 'contentTh') :
+                (locale === 'en' ? 'authorEn' : 'authorTh');
 
         handleClearError(nameKey);
         // Also clear slug error if auto-generated
@@ -174,9 +172,6 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         const newErrors: Record<string, string> = {};
         if (!formData.title?.en) newErrors.titleEn = t("common.required");
         if (!formData.title?.th) newErrors.titleTh = t("common.required");
-
-        if (!formData.summary?.th) newErrors.summaryTh = t("common.required");
-        if (!formData.summary?.en) newErrors.summaryEn = t("common.required");
 
         if (!formData.content?.th) newErrors.contentTh = t("common.required");
         if (!formData.content?.en) newErrors.contentEn = t("common.required");
@@ -251,20 +246,20 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         required
                         placeholder={t("news.titleThPlaceholder")}
                         error={errors.titleTh}
-                        suffix={
+                        labelAction={
                             <button
                                 type="button"
                                 onClick={() => handleTranslate("title", formData.title?.th || "")}
                                 disabled={isTranslating.title || !formData.title?.th}
-                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1 transition-colors whitespace-nowrap"
+                                className="text-[10px] uppercase tracking-wider font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1.5 transition-all"
                                 title={t("common.autoTranslate")}
                             >
                                 {isTranslating.title ? (
                                     <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
-                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1.5" />
+                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1.5" fill="none" />
                                     </svg>
                                 )}
                                 {isTranslating.title ? t("common.translating") : t("common.autoTranslate")}
@@ -353,49 +348,6 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         placeholder={t("news.authorEnPlaceholder")}
                     />
                 </div>
-                {/* Section 5: Summary */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormTextarea
-                        label={t("news.summaryTh")}
-                        name="summaryTh"
-                        rows={3}
-                        value={formData.summary?.th || ""}
-                        onChange={(e) => handleLocalizedChange("summary", "th", e.target.value)}
-                        onFocus={() => handleClearError("summaryTh")}
-                        placeholder={t("news.summaryThPlaceholder")}
-                        required
-                        error={errors.summaryTh}
-                        hint={
-                            <button
-                                type="button"
-                                onClick={() => handleTranslate("summary", formData.summary?.th || "")}
-                                disabled={isTranslating.summary || !formData.summary?.th}
-                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 mt-1 transition-colors flex items-center gap-1"
-                            >
-                                {isTranslating.summary ? (
-                                    <div className="w-2 h-2 border border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                                ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
-                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
-                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
-                                    </svg>
-                                )}
-                                {isTranslating.summary ? t("common.translating") : t("common.autoTranslate")}
-                            </button>
-                        }
-                    />
-                    <FormTextarea
-                        label={t("news.summaryEn")}
-                        name="summaryEn"
-                        rows={3}
-                        value={formData.summary?.en || ""}
-                        onChange={(e) => handleLocalizedChange("summary", "en", e.target.value)}
-                        onFocus={() => handleClearError("summaryEn")}
-                        placeholder={t("news.summaryEnPlaceholder")}
-                        required
-                        error={errors.summaryEn}
-                    />
-                </div>
 
                 {/* Section 6: Content */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -409,12 +361,12 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         placeholder={t("news.contentThPlaceholder")}
                         required
                         error={errors.contentTh}
-                        hint={
+                        labelAction={
                             <button
                                 type="button"
                                 onClick={() => handleTranslate("content", formData.content?.th || "")}
                                 disabled={isTranslating.content || !formData.content?.th}
-                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 mt-1 transition-colors flex items-center gap-1"
+                                className="text-[10px] uppercase tracking-wider font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1.5 transition-all"
                             >
                                 {isTranslating.content ? (
                                     <div className="w-2 h-2 border border-indigo-600 border-t-transparent rounded-full animate-spin" />

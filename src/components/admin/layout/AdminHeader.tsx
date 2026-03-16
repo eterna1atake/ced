@@ -19,6 +19,7 @@ export default function AdminHeader({
     const locale = useLocale();
     const t = useTranslations("Admin.header");
     const tAlert = useTranslations("Admin.alerts");
+    const tB = useTranslations("Admin.breadcrumbs");
     const { theme, setTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -32,45 +33,61 @@ export default function AdminHeader({
         const pathParts = pathname.split('/').filter(Boolean);
         const segments = (pathParts[0] === locale) ? pathParts.slice(1) : pathParts;
 
-        // segments example: ['admin', 'programs', 'create']
-
         // Helper to check if string is a MongoDB ObjectId
         const isObjectId = (str: string) => /^[0-9a-fA-F]{24}$/.test(str);
+
+        // Mapping of URL segments to translation keys
+        const segmentToKey: Record<string, string> = {
+            'ced-portal': 'dashboard',
+            'hero': 'hero',
+            'news': 'news',
+            'awards': 'awards',
+            'training': 'training',
+            'personnel': 'personnel',
+            'programs': 'programs',
+            'facilities': 'facilities',
+            'online-resources': 'onlineResources',
+            'services': 'services',
+            'forms': 'forms',
+            'login-history': 'loginHistory',
+            'settings': 'settings',
+            'profile': 'profile'
+        };
 
         let accumulatePath = `/${locale}`;
         return segments.map((segment, index) => {
             accumulatePath += `/${segment}`;
             const isLast = index === segments.length - 1;
 
-            // Format label
+            // Default label from segment
             let label = segment.replace(/-/g, ' ');
 
             if (isObjectId(segment)) {
                 // If it's an ID, determine label based on parent segment
                 const parentSegment = segments[index - 1];
-                switch (parentSegment) {
-                    case 'personnel': label = 'Edit Personnel'; break;
-                    case 'news': label = 'Edit News'; break;
-                    case 'services': label = 'Edit Service'; break;
-                    case 'programs': label = 'Edit Program'; break;
-                    case 'awards': label = 'Edit Award'; break;
-                    case 'online-resources': label = 'Edit Resource'; break;
-                    default: label = 'Edit Item';
+                const itemKey = segmentToKey[parentSegment];
+                if (itemKey) {
+                    label = tB('editItem', { item: tB(itemKey) });
+                } else {
+                    label = tB('editGeneral');
                 }
-            } else if (segment === 'create') {
-                // Handle "create" action
+            } else if (segment === 'create' || segment === 'new') {
+                // Handle creation actions
                 const parentSegment = segments[index - 1];
-                switch (parentSegment) {
-                    case 'personnel': label = 'Create Personnel'; break;
-                    case 'news': label = 'Create News'; break;
-                    case 'services': label = 'Create Service'; break;
-                    case 'programs': label = 'Create Program'; break;
-                    case 'awards': label = 'Create Award'; break;
-                    case 'online-resources': label = 'Create Resource'; break;
-                    default: label = 'Create Item';
+                const itemKey = segmentToKey[parentSegment];
+                if (itemKey) {
+                    label = tB('createItem', { item: tB(itemKey) });
+                } else {
+                    label = tB('createGeneral');
                 }
             } else {
-                label = label.charAt(0).toUpperCase() + label.slice(1);
+                // Standard segment translation
+                const key = segmentToKey[segment];
+                if (key) {
+                    label = tB(key);
+                } else {
+                    label = label.charAt(0).toUpperCase() + label.slice(1);
+                }
             }
 
             return {

@@ -10,10 +10,11 @@ import { useTranslations } from "next-intl";
 export default function CreateHeroPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = useTranslations("Admin.pages.hero");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: HeroCarouselImage) => {
-        setIsSubmitting(true);
+        setIsLoading(true);
         try {
             // [Fix] Add CSRF Token to headers
             const csrfToken = document.cookie
@@ -42,7 +43,7 @@ export default function CreateHeroPage() {
                 timer: 1500
             });
 
-            router.push("/admin/hero");
+            router.push("/ced-portal/hero");
             router.refresh();
         } catch (error: unknown) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -50,7 +51,7 @@ export default function CreateHeroPage() {
             console.error(err);
             Swal.fire(tAlert("error"), err.message || "Failed to create hero image", "error");
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -58,12 +59,18 @@ export default function CreateHeroPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add Hero Image</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Upload or link a new banner image.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 
-            <HeroForm onSubmit={handleCreate} isLoading={isSubmitting} />
+            <HeroForm onSubmit={handleCreate} isLoading={isLoading} />
         </div>
     );
 }

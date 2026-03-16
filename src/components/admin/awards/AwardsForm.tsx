@@ -62,15 +62,14 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
     const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
-    const handleClearError = (name: string) => {
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-    };
+    const handleClearError = useCallback((name: string) => {
+        setErrors(prev => {
+            if (!prev[name]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+        });
+    }, []);
 
     const handleFieldChange = (field: 'title' | 'project' | 'team' | 'advisors', lang: 'th' | 'en', value: string) => {
         setIsDirty(true);
@@ -97,7 +96,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
         setIsDirty(true);
         setFormData(prev => ({ ...prev, image: url }));
         handleClearError("image");
-    }, [errors.image, setIsDirty]);
+    }, [setIsDirty, handleClearError]);
 
     const validate = () => {
         const newErrors: Record<string, string> = {};

@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 export default function CreateFacilityPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.facilities");
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (data: Facility) => {
@@ -46,7 +47,7 @@ export default function CreateFacilityPage() {
                 showConfirmButton: false
             });
 
-            router.push("/admin/facilities");
+            router.push("/ced-portal/facilities");
         } catch (error: unknown) {
             console.error(error);
             const msg = error instanceof Error ? error.message : "Failed to create facility";
@@ -60,8 +61,14 @@ export default function CreateFacilityPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add New Facility</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Create a new facility or lab entry.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
             <FacilityForm onSubmit={handleSubmit} isLoading={isLoading} />

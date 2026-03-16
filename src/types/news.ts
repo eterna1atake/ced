@@ -7,7 +7,6 @@ export interface NewsSeedItem {
     galleryImages: string[];
     id: string;
     title: LocalizedString;
-    summary: LocalizedString;
     content: LocalizedString;
     imageAlt: string;
     category: string;

@@ -171,7 +171,6 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
           ) : null}
 
           <section className="space-y-5 text-base leading-relaxed text-slate-700">
-            <p className="text-lg font-medium text-slate-800">{newsItem.summary[locale as "en" | "th"]}</p>
             {contentBlocks.length > 0 ? (
               contentBlocks.map((block: string, index: number) => (
                 <p key={index} className="whitespace-pre-line">

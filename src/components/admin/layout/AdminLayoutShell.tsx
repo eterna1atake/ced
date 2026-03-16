@@ -22,10 +22,7 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
                 />
 
                 {/* Main Content Area */}
-                {/* 
-                Mobile: w-full. 
-                Desktop: ml-72 (expanded) or ml-28 (collapsed) to account for floating sidebar margins. 
-            */}
+
                 <div
                     className={`flex-1 w-full transition-all duration-300 ${isCollapsed ? 'lg:ml-28' : 'lg:ml-72'}`}
                 >

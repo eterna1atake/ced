@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 export default function CreateAwardPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.awards");
     const [isSaving, setIsSaving] = useState(false);
 
     const handleCreate = async (data: Award) => {
@@ -42,7 +43,7 @@ export default function CreateAwardPage() {
                 showConfirmButton: false,
             });
 
-            router.push("/admin/awards");
+            router.push("/ced-portal/awards");
             router.refresh();
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
@@ -62,8 +63,14 @@ export default function CreateAwardPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add Award</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Record a new achievement.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 

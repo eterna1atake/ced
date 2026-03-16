@@ -102,7 +102,7 @@ export default function ProgramsListPage() {
                 </div>
                 <AddButton
                     label={t("add")}
-                    href={`/admin/programs/new`}
+                    href={`/ced-portal/programs/new`}
                 />
             </div>
 
@@ -146,7 +146,7 @@ export default function ProgramsListPage() {
                                         </td>
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
-                                                editUrl={`/admin/programs/${item.id}`}
+                                                editUrl={`/ced-portal/programs/${item.id}`}
                                                 onDelete={() => handleDelete(item.id, item.en?.title || item.id)}
                                             />
                                         </td>

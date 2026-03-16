@@ -21,7 +21,7 @@ const NewsSchema = z.object({
         th: z.string().trim().min(1, "Thai title is required"),
         en: z.string().trim().min(1, "English title is required"),
     }),
-    summary: LocalizedStringSchema,
+
     content: LocalizedStringSchema,
     imageSrc: z.string().optional().default(""),
     imageAlt: z.string().optional().default(""),
@@ -64,6 +64,7 @@ export async function GET() {
             .lean();
 
         console.log(`[DEBUG] GET /api/ced-portal/news - Received ${news.length} items.`);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         news.slice(0, 5).forEach((n: any, i: number) => {
             console.log(`[DEBUG] Item ${i}: id=${n._id}, title=${n.title?.en}, isPinned=${n.isPinned}`);
         });
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest) {
             ...data,
             slug: sanitizeStrict(data.slug),
             title: { th: sanitizeStrict(data.title.th), en: sanitizeStrict(data.title.en) },
-            summary: { th: sanitizeStrict(data.summary.th), en: sanitizeStrict(data.summary.en) },
+
             // Content: Allow Safe HTML tags
             content: {
                 th: sanitizeContent(data.content.th),

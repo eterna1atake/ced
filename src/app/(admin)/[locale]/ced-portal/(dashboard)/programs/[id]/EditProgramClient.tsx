@@ -20,6 +20,7 @@ export default function EditProgramClient({
 }) {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
+    const t = useTranslations("Admin.pages.programs");
     const [isLoading, setIsLoading] = useState(false);
     const [activeTab, setActiveTab] = useState<'general' | 'detail'>('general');
     const [showPreview, setShowPreview] = useState(true);
@@ -116,9 +117,9 @@ export default function EditProgramClient({
                         onClick={() => router.back()}
                         className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
                     >
-                        ← Back to Programs
+                        ← {t("backToList")}
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Edit Program: {initialData.en.title}</h1>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("editTitle")}: {initialData.en.title}</h1>
                 </div>
             </div>
 

@@ -12,6 +12,7 @@ export default function CreateNewsPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = useTranslations("Admin.pages.news");
     const tForm = useTranslations("Admin.forms.news");
 
     const handleCreate = async (data: NewsSeedItem) => {
@@ -57,11 +58,15 @@ export default function CreateNewsPage() {
                 showConfirmButton: false
             });
 
-            router.push("/admin/news");
+            router.push("/ced-portal/news");
         } catch (error: unknown) {
-            console.error("Create error:", error);
-            const msg = (error as any).message || "Unknown error occurred";
-            Swal.fire(tAlert("error"), msg, "error");
+            console.error(error);
+            const msg = error instanceof Error ? error.message : "Unknown error occurred";
+            Swal.fire({
+                icon: "error",
+                title: tAlert("error"),
+                text: msg,
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -75,10 +80,10 @@ export default function CreateNewsPage() {
                         onClick={() => router.back()}
                         className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
                     >
-                        ← Back to List
+                        ← {t("backToList")}
                     </button>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Create News</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Draft a new article or event.</p>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 

@@ -47,7 +47,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 throw new Error(data.error);
             }
         } catch {
-            Swal.fire(tAlert("error"), "Failed to start setup", "error");
+            Swal.fire(tAlert("error"), tAlert("twoFactorSetupFailed"), "error");
         } finally {
             setLoading(false);
         }
@@ -85,10 +85,10 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                     showConfirmButton: false
                 });
             } else {
-                Swal.fire(tAlert("error"), data.error || "Verification failed", "error");
+                Swal.fire(tAlert("error"), data.error || tAlert("twoFactorVerifyFailed"), "error");
             }
         } catch {
-            Swal.fire(tAlert("error"), "Verification failed", "error");
+            Swal.fire(tAlert("error"), tAlert("twoFactorVerifyFailed"), "error");
         } finally {
             setLoading(false);
         }
@@ -97,13 +97,14 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
     // Step 3: Disable 2FA
     const handleDisable = async () => {
         const result = await Swal.fire({
-            title: tAlert("deleteConfirmTitle"),
-            text: "Disabling 2FA will make your account less secure.",
+        title: tAlert("deleteConfirmTitle"),
+            text: tAlert("twoFactorDisableConfirmText"),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#EF4444',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Yes, disable it!'
+            confirmButtonText: tAlert("twoFactorDisableConfirmButton"),
+            cancelButtonText: tAlert("cancelButton")
         });
 
         if (result.isConfirmed) {
@@ -129,12 +130,12 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                     setQrCode("");
                     setOtp("");
                     setBackupCodes([]);
-                    Swal.fire('Disabled!', 'Two-Factor Authentication has been disabled.', 'success');
+                    Swal.fire(tAlert("twoFactorDisabledTitle"), tAlert("twoFactorDisabled"), 'success');
                 } else {
                     throw new Error(data.error);
                 }
             } catch {
-                Swal.fire(tAlert("error"), "Failed to disable 2FA", "error");
+                Swal.fire(tAlert("error"), tAlert("twoFactorDisableFailed"), "error");
             } finally {
                 setLoading(false);
             }
@@ -233,7 +234,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                                 <div className="w-48 h-48 bg-slate-200 animate-pulse rounded"></div>
                             )}
                             <div className="mt-4 text-center">
-                                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">Or enter manual code</p>
+                                <p className="text-xs text-slate-500 uppercase tracking-wide mb-1">{tAlert("orEnterManualCode")}</p>
                                 <div className="flex items-center gap-2 bg-white dark:bg-slate-800 border px-3 py-1 rounded">
                                     <code className="text-sm font-mono text-slate-700 dark:text-slate-300 font-bold tracking-widest">
                                         {secret}
@@ -273,7 +274,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                         <div className="text-center py-6">
                             <FontAwesomeIcon icon={faCheckCircle} className="text-green-500 text-5xl mb-3" />
                             <h3 className="text-2xl font-bold">{t("success")}</h3>
-                            <p className="text-slate-500 mt-2">Your account is now protected.</p>
+                            <p className="text-slate-500 mt-2">{tAlert("accountProtected")}</p>
                         </div>
 
                         <div className="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-400 p-4 rounded-r-lg">

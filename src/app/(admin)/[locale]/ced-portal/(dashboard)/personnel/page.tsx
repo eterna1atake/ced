@@ -126,7 +126,7 @@ export default function PersonnelListPage() {
                     <p className="text-slate-500 dark:text-slate-400">{t("description")}</p>
                 </div>
                 <AddButton
-                    href="/admin/personnel/create"
+                    href="/ced-portal/personnel/create"
                     label={t("add")}
                 />
             </div>
@@ -171,7 +171,7 @@ export default function PersonnelListPage() {
                                         </td>
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
-                                                editUrl={`/admin/personnel/${person._id}`}
+                                                editUrl={`/ced-portal/personnel/${person._id}`}
                                                 onDelete={() => handleDelete(person._id!)}
                                             />
                                         </td>

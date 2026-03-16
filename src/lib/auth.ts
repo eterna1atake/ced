@@ -1,5 +1,5 @@
 // src/lib/auth.ts
-import NextAuth, { CredentialsSignin } from "next-auth"; // [Updated]
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import clientPromise from "@/lib/mongodb";
@@ -158,11 +158,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 password: { label: "Password", type: "password" },
             },
             async authorize(raw) {
-                const isDev = process.env.NODE_ENV === "development";
                 const { decrypt } = await import("@/lib/crypto");
 
                 // --- 1. Password Decryption ---
-                let rawPassword = (raw as any).password;
+                let rawPassword = (raw as Record<string, unknown>).password;
                 try {
                     if (typeof rawPassword === "string" && rawPassword.split(".").length === 5) {
                         rawPassword = await decrypt(rawPassword);
@@ -178,9 +177,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const { username, password } = parsed.data;
 
                 // --- 2. Captcha Verification ---
-                const codeProvided = (raw as any).code as string | undefined;
+                const codeProvided = (raw as Record<string, unknown>).code as string | undefined;
                 const isTwoFactorStep = codeProvided && codeProvided !== "undefined" && codeProvided !== "";
-                const captchaToken = (raw as any).captchaToken as string | undefined;
+                const captchaToken = (raw as Record<string, unknown>).captchaToken as string | undefined;
 
                 if (!isTwoFactorStep && (process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)) {
                     const { verifyCaptcha } = await import("@/lib/captcha");
@@ -193,7 +192,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const ip = await getClientIp();
                 let userAgent: string | undefined;
                 try {
-                    const headersList = await (headers() as any);
+                    const headersList = await (headers() as unknown as Headers);
                     userAgent = headersList.get("user-agent") || undefined;
                 } catch { /* ignore */ }
 
@@ -203,7 +202,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         const blockedSeconds = Math.ceil(msBeforeNext / 1000);
                         throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
                     }
-                } catch (err: any) {
+                } catch (err: unknown) {
                     if (err instanceof RateLimitError) throw err;
                 }
 
@@ -240,8 +239,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 if (!user || !isValidPassword) {
                     if (user) {
                         const currentAttempts = (user.failedLoginAttempts || 0) + 1;
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        let updateFields: any = { failedLoginAttempts: currentAttempts };
+                        const updateFields: Record<string, unknown> = { failedLoginAttempts: currentAttempts };
                         if (currentAttempts >= 5) {
                             updateFields.lockoutUntil = new Date(Date.now() + 30 * 60 * 1000);
                             updateFields.failedLoginAttempts = 0;
@@ -297,13 +295,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
 
                 // --- 9. 2FA ---
-                let otpCode = (raw as any).code as string | undefined;
+                let otpCode = (raw as Record<string, unknown>).code as string | undefined;
                 if (otpCode === "undefined" || otpCode === "null" || otpCode === "") otpCode = undefined;
 
                 if (!isTrustedDevice && user.totpEnabled) {
                     if (!otpCode) throw new TwoFactorRequiredError("TOTP");
                     const isBackupCode = user.backupCodes?.includes(otpCode);
                     if (isBackupCode) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         await db.collection("users").updateOne({ _id: user._id }, { $pull: { backupCodes: otpCode } as any });
                     } else {
                         const { verifyTotp } = await import("@/lib/totp");
@@ -316,7 +315,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
 
                 // --- 10. Device Trusting ---
-                const shouldTrust = (raw as any).trustDevice === "true";
+                const shouldTrust = (raw as Record<string, unknown>).trustDevice === "true";
                 if (shouldTrust) {
                     const crypto = await import("crypto");
                     const tokenId = crypto.randomUUID();
@@ -354,7 +353,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     name: user.name ?? "Superuser",
                     role: user.role,
                     personnelId: user.personnelId ? String(user.personnelId) : null,
-                } as any;
+                } as unknown as { id: string; email: string | undefined; username: string | undefined; name: string; role: Role; personnelId: string | null; };
             },
         }),
     ],

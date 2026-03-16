@@ -95,10 +95,11 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
 
     // --- Helper Functions ---
 
-    const handleChange = useCallback((path: string[], value: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const handleChange = useCallback((path: string[], value: unknown) => {
         setFormData((prev) => {
             // Helper to recursively clone and update
-            const updateRecursive = (current: any, pathIdx: number): any => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const updateRecursive = (current: any, pathIdx: number): any => {
                 if (pathIdx === path.length) {
                     return value;
                 }
@@ -128,7 +129,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
 
             return updateRecursive(prev, 0);
         });
-    }, []);
+    }, [setFormData]);
 
     const { translate, isTranslating } = useAutoTranslate();
 
@@ -144,7 +145,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
             });
             return prev;
         });
-    }, [translate, handleChange]);
+    }, [translate, handleChange, setFormData]);
 
     const isPathTranslating = useCallback((path: string[]) => {
         const key = path.join('.');

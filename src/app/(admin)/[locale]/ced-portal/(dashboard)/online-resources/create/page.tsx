@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import ResourceForm, { IOnlineResourceForm } from "@/components/admin/online-resources/ResourceForm";
 import Swal from "sweetalert2";
 
 export default function CreateResourcePage() {
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
+    const t = useTranslations("Admin.pages.onlineResources");
 
     const handleCreate = async (data: IOnlineResourceForm) => {
         setIsLoading(true);
@@ -45,7 +47,7 @@ export default function CreateResourcePage() {
                 confirmButtonColor: "#35622F",
             });
 
-            router.push("/admin/online-resources");
+            router.push("/ced-portal/online-resources");
             router.refresh();
         } catch (error: unknown) {
             console.error("Creation error:", error);
@@ -64,8 +66,14 @@ export default function CreateResourcePage() {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add New Resource</h1>
-                <p className="text-slate-500 dark:text-slate-400">Configure a new external tool or learning link.</p>
+                <button
+                    onClick={() => router.back()}
+                    className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                >
+                    ← {t("backToList")}
+                </button>
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
             </div>
 
             <ResourceForm onSubmit={handleCreate} isLoading={isLoading} />

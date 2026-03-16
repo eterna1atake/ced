@@ -10,10 +10,11 @@ import { useTranslations } from "next-intl";
 export default function CreatePersonnelPage() {
     const tAlert = useTranslations("Admin.alerts");
     const router = useRouter();
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const t = useTranslations("Admin.pages.personnel");
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleCreate = async (data: Personnel) => {
-        setIsSubmitting(true);
+        setIsLoading(true);
         try {
             // Remove the client-side generated ID
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -47,7 +48,7 @@ export default function CreatePersonnelPage() {
                 showConfirmButton: false
             });
 
-            router.push("/admin/personnel");
+            router.push("/ced-portal/personnel");
             router.refresh();
         } catch (error: unknown) {
             console.error("Create error:", error);
@@ -55,7 +56,7 @@ export default function CreatePersonnelPage() {
             const msg = (error as any).message || "Unknown error occurred";
             Swal.fire(tAlert("error"), msg, "error");
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
 
@@ -63,12 +64,18 @@ export default function CreatePersonnelPage() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Add Personnel</h1>
-                    <p className="text-slate-500 dark:text-slate-400">Create a new faculty or staff profile.</p>
+                    <button
+                        onClick={() => router.back()}
+                        className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 mb-2 flex items-center gap-1"
+                    >
+                        ← {t("backToList")}
+                    </button>
+                    <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{t("createTitle")}</h1>
+                    <p className="text-slate-500 dark:text-slate-400">{t("createSubtitle")}</p>
                 </div>
             </div>
 
-            <PersonnelForm onSubmit={handleCreate} isLoading={isSubmitting} />
+            <PersonnelForm onSubmit={handleCreate} isLoading={isLoading} />
         </div>
     );
 }

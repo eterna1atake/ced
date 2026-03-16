@@ -10,7 +10,7 @@ import NotificationSettingsForm from "@/components/admin/profile/NotificationSet
 export default async function ProfilePage() {
     const session = await auth();
     // Use username (alias) as primary identifier — email is optional
-    const sessionUsername = (session?.user as any)?.username;
+    const sessionUsername = (session?.user as { role: string; name: string; username: string })?.username;
     if (!session || !sessionUsername) {
         redirect("/ced-portal/login");
     }
@@ -51,7 +51,7 @@ export default async function ProfilePage() {
                         <div className="text-base text-slate-900 dark:text-slate-100 font-medium">
                             {user.email || (
                                 <span className="text-slate-400 italic text-sm">
-                                    ยังไม่ได้ตั้งค่า – ตั้งค่าได้ที่หน้า Settings เพื่อรับแจ้งเตือน Login
+                                    {t("emailNotSet")}
                                 </span>
                             )}
                         </div>
@@ -65,7 +65,7 @@ export default async function ProfilePage() {
                     <div>
                         <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("status")}</label>
                         <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.isActive !== false ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300" : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"}`}>
-                            {user.isActive !== false ? "Active" : "Inactive"}
+                            {user.isActive !== false ? t("statusActive") : t("statusInactive")}
                         </div>
                     </div>
                 </div>

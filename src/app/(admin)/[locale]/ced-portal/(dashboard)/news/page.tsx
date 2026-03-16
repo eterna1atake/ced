@@ -49,13 +49,14 @@ export default function NewsListPage() {
             if (!res.ok) throw new Error("Failed to fetch news");
             const data = await res.json();
             console.log(`[DEBUG] NewsListPage - Raw API data:`, data.slice(0, 5));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const mappedData = data.map((item: any) => ({
                 ...item,
                 id: item._id || item.id,
                 isPinned: !!item.isPinned, // Ensure boolean
             }));
-            console.log(`[DEBUG] NewsListPage - Mapped items (pinned):`, mappedData.filter((n: any) => n.isPinned));
-            setNews(sortAndSeparate(mappedData, sortOrder));
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setNews(sortAndSeparate(mappedData as any, sortOrder));
         } catch (error) {
             console.error("Error fetching news:", error);
             Swal.fire(tAlert("error"), "Failed to load news items", "error");
@@ -240,7 +241,7 @@ export default function NewsListPage() {
                         📌 {pinnedCount}/{MAX_PINNED}
                     </span>
                     <AddButton
-                        href="/admin/news/create"
+                        href="/ced-portal/news/create"
                         label={t("add")}
                     />
                 </div>
@@ -325,7 +326,7 @@ export default function NewsListPage() {
                                                 )}
                                                 <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.en}</div>
                                             </div>
-                                            <div className="text-xs text-slate-400 line-clamp-1">{item.summary.en}</div>
+                                            <div className="text-xs text-slate-400 line-clamp-1">{item.content.en}</div>
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                             <span className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
@@ -363,7 +364,7 @@ export default function NewsListPage() {
                                                     <span>{item.status === 'archived' ? "Unarchive" : "Archive"}</span>
                                                 </button>
                                                 <ActionButtons
-                                                    editUrl={`/admin/news/${item.id}`}
+                                                    editUrl={`/ced-portal/news/${item.id}`}
                                                     onDelete={() => handleDelete(item.id)}
                                                 />
                                             </div>

@@ -4,7 +4,6 @@ export type INewsItem = {
     _id?: string;
     slug: string;
     title: { th: string; en: string };
-    summary: { th: string; en: string };
     content: { th: string; en: string };
     imageSrc: string;
     imageAlt?: string;
@@ -32,10 +31,6 @@ const NewsSchema = new Schema<INewsItem>(
         title: {
             th: { type: String, required: [true, 'Thai title is required'], trim: true },
             en: { type: String, required: [true, 'English title is required'], trim: true },
-        },
-        summary: {
-            th: { type: String, default: "" },
-            en: { type: String, default: "" },
         },
         content: {
             th: { type: String, default: "" },

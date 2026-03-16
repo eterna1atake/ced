@@ -47,15 +47,14 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         });
     };
 
-    const handleClearError = (name: string) => {
-        if (errors[name]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[name];
-                return newErrors;
-            });
-        }
-    };
+    const handleClearError = useCallback((name: string) => {
+        setErrors(prev => {
+            if (!prev[name]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+        });
+    }, []);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -63,7 +62,7 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         setFormData((prev) => ({ ...prev, [name]: value }));
 
         handleClearError(name);
-    }, [errors]);
+    }, [setIsDirty, handleClearError]);
 
     const handleTitleChange = useCallback((lang: 'th' | 'en', value: string) => {
         setIsDirty(true);
@@ -77,7 +76,7 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
 
         const errorKey = lang === 'th' ? 'titleTh' : 'titleEn';
         handleClearError(errorKey);
-    }, [errors]);
+    }, [setIsDirty, handleClearError]);
 
     const validate = () => {
         const newErrors: Record<string, string> = {};
@@ -128,7 +127,7 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         setIsDirty(true);
         setFormData(prev => ({ ...prev, icon: url }));
         handleClearError("icon");
-    }, [errors.icon, setIsDirty]);
+    }, [setIsDirty, handleClearError]);
 
     return (
         <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">

@@ -18,6 +18,7 @@ export interface FormFieldProps {
     type?: string;
     error?: string;
     hint?: React.ReactNode;
+    labelAction?: React.ReactNode;
     suffix?: React.ReactNode;
     inputMode?: "search" | "text" | "none" | "tel" | "url" | "email" | "numeric" | "decimal" | undefined;
     pattern?: string;
@@ -34,12 +35,15 @@ export interface FormTextareaProps extends FormFieldProps {
 // --- Components ---
 
 export const FormInput = memo(({
-    label, name, value, onChange, onBlur, onFocus, required, placeholder, className = "", disabled, type = "text", error, hint, inputMode, pattern, ...props
+    label, name, value, onChange, onBlur, onFocus, required, placeholder, className = "", disabled, type = "text", error, hint, labelAction, inputMode, pattern, ...props
 }: FormFieldProps) => (
     <div className={className}>
-        <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            {label} {required && <span className="text-red-500">*</span>}
-        </label>
+        <div className="flex justify-between items-center mb-1">
+            <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            {labelAction}
+        </div>
         <div className="relative">
             <input
                 id={name}
@@ -74,12 +78,15 @@ export const FormInput = memo(({
 FormInput.displayName = "FormInput";
 
 export const FormTextarea = memo(({
-    label, name, value, onChange, onFocus, rows = 4, placeholder, className = "", disabled, required, error, hint
+    label, name, value, onChange, onFocus, rows = 4, placeholder, className = "", disabled, required, error, hint, labelAction
 }: FormTextareaProps) => (
     <div className={className}>
-        <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            {label} {required && <span className="text-red-500">*</span>}
-        </label>
+        <div className="flex justify-between items-center mb-1">
+            <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            {labelAction}
+        </div>
         <textarea
             id={name}
             name={name}
@@ -103,12 +110,15 @@ export const FormTextarea = memo(({
 FormTextarea.displayName = "FormTextarea";
 
 export const FormSelect = memo(({
-    label, name, value, onChange, onFocus, options, required, className = "", disabled, error, hint
+    label, name, value, onChange, onFocus, options, required, className = "", disabled, error, hint, labelAction
 }: FormSelectProps) => (
     <div className={className}>
-        <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            {label} {required && <span className="text-red-500">*</span>}
-        </label>
+        <div className="flex justify-between items-center mb-1">
+            <label htmlFor={name} className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                {label} {required && <span className="text-red-500">*</span>}
+            </label>
+            {labelAction}
+        </div>
         <select
             id={name}
             name={name}

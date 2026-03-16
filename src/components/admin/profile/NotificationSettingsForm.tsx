@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell, faCheck, faSpinner } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
+import { useTranslations } from "next-intl";
 
 interface NotificationSettingsFormProps {
     initialEmail?: string;
@@ -14,13 +15,19 @@ export default function NotificationSettingsForm({
     initialEmail = "",
     initialEnabled = false,
 }: NotificationSettingsFormProps) {
+    const t = useTranslations("Admin.profile.notifications");
     const [email, setEmail] = useState(initialEmail);
     const [enabled, setEnabled] = useState(initialEnabled);
     const [loading, setLoading] = useState(false);
 
     const handleSave = async () => {
         if (enabled && !email) {
-            Swal.fire({ icon: "warning", title: "กรุณาระบุอีเมล", text: "ต้องมีอีเมลก่อนจึงจะเปิดการแจ้งเตือนได้", confirmButtonColor: "#35622F" });
+            Swal.fire({
+                icon: "warning",
+                title: t("emailRequired"),
+                text: t("emailRequiredText"),
+                confirmButtonColor: "#35622F"
+            });
             return;
         }
 
@@ -39,12 +46,25 @@ export default function NotificationSettingsForm({
             const data = await res.json();
 
             if (!res.ok) {
-                throw new Error(data.error || "เกิดข้อผิดพลาด");
+                throw new Error(data.error || t("saveError"));
             }
 
-            Swal.fire({ icon: "success", title: "บันทึกสำเร็จ", text: data.message, confirmButtonColor: "#35622F", timer: 2000, showConfirmButton: false });
-        } catch (err: any) {
-            Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: err.message, confirmButtonColor: "#EF4444" });
+            Swal.fire({
+                icon: "success",
+                title: t("saveSuccess"),
+                text: data.message,
+                confirmButtonColor: "#35622F",
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            Swal.fire({
+                icon: "error",
+                title: t("saveError"),
+                text: msg,
+                confirmButtonColor: "#EF4444"
+            });
         } finally {
             setLoading(false);
         }
@@ -55,18 +75,18 @@ export default function NotificationSettingsForm({
             <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 flex items-center gap-2">
                 <FontAwesomeIcon icon={faBell} className="text-primary-main" />
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                    Security &amp; Notifications
+                    {t("sectionTitle")}
                 </h3>
             </div>
             <div className="p-6 space-y-5">
                 <p className="text-sm text-slate-500 dark:text-slate-400">
-                    เมื่อมีการ Login เข้าสู่ระบบ ระบบจะส่งอีเมลแจ้งเตือนไปยังที่อยู่ด้านล่าง
+                    {t("description")}
                 </p>
 
                 {/* Email Input */}
                 <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                        อีเมลรับแจ้งเตือน Login
+                        {t("emailLabel")}
                     </label>
                     <input
                         type="email"
@@ -91,10 +111,10 @@ export default function NotificationSettingsForm({
                     </label>
                     <div className="flex flex-col">
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            เปิดการแจ้งเตือนทางอีเมล (Login Notification)
+                            {t("toggleLabel")}
                         </span>
                         <span className={`text-[10px] font-bold uppercase tracking-wider ${enabled ? "text-green-600" : "text-slate-400"}`}>
-                            Status: {enabled ? "เปิดอยู่ (ON)" : "ปิดอยู่ (OFF)"}
+                            {enabled ? t("statusOn") : t("statusOff")}
                         </span>
                     </div>
                 </div>
@@ -107,8 +127,8 @@ export default function NotificationSettingsForm({
                         className="flex items-center gap-2 px-5 py-2 bg-primary-main text-white rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-60 text-sm font-medium"
                     >
                         {loading
-                            ? <><FontAwesomeIcon icon={faSpinner} className="animate-spin" /> กำลังบันทึก...</>
-                            : <><FontAwesomeIcon icon={faCheck} /> บันทึกการตั้งค่า</>
+                            ? <><FontAwesomeIcon icon={faSpinner} className="animate-spin" /> {t("saving")}</>
+                            : <><FontAwesomeIcon icon={faCheck} /> {t("saveButton")}</>
                         }
                     </button>
                 </div>

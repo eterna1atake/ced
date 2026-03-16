@@ -4,7 +4,6 @@ import News from "@/collections/News";
 import { auth } from "@/lib/auth";
 import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
-import mongoose from "mongoose";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
