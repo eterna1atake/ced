@@ -5,8 +5,10 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     const session = await auth();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sessionUsername = (session?.user as any)?.username;
 
-    if (!session || !session.user) {
+    if (!session || !sessionUsername) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -20,7 +22,7 @@ export async function POST(req: Request) {
     const db = client.db(process.env.MONGODB_DB_NAME);
 
     // 1. Get Pending Secret
-    const user = await db.collection("users").findOne({ email: session.user.email });
+    const user = await db.collection("users").findOne({ username: sessionUsername });
 
     if (!user || !user.totpSecretPending) {
         return NextResponse.json({ error: "Setup not initiated" }, { status: 400 });
@@ -37,7 +39,7 @@ export async function POST(req: Request) {
     const backupCodes = generateBackupCodes();
 
     await db.collection("users").updateOne(
-        { email: session.user.email },
+        { username: sessionUsername },
         {
             $set: {
                 totpEnabled: true,

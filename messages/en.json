@@ -129,6 +129,7 @@
     "title": "News & Events",
     "description": "Browse the latest updates from the Department of Computer Education.",
     "readMore": "READ MORE",
+    "pin": "Pin News",
     "noNews": "No news items are available right now.",
     "loading": "Loading news...",
     "fetchError": "Unable to load news at the moment. Please try again later.",
@@ -564,17 +565,101 @@
       "logout": "Logout",
       "superAdmin": "Super Admin",
       "adminUser": "Admin User",
+      "dashboard": "Dashboard",
       "settings": "Settings",
       "notifications": "Notifications",
       "profile": "Profile"
     },
+    "breadcrumbs": {
+      "dashboard": "Dashboard",
+      "hero": "Hero Carousel",
+      "news": "News & Events",
+      "awards": "Awards",
+      "training": "Training",
+      "personnel": "Personnel",
+      "programs": "Programs",
+      "facilities": "Facilities",
+      "onlineResources": "Online Resources",
+      "services": "Student Services",
+      "forms": "Form Requests",
+      "loginHistory": "Login History",
+      "settings": "Settings",
+      "profile": "My Profile",
+      "create": "Create",
+      "edit": "Edit",
+      "createItem": "Create {item}",
+      "editItem": "Edit {item}",
+      "createGeneral": "Create Item",
+      "editGeneral": "Edit Item"
+    },
     "profile": {
       "title": "Admin Profile",
       "personalInfo": "Personal Information",
-      "name": "Name",
-      "email": "Email",
+      "name": "Full Name",
+      "username": "Username (Admin Alias)",
+      "email": "Primary Email (Account Identity)",
       "role": "Role",
-      "status": "Status"
+      "status": "Status",
+      "statusActive": "Active",
+      "statusInactive": "Inactive",
+      "emailNotSet": "Not configured – configure in Settings to receive login notifications",
+      "twoFactor": {
+        "title": "Two-Factor Authentication (2FA)",
+        "enabled": "Enabled",
+        "disabled": "Not Enabled",
+        "description": "Your account is secured with Google Authenticator. You will need to enter a code from your authenticator app when logging in.",
+        "setupDescription": "Secure your account by using Google Authenticator or Authy to generate OTP codes.",
+        "enable": "Enable 2FA",
+        "disable": "Disable 2FA",
+        "step1": "Step 1: Scan QR Code",
+        "step1Desc": "Open your authenticator app and scan this QR code.",
+        "step2": "Step 2: Enter Verification Code",
+        "verify": "Verify",
+        "success": "2FA Enabled Successfully!",
+        "backupCodesTitle": "IMPORTANT: Save Backup Codes",
+        "backupCodesDesc": "If you lose your device, these codes are the ONLY way to access your account. Please keep them in a safe place.",
+        "copyAll": "Copy All Codes",
+        "processing": "Processing...",
+        "viewBackup": "View Backup Codes"
+      },
+      "notifications": {
+        "sectionTitle": "Security & Notifications",
+        "description": "If someone logs into your account, the system will send a notification email to the address below.",
+        "emailLabel": "Login Notification Email",
+        "toggleLabel": "Enable Email Notifications (Login Notification)",
+        "statusOn": "Status: ON",
+        "statusOff": "Status: OFF",
+        "saveButton": "Save Settings",
+        "saving": "Saving...",
+        "emailRequired": "Email Required",
+        "emailRequiredText": "Please enter an email address before enabling notifications.",
+        "saveSuccess": "Saved!",
+        "saveError": "An error occurred"
+      }
+    },
+    "login": {
+      "title": "Administrator Login",
+      "subtitle": "CED Website Administration",
+      "aliasLabel": "Username (Admin Alias)",
+      "passwordLabel": "Password",
+      "rememberMe": "Remember Me",
+      "forgotPassword": "Forgot Password",
+      "submit": "Sign In",
+      "loggingIn": "Signing In...",
+      "otpTitle": "Two-Factor Auth (2FA)",
+      "otpSubtitle": "Enter 6-digit code from Authenticator App",
+      "backupTitle": "Verify with Backup Code",
+      "backupSubtitle": "Enter 8-digit Backup Code",
+      "otpPlaceholder": "000000",
+      "backupPlaceholder": "XXXXXXXX",
+      "back": "Go Back",
+      "useBackup": "Use Backup Code",
+      "useOtp": "Use Authenticator App",
+      "verifyOtp": "Verify OTP",
+      "verifying": "Verifying...",
+      "refCode": "Ref Code",
+      "openApp": "Open Authenticator App to see code",
+      "enterBackup": "Enter your backup code"
     },
     "pages": {
       "dashboard": {
@@ -616,47 +701,91 @@
       "awards": {
         "title": "Awards",
         "description": "Manage student and faculty achievements.",
-        "add": "Add Award"
+        "add": "Add Award",
+        "createTitle": "Record Achievement",
+        "createSubtitle": "Add a new student or faculty achievement.",
+        "editTitle": "Edit Achievement",
+        "editSubtitle": "Update award or achievement details.",
+        "backToList": "Back to List"
       },
       "news": {
         "title": "News & Events",
         "description": "Manage all news articles and events.",
-        "add": "Create New"
+        "add": "Create New",
+        "createTitle": "Create News",
+        "createSubtitle": "Draft a new article or event for the website.",
+        "editTitle": "Edit News",
+        "editSubtitle": "Update existing article or event information.",
+        "backToList": "Back to List",
+        "pin": "Pin News",
+        "unpin": "Unpin News",
+        "pinned": "News pinned successfully",
+        "unpinned": "News unpinned successfully",
+        "pinLimitTitle": "Pin Limit Reached",
+        "pinLimitText": "You can pin up to {max} news items. Please unpin another item first."
       },
       "personnel": {
         "title": "Personnel",
         "description": "Manage faculty and staff profiles.",
-        "add": "Add Person"
+        "add": "Add Person",
+        "createTitle": "Add Personnel",
+        "createSubtitle": "Create a new faculty or staff profile.",
+        "editTitle": "Edit Personnel",
+        "editSubtitle": "Update personnel information and profile photo."
       },
       "forms": {
         "title": "Form Requests",
         "description": "Manage download files and document links.",
-        "add": "Add File"
+        "add": "Add File",
+        "createTitle": "Add Form Request",
+        "createSubtitle": "Upload a new document or add a download link.",
+        "editTitle": "Edit Form Request",
+        "editSubtitle": "Update form details or replace file."
       },
       "hero": {
         "title": "Hero Carousel",
         "description": "Manage images displayed on the homepage slider.",
-        "add": "Add Image"
+        "add": "Add Image",
+        "createTitle": "Add Carousel Slide",
+        "createSubtitle": "Add a new image and call-to-action to the homepage slider.",
+        "editTitle": "Edit Carousel Slide",
+        "editSubtitle": "Update slide image, text, or display order."
       },
       "onlineResources": {
         "title": "Online Resources",
         "description": "Manage external links and tools securely.",
-        "add": "Add Resource"
+        "add": "Add Resource",
+        "createTitle": "Add Resource",
+        "createSubtitle": "Add a new external tool, system, or learning link.",
+        "editTitle": "Edit Resource",
+        "editSubtitle": "Update resource information and visual style."
       },
       "programs": {
         "title": "Academic Programs",
         "description": "View information for Bachelor, Master, and PhD programs.",
-        "add": "Add Program"
+        "add": "Add Program",
+        "createTitle": "Add Program",
+        "createSubtitle": "Add a new academic program or degree details.",
+        "editTitle": "Edit Program",
+        "editSubtitle": "Update program curriculum and details."
       },
       "services": {
         "title": "Student Services",
         "description": "Manage service links and icons.",
-        "add": "Add Service"
+        "add": "Add Service",
+        "createTitle": "Add Service",
+        "createSubtitle": "Add a new student service or office link.",
+        "editTitle": "Edit Service",
+        "editSubtitle": "Update service link, name, or description."
       },
       "facilities": {
         "title": "Facilities & Labs",
         "description": "Manage learning spaces and equipment.",
-        "add": "Add Facility"
+        "add": "Add Facility",
+        "createTitle": "Add Facility",
+        "createSubtitle": "Register a new laboratory, classroom, or department facility.",
+        "editTitle": "Edit Facility",
+        "editSubtitle": "Update facility details and equipment list."
       },
       "auditLogs": {
         "title": "Audit Logs & History",
@@ -664,12 +793,36 @@
       },
       "settings": {
         "title": "General Settings",
-        "description": "Manage global website configuration and contact info."
+        "description": "Manage global website configuration and contact info.",
+        "unlockConfirmTitle": "Enable Editing?",
+        "unlockConfirmText": "You are about to unlock this section for editing. Make sure to save your changes when done.",
+        "lockConfirmTitle": "Lock Section?",
+        "lockConfirmText": "Lock this section to prevent accidental changes.",
+        "confirmYes": "Yes, proceed",
+        "confirmCancel": "Cancel"
       },
       "training": {
-        "title": "Training Courses",
-        "description": "Manage training workshops and seminars.",
-        "add": "Add Training"
+        "title": "Training & Events",
+        "description": "Manage Facebook embedded posts for the training section.",
+        "fbEmbedTitle": "Facebook Embed URLs",
+        "post": "Post #{number}",
+        "postHint": "Paste full post URL or iframe src",
+        "previewArea": "Preview area",
+        "fetching": "Loading settings...",
+        "saveChanges": "Save Changes",
+        "saving": "Saving...",
+        "incompleteTitle": "Incomplete Data",
+        "incompleteText": "Please provide all 3 Facebook Embed URLs.",
+        "saveSuccessTitle": "Saved!",
+        "saveSuccessText": "Training embeds saved successfully!",
+        "errorTitle": "Error",
+        "somethingWentWrong": "Something went wrong",
+        "common": {
+          "saveConfirmTitle": "Are you sure?",
+          "saveConfirmText": "Do you want to save these training embeds?",
+          "save": "Save",
+          "cancel": "Cancel"
+        }
       },
       "guide": {
         "title": "Admin System Guide",
@@ -786,8 +939,6 @@
         "authorEn": "Author (English)",
         "authorThPlaceholder": "ชื่อผู้เขียน (ภาษาไทย)",
         "authorEnPlaceholder": "Author Name (English)",
-        "summaryTh": "Summary (Thai)",
-        "summaryEn": "Summary (English)",
         "contentTh": "Content (Thai)",
         "contentEn": "Content (English)",
         "publishNews": "Publish News",
@@ -1139,7 +1290,15 @@
       "loginSuccess": "Signed in successfully",
       "loginFailed": "Invalid credentials",
       "invalidCode": "Invalid Code",
+      "twoFactorDisabledTitle": "Disabled!",
       "twoFactorDisabled": "Two-Factor Authentication has been disabled.",
+      "twoFactorSetupFailed": "Failed to start 2FA setup. Please try again.",
+      "twoFactorVerifyFailed": "Verification failed. Please check the code and try again.",
+      "twoFactorDisableFailed": "Failed to disable 2FA. Please try again.",
+      "twoFactorDisableConfirmText": "Disabling 2FA will make your account less secure.",
+      "twoFactorDisableConfirmButton": "Yes, disable it!",
+      "accountProtected": "Your account is now protected.",
+      "orEnterManualCode": "Or enter manual code",
       "sessionExpiredTitle": "Session Expired",
       "sessionExpiredText": "Your session has expired. Please log in again.",
       "loginAgainButton": "Log In",

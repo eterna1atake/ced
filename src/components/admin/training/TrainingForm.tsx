@@ -8,6 +8,7 @@ import { FormInput } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import FileUpload from "@/components/admin/FileUpload";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // We need a partial type that matches the structure of TrainingSeed but relaxed for the form
 type TrainingSeed = {
@@ -47,6 +48,8 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
         ...initialData,
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'title' | 'summary' | 'category') => {
@@ -56,14 +59,26 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
         });
     };
 
-
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData((prev) => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
     };
 
     const handleFieldChange = (field: 'title' | 'summary' | 'category', lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: {
@@ -71,16 +86,49 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                 [field]: value
             }
         }));
+
+        const errorKey = `${field}${lang.charAt(0).toUpperCase() + lang.slice(1)}`;
+        handleClearError(errorKey);
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.th?.title) newErrors.titleTh = t("common.required");
+        if (!formData.en?.title) newErrors.titleEn = t("common.required");
+        if (!formData.th?.category) newErrors.categoryTh = t("common.required");
+        if (!formData.en?.category) newErrors.categoryEn = t("common.required");
+        if (!formData.slug) newErrors.slug = t("common.required");
+        if (!formData.date) newErrors.date = t("common.required");
+        if (!formData.th?.summary) newErrors.summaryTh = t("common.required");
+        if (!formData.en?.summary) newErrors.summaryEn = t("common.required");
+        if (!formData.imageSrc) newErrors.imageSrc = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            import("sweetalert2").then((Swal) => {
+                Swal.default.fire({
+                    title: t("common.missingInfoTitle"),
+                    text: t("common.missingInfoText"),
+                    icon: "error",
+                    confirmButtonColor: "#f43f5e",
+                });
+            });
+            return;
+        }
+
         const submissionData = {
             ...formData,
             id: formData.id || `training-${Date.now()}`,
             href: formData.href || `/training/${formData.slug}`,
         } as TrainingSeed;
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -101,6 +149,8 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                         onChange={handleChange}
                         required
                         placeholder="training-slug"
+                        error={errors.slug}
+                        onFocus={() => handleClearError("slug")}
                     />
                     <FormInput
                         label={t("training.date")}
@@ -109,6 +159,8 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                         value={formData.date || ""}
                         onChange={handleChange}
                         required
+                        error={errors.date}
+                        onFocus={() => handleClearError("date")}
                     />
                 </div>
 
@@ -123,6 +175,9 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                     }}
                     onTranslate={() => handleTranslate("title")}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
 
                 {/* Category */}
@@ -136,6 +191,9 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                     }}
                     onTranslate={() => handleTranslate("category")}
                     isTranslating={isTranslating.category}
+                    required
+                    error={{ th: errors.categoryTh, en: errors.categoryEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "categoryTh" : "categoryEn")}
                 />
 
                 {/* Summary */}
@@ -151,6 +209,7 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                     }}
                     onTranslate={() => handleTranslate("summary")}
                     isTranslating={isTranslating.summary}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "summaryTh" : "summaryEn")}
                 />
 
                 {/* Image */}
@@ -158,8 +217,15 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                     <FileUpload
                         label={t("training.coverImage")}
                         value={formData.imageSrc}
-                        onChange={(url) => setFormData(prev => ({ ...prev, imageSrc: url }))}
+                        onChange={(url) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, imageSrc: url }));
+                            handleClearError("imageSrc");
+                        }}
+                        onFocus={() => handleClearError("imageSrc")}
                         accept="image/*"
+                        required
+                        error={errors.imageSrc}
                     />
                 </div>
             </div>
@@ -168,6 +234,7 @@ export default function TrainingForm({ initialData, onSubmit, isLoading = false 
                 <SaveButton
                     isLoading={isLoading}
                     label={t("training.saveTraining")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

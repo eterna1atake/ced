@@ -87,7 +87,8 @@ const COLOR_PRESETS = [
 ];
 
 import { useTranslations } from "next-intl";
-
+import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 export default function ResourceForm({ initialData, onSubmit, isLoading = false }: ResourceFormProps) {
     const t = useTranslations("Admin.forms");
@@ -108,6 +109,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
         },
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'title' | 'description') => {
@@ -119,12 +122,26 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
     const [visualType, setVisualType] = useState<"icon" | "image">(initialData?.imagePath ? "image" : "icon");
 
 
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
     };
 
     const handleFieldChange = (field: "title" | "description", lang: "th" | "en", value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: {
@@ -132,21 +149,52 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                 [field]: value
             }
         }));
+
+        const errorKey = field === 'title' ? (lang === 'th' ? "titleTh" : "titleEn") :
+            field === 'description' ? (lang === 'th' ? "descriptionTh" : "descriptionEn") : "";
+        if (errorKey) {
+            handleClearError(errorKey);
+        }
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.th.title) newErrors.titleTh = t("common.required");
+        if (!formData.en.title) newErrors.titleEn = t("common.required");
+        if (!formData.th.description) newErrors.descriptionTh = t("common.required");
+        if (!formData.en.description) newErrors.descriptionEn = t("common.required");
+        if (!formData.key) newErrors.key = t("common.required");
+        if (!formData.link) newErrors.link = t("common.required");
+        if (visualType === "image" && !formData.imagePath) newErrors.imagePath = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
+
         const submissionData = { ...formData };
         if (visualType === "icon") {
             submissionData.imagePath = "";
         } else {
             submissionData.iconName = "image";
         }
+        setIsDirty(false);
         await onSubmit(submissionData);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("resource.details")}</h3>
 
             <div className="space-y-4">
@@ -158,6 +206,9 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     placeholder={{ th: t("resource.titlePlaceholderTh"), en: t("resource.titlePlaceholderEn") }}
                     onTranslate={() => handleTranslate("title")}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
                 <BilingualInput
                     label={t("resource.description")}
@@ -168,6 +219,9 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     placeholder={{ th: t("resource.descriptionPlaceholderTh"), en: t("resource.descriptionPlaceholderEn") }}
                     onTranslate={() => handleTranslate("description")}
                     isTranslating={isTranslating.description}
+                    required
+                    error={{ th: errors.descriptionTh, en: errors.descriptionEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "descriptionTh" : "descriptionEn")}
                 />
             </div>
 
@@ -180,6 +234,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     required
                     placeholder="e.g. microsoft_teams"
                     className="capitalize"
+                    error={errors.key}
+                    onFocus={() => handleClearError("key")}
                 />
 
                 <FormInput
@@ -190,6 +246,8 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     onChange={handleChange}
                     required
                     placeholder="https://teams.microsoft.com"
+                    error={errors.link}
+                    onFocus={() => handleClearError("link")}
                 />
 
                 <FormSelect
@@ -210,14 +268,18 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-1 text-xs font-bold">
                         <button
                             type="button"
-                            onClick={() => setVisualType("icon")}
+                            onClick={() => {
+                                setIsDirty(true);
+                                setVisualType("icon");
+                                setErrors(prev => { const n = { ...prev }; delete n.imagePath; return n; });
+                            }}
                             className={`px-4 py-2 rounded-md transition-all ${visualType === "icon" ? "bg-white dark:bg-slate-700 text-primary-main shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}
                         >
                             {t("resource.typeIcon")}
                         </button>
                         <button
                             type="button"
-                            onClick={() => setVisualType("image")}
+                            onClick={() => { setIsDirty(true); setVisualType("image"); }}
                             className={`px-4 py-2 rounded-md transition-all ${visualType === "image" ? "bg-white dark:bg-slate-700 text-primary-main shadow-sm" : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"}`}
                         >
                             {t("resource.typeImage")}
@@ -231,7 +293,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                             <button
                                 key={item.id}
                                 type="button"
-                                onClick={() => setFormData(prev => ({ ...prev, iconName: item.id }))}
+                                onClick={() => { setIsDirty(true); setFormData(prev => ({ ...prev, iconName: item.id })); }}
                                 className={`flex flex-col items-center justify-center p-2 rounded-lg border transition-all aspect-square ${formData.iconName === item.id
                                     ? "border-primary-main bg-primary-main/5 text-primary-main ring-2 ring-primary-main/20"
                                     : "border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-primary-main/50 text-slate-400 dark:text-slate-500"
@@ -247,9 +309,22 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <FileUpload
                         label={t("resource.uploadLogo")}
                         value={formData.imagePath}
-                        onChange={(url) => setFormData(prev => ({ ...prev, imagePath: url }))}
+                        onChange={(url) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, imagePath: url }));
+                            if (errors.imagePath) {
+                                setErrors(prev => {
+                                    const newErrors = { ...prev };
+                                    delete newErrors.imagePath;
+                                    return newErrors;
+                                });
+                            }
+                        }}
                         accept="image/*"
                         folder="ced_web/resources"
+                        required
+                        error={errors.imagePath}
+                        onFocus={() => handleClearError("imagePath")}
                     />
                 )}
             </div>
@@ -264,7 +339,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                                 <button
                                     key={preset.id}
                                     type="button"
-                                    onClick={() => setFormData(prev => ({ ...prev, colorClass: preset.class }))}
+                                    onClick={() => { setIsDirty(true); setFormData(prev => ({ ...prev, colorClass: preset.class })); }}
                                     className={`
                                         w-8 h-8 rounded-full shadow-sm border-2 transition-all flex items-center justify-center
                                         ${preset.color}
@@ -297,6 +372,7 @@ export default function ResourceForm({ initialData, onSubmit, isLoading = false 
                     <SaveButton
                         isLoading={isLoading}
                         label={initialData?._id ? t("resource.update") : t("resource.create")}
+                        loadingLabel={t("common.saving")}
                     />
                 </div>
             </div>

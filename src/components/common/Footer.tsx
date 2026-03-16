@@ -77,6 +77,7 @@ export default function Footer() {
                             alt="CED Logo"
                             width={180}
                             height={70}
+                            style={{ width: '180px', height: 'auto' }}
                             className="h-auto"
                         />
                         {/* Site Name */}

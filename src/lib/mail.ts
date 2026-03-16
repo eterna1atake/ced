@@ -1,13 +1,20 @@
 import nodemailer from "nodemailer";
 
+// dotenv v17+ may retain surrounding quotes in values — strip them
+const stripQuotes = (val?: string) => val?.replace(/^["']|["']$/g, "");
+
+const SMTP_USER = stripQuotes(process.env.SMTP_USER);
+const SMTP_PASS = stripQuotes(process.env.SMTP_PASS);
+const SMTP_FROM = stripQuotes(process.env.SMTP_FROM);
+
 const getTransporter = () => {
     return nodemailer.createTransport({
         host: process.env.SMTP_HOST || "smtp.gmail.com",
         port: parseInt(process.env.SMTP_PORT || "587"),
         secure: process.env.SMTP_SECURE === "true",
         auth: {
-            user: process.env.SMTP_USER,
-            pass: process.env.SMTP_PASS,
+            user: SMTP_USER,
+            pass: SMTP_PASS,
         },
     });
 };
@@ -15,7 +22,7 @@ const getTransporter = () => {
 export type OTPType = "LOGIN" | "RESET";
 
 export const sendOTPEmail = async (email: string, otp: string, type: OTPType = "RESET") => {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    if (!SMTP_USER || !SMTP_PASS) {
         console.warn("SMTP credentials not set. OTP for " + email + " is: " + otp);
         return; // Dev mode: log OTP to console
     }
@@ -33,7 +40,7 @@ export const sendOTPEmail = async (email: string, otp: string, type: OTPType = "
     }
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || `"Admin System" <${process.env.SMTP_USER}>`,
+        from: SMTP_FROM || `"Admin System" <${SMTP_USER}>`,
         to: email,
         subject: subject,
         html: `
@@ -66,7 +73,7 @@ export const sendLoginNotification = async (
     userAgent: string = "Unknown",
     reason?: string
 ) => {
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASS) return;
+    if (!SMTP_USER || !SMTP_PASS) return;
 
     const transporter = getTransporter();
     const timestamp = new Date().toLocaleString("th-TH", { timeZone: "Asia/Bangkok" });
@@ -94,7 +101,7 @@ export const sendLoginNotification = async (
     }
 
     const mailOptions = {
-        from: process.env.SMTP_FROM || `"Admin System" <${process.env.SMTP_USER}>`,
+        from: SMTP_FROM || `"Admin System" <${SMTP_USER}>`,
         to: email,
         subject: subject,
         html: `

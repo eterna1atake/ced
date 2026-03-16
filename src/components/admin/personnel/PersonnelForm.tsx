@@ -6,6 +6,7 @@ import FileUpload from "@/components/admin/FileUpload";
 import { FormInput, FormSelect } from "@/components/admin/common/FormInputs";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 type PersonnelFormProps = {
     initialData?: Partial<Personnel>;
@@ -42,6 +43,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         ...initialData,
     });
 
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: 'name' | 'position') => {
@@ -82,10 +84,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
-
+    const handleClearError = (name: string) => {
         if (errors[name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -95,7 +94,16 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         }
     };
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setIsDirty(true);
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
+    };
+
     const handleLocalizedChange = (field: 'name' | 'position', lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [field]: {
@@ -105,13 +113,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         }));
 
         const errorKey = field === 'name' ? (lang === 'th' ? 'nameTh' : 'nameEn') : (lang === 'th' ? 'posTh' : 'posEn');
-        if (errors[errorKey]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[errorKey];
-                return newErrors;
-            });
-        }
+        handleClearError(errorKey);
     };
 
     // Calculate initial position type based on current value matching presets
@@ -123,6 +125,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
 
     const handlePositionTypeChange = (e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement | HTMLTextAreaElement>) => {
         const selectedTh = e.target.value;
+        setIsDirty(true);
         setPositionType(selectedTh);
 
         if (selectedTh !== "อื่นๆ") {
@@ -169,6 +172,28 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
             missingFields.push(t("personnel.image"));
         }
 
+        // Validate Education
+        formData.education?.forEach((edu, idx) => {
+            if (!edu.major.th) newErrors[`edu-${idx}-majorTh`] = t("common.required");
+            if (!edu.major.en) newErrors[`edu-${idx}-majorEn`] = t("common.required");
+            if (!edu.university.th) newErrors[`edu-${idx}-uniTh`] = t("common.required");
+            if (!edu.university.en) newErrors[`edu-${idx}-uniEn`] = t("common.required");
+
+            if (!edu.major.th || !edu.major.en || !edu.university.th || !edu.university.en) {
+                missingFields.push(`${t("personnel.education")} #${idx + 1}`);
+            }
+        });
+
+        // Validate Courses
+        formData.courses?.forEach((course, idx) => {
+            if (!course.th) newErrors[`course-${idx}-th`] = t("common.required");
+            if (!course.en) newErrors[`course-${idx}-en`] = t("common.required");
+
+            if (!course.th || !course.en) {
+                missingFields.push(`${t("personnel.courses")} #${idx + 1}`);
+            }
+        });
+
         setErrors(newErrors);
         return missingFields;
     };
@@ -180,12 +205,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
         if (missingFields.length > 0) {
             Swal.fire({
                 title: t("common.missingInfoTitle"),
-                html: `
-                    <p class="mb-2">${t("common.missingInfoText")}</p>
-                    <ul class="text-left text-sm list-disc pl-6 text-slate-600 dark:text-slate-300">
-                        ${missingFields.map(field => `<li>${field}</li>`).join("")}
-                    </ul>
-                `,
+                text: t("common.missingInfoText"),
                 icon: "error",
                 confirmButtonColor: "#f43f5e",
             });
@@ -217,12 +237,13 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 id: formData.id || `person-${Date.now()}`,
             } as Personnel;
 
+            setIsDirty(false);
             onSubmit(submissionData);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4">{t("personnel.details")}</h3>
 
             {/* Section: Basic Info */}
@@ -240,6 +261,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                             name="academicTitle"
                             value={formData.academicTitle?.th || ""}
                             onChange={(e) => {
+                                setIsDirty(true);
                                 const selectedTh = e.target.value;
                                 const match = ACADEMIC_TITLES.find(t => t.th === selectedTh);
                                 setFormData(prev => ({
@@ -264,6 +286,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         placeholder={t("personnel.nameThPlaceholder")}
                         error={errors.nameTh}
+                        onFocus={() => handleClearError("nameTh")}
                         suffix={
                             <button
                                 type="button"
@@ -294,6 +317,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         placeholder={t("personnel.nameEnPlaceholder")}
                         error={errors.nameEn}
+                        onFocus={() => handleClearError("nameEn")}
                     />
 
                     {/* Position Selection */}
@@ -320,6 +344,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                                     required
                                     placeholder={t("personnel.positionThPlaceholder")}
                                     error={errors.posTh}
+                                    onFocus={() => handleClearError("posTh")}
                                     suffix={
                                         <button
                                             type="button"
@@ -348,6 +373,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                                     placeholder={t("personnel.positionEnPlaceholder")}
                                     className="font-sans"
                                     error={errors.posEn}
+                                    onFocus={() => handleClearError("posEn")}
                                 />
                             </div>
                         )}
@@ -361,6 +387,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                         required
                         value={formData.email || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("email")}
                         onBlur={(e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => setFormData(prev => ({ ...prev, email: e.target.value.trim() }))}
                         placeholder="example@kmutnb.ac.th"
                         error={errors.email}
@@ -386,21 +413,17 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 </div>
 
                 <div className="mt-4">
-                    <label className={`block text-sm font-medium mb-2 ${errors.imageSrc ? "text-red-500" : "text-slate-700"}`}>
-                        {t("personnel.image")} {errors.imageSrc && <span className="text-xs font-normal">({errors.imageSrc})</span>}
-                    </label>
                     <FileUpload
+                        label={t("personnel.image")}
+                        required
+                        error={errors.imageSrc}
                         value={formData.imageSrc}
                         onChange={(url) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, imageSrc: url }));
-                            if (errors.imageSrc) {
-                                setErrors(prev => {
-                                    const newErrors = { ...prev };
-                                    delete newErrors.imageSrc;
-                                    return newErrors;
-                                });
-                            }
+                            handleClearError("imageSrc");
                         }}
+                        onFocus={() => handleClearError("imageSrc")}
                         accept="image/*"
                         folder="ced_web/personnel"
                     />
@@ -417,9 +440,15 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 <div className="pl-2">
                     <EducationEditor
                         value={formData.education || []}
-                        onChange={(val) => setFormData(prev => ({ ...prev, education: val }))}
+                        onChange={(val) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, education: val }));
+                        }}
                         onTranslate={handleEduTranslate}
                         translatingField={getTranslatingKey()}
+                        errors={errors}
+                        onClearError={handleClearError}
+                        t={t}
                     />
                 </div>
 
@@ -427,10 +456,16 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 <div className="pl-2 mt-6">
                     <CourseEditor
                         value={formData.courses || []}
-                        onChange={(val) => setFormData(prev => ({ ...prev, courses: val }))}
+                        onChange={(val) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, courses: val }));
+                        }}
                         onTranslate={handleCourseTranslate}
                         translatingField={getTranslatingKey()}
                         isStaff={positionType === "เจ้าหน้าที่" || formData.position?.en === "Staff"}
+                        errors={errors}
+                        onClearError={handleClearError}
+                        t={t}
                     />
                 </div>
             </div>
@@ -477,7 +512,10 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 <div className="pl-2 pt-4 border-t border-slate-100 dark:border-slate-800">
                     <CustomLinkEditor
                         value={formData.customLinks || []}
-                        onChange={(val) => setFormData(prev => ({ ...prev, customLinks: val }))}
+                        onChange={(val) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, customLinks: val }));
+                        }}
                     />
                 </div>
             </div>
@@ -487,6 +525,7 @@ export default function PersonnelForm({ initialData, onSubmit, isLoading = false
                 <SaveButton
                     isLoading={isLoading}
                     label={t("personnel.savePersonnel")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

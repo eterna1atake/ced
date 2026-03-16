@@ -3,14 +3,20 @@ import clientPromise from "@/lib/mongodb";
 import argon2 from "argon2";
 
 //สร้าง Script สำหรับสร้าง Superuser (seed)
+// ระบบนี้ใช้ Google Authenticator สำหรับ 2FA และการกู้คืนรหัสผ่าน
+// ดังนั้น email เป็น optional (สำหรับแจ้งเตือนเท่านั้น ตั้งค่าภายหลังได้ในระบบ)
 async function main() {
     //รับคำสั่งผ่าน cmd
-    const email = process.argv[2];
+    const usernameArg = process.argv[2];
     const password = process.argv[3];
+    const email = process.argv[4]; // optional
 
     //ตรวจสอบ input
-    if (!email || !password) {
-        console.log("Please provide email and password");
+    if (!usernameArg || !password) {
+        console.log("Usage: npx tsx src/scripts/seed-superuser.ts <username> <password> [email]");
+        console.log("  username  - Admin Alias ที่ใช้ Login (required)");
+        console.log("  password  - รหัสผ่าน (required)");
+        console.log("  email     - อีเมลสำหรับแจ้งเตือน Login (optional)");
         process.exit(1);
     }
 
@@ -20,14 +26,23 @@ async function main() {
 
     const users = db.collection("users");
 
-    //แปลงอีเมลที่ได้รับให้เป็นตัวพิมพ์เล็กทั้งหมดและลบช่องว่างหัวท้าย
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedUsername = usernameArg.toLowerCase().trim();
+    const normalizedEmail = email ? email.toLowerCase().trim() : null;
 
-    //ตรวจสอบผู้ใช้เดิม
-    const existing = await users.findOne({ email: normalizedEmail });
-    if (existing) {
-        console.log("User already exists");
+    //ตรวจสอบ username ซ้ำ
+    const existingByUsername = await users.findOne({ username: normalizedUsername });
+    if (existingByUsername) {
+        console.log(`Username '${normalizedUsername}' already exists`);
         process.exit(1);
+    }
+
+    // ตรวจสอบ email ซ้ำ (เฉพาะถ้ามีการระบุมา)
+    if (normalizedEmail) {
+        const existingByEmail = await users.findOne({ email: normalizedEmail });
+        if (existingByEmail) {
+            console.log(`Email '${normalizedEmail}' already exists`);
+            process.exit(1);
+        }
     }
 
     //เข้ารหัส password แบบ hash
@@ -37,8 +52,8 @@ async function main() {
 
     //เตรียมข้อมูลและบันทึก
     const now = new Date();
-    const result = await users.insertOne({
-        email: normalizedEmail,
+    const insertData: Record<string, unknown> = {
+        username: normalizedUsername,
         passwordHash,
         role: "superuser",
         isActive: true,
@@ -46,9 +61,21 @@ async function main() {
         personnelId: null,
         createdAt: now,
         updatedAt: now,
-    });
+    };
 
-    console.log("Superuser created:", result.insertedId.toString());
+    // ใส่ email เฉพาะถ้ามีการระบุมา
+    if (normalizedEmail) {
+        insertData.email = normalizedEmail;
+    }
+
+    const result = await users.insertOne(insertData);
+
+    console.log("✅ Superuser created successfully!");
+    console.log(`   ID:       ${result.insertedId.toString()}`);
+    console.log(`   Alias:    ${normalizedUsername}`);
+    console.log(`   Email:    ${normalizedEmail || "(ไม่ได้ระบุ - ตั้งค่าได้ภายหลัง)"}`);
+    console.log(`   Role:     superuser`);
+    console.log("\n📌 ใช้ Alias + Password ในการ Login`");
     process.exit(0);
 }
 

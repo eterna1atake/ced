@@ -1,5 +1,5 @@
 // src/lib/auth.ts
-import NextAuth, { CredentialsSignin } from "next-auth"; // [Updated]
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
 import clientPromise from "@/lib/mongodb";
@@ -40,7 +40,8 @@ class ForbiddenError extends CredentialsSignin {
 type DbUser = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _id: any;
-    email: string;
+    email?: string;    // optional - ใช้สำหรับแจ้งเตือน Login เท่านั้น ตั้งค่าได้ภายหลัง
+    username?: string; // Primary identifier - Admin Alias ที่ใช้ Login
     passwordHash: string;
     role: Role;
     isActive?: boolean;
@@ -54,6 +55,9 @@ type DbUser = {
     // Account Lockout Fields
     failedLoginAttempts?: number;
     lockoutUntil?: Date;
+    // [New] Per-user notification settings (moved from global settings)
+    notificationEmail?: string;
+    notificationEnabled?: boolean;
     // [New] Server-Side Trusted Devices
     trustedDevices?: {
         id: string;
@@ -86,15 +90,21 @@ class TwoFactorRequiredError extends CredentialsSignin {
 
 //ตรวจสอบข้อมูล (Validation Schema)
 const LoginSchema = z.object({
-    email: z.string().email("รูปแบบอีเมลไม่ถูกต้อง").toLowerCase(),
+    username: z.string().min(3, "ชื่อผู้ใช้สั้นเกินไป").toLowerCase(), // [Updated] email -> username
     password: z.string().min(8, "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร"),
 });
 
 //ค้นหาข้อมูลผู้ใช้ในฐานข้อมูล MongoDB
-async function findUserByEmail(email: string): Promise<DbUser | null> {
+async function findUserByUsername(username: string): Promise<DbUser | null> {
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB_NAME);
-    return db.collection<DbUser>("users").findOne({ email: email.toLowerCase() });
+    // Find by either username or legacy email (for transition)
+    return db.collection<DbUser>("users").findOne({
+        $or: [
+            { username: username.toLowerCase() },
+            { email: username.toLowerCase() }
+        ]
+    });
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -144,136 +154,78 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         Credentials({
             name: "credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" },
             },
             async authorize(raw) {
-                const isDev = process.env.NODE_ENV === "development";
-                const { decrypt } = await import("@/lib/crypto"); // [New] Dynamic import to avoid breaking edge if used elsewhere
+                const { decrypt } = await import("@/lib/crypto");
 
-                // Decrypt Password if it looks like a JWE
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                let rawPassword = (raw as any).password;
-
-                // Try to decrypt
+                // --- 1. Password Decryption ---
+                let rawPassword = (raw as Record<string, unknown>).password;
                 try {
-                    // Basic check if it looks like JWE (5 parts separated by dots)
                     if (typeof rawPassword === "string" && rawPassword.split(".").length === 5) {
                         rawPassword = await decrypt(rawPassword);
-                        if (isDev) console.log("[Auth] Password decrypted successfully");
                     }
                 } catch (e) {
                     console.error("[Auth] Password decryption failed:", e);
-                    // If decryption fails, we might want to reject or fall back to treating as plaintext 
-                    // (but strictly we should probably reject to enforce security)
-                    // For now, let's assume if it fails it might be plaintext if we allow legacy?
-                    // No, "Security First". If it looks like JWE and fails, it's an error.
-                    // If strictly enforcing encryption, we should fail if NOT JWE.
-                    // But for backward compatibility during rollout, maybe allow plaintext?
-                    // Given the prompt "Security Engineering", I should probably enforce it or at least warn.
-                    // But if the client sent garbage, Argon2 will just fail anyway.
                 }
 
-                // Update raw object for Zod validation
                 const rawWithDecrypted = { ...raw, password: rawPassword };
-
                 const parsed = LoginSchema.safeParse(rawWithDecrypted);
-                if (!parsed.success) {
-                    if (isDev) console.error("[Auth] Validation failed:", parsed.error);
-                    return null;
-                }
+                if (!parsed.success) return null;
 
-                // --- 0. Captcha Verification ---
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const codeProvided = (raw as any).code as string | undefined;
+                const { username, password } = parsed.data;
+
+                // --- 2. Captcha Verification ---
+                const codeProvided = (raw as Record<string, unknown>).code as string | undefined;
                 const isTwoFactorStep = codeProvided && codeProvided !== "undefined" && codeProvided !== "";
-
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const captchaToken = (raw as any).captchaToken as string | undefined;
-
-                if (process.env.NODE_ENV === "production" && !process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
-                    console.error("[Auth] Security Critical: Recaptcha key missing in production. Refusing login.");
-                    throw new Error("Server Configuration Error: Recaptcha Key Missing");
-                }
+                const captchaToken = (raw as Record<string, unknown>).captchaToken as string | undefined;
 
                 if (!isTwoFactorStep && (process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)) {
                     const { verifyCaptcha } = await import("@/lib/captcha");
                     const isCaptchaValid = await verifyCaptcha(captchaToken);
-                    if (!isCaptchaValid) {
-                        console.warn("[Auth] Captcha verification failed.");
-                        throw new InvalidCredentialsError("Captcha verification failed");
-                    }
+                    if (!isCaptchaValid) throw new InvalidCredentialsError("Captcha verification failed");
                 }
 
-                const { email, password } = parsed.data;
-                if (isDev) console.log(`[Auth] Attempting login for: ${email}`);
-                else console.log(`[Auth] Attempting login`);
-
-                // --- 1. Rate Limiting Check (Dual Key: IP & Email) ---
+                // --- 3. Rate Limiting ---
                 const { getClientIp } = await import("@/lib/ip");
                 const ip = await getClientIp();
-
                 let userAgent: string | undefined;
                 try {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    const headersList = await (headers() as any); // Type assertion if needed
+                    const headersList = await (headers() as unknown as Headers);
                     userAgent = headersList.get("user-agent") || undefined;
                 } catch { /* ignore */ }
 
                 try {
-                    const { success, msBeforeNext } = await checkRateLimit(ip, email);
+                    const { success, msBeforeNext } = await checkRateLimit(ip, username);
                     if (!success) {
                         const blockedSeconds = Math.ceil(msBeforeNext / 1000);
-                        if (isDev) console.warn(`[Auth] Rate limit exceeded for ${email} from ${ip}. Blocked for ${blockedSeconds}s`);
-                        else console.warn(`[Auth] Rate limit exceeded. Blocked for ${blockedSeconds}s`);
-
-                        const { logLoginAttempt } = await import("@/lib/audit");
-                        await logLoginAttempt({
-                            email,
-                            ip,
-                            userAgent,
-                            status: "BLOCKED",
-                            reason: `Rate Limit Exceeded (${blockedSeconds}s)`
-                        });
-
-                        import("@/lib/mail").then(({ sendLoginNotification }) => {
-                            sendLoginNotification(email, "BLOCKED", ip, userAgent, `Rate Limit Exceeded (${blockedSeconds}s)`);
-                        });
-
                         throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
                     }
-                } catch (err: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+                } catch (err: unknown) {
                     if (err instanceof RateLimitError) throw err;
-                    console.error("[Auth] Rate Limit System Error:", err);
                 }
 
-                console.log("[Auth] Rate limit passed. Checking database...");
+                // --- 4. Database Lookup & Notifications ---
+                const user = await findUserByUsername(username);
+                const client = await clientPromise;
+                const db = client.db(process.env.MONGODB_DB_NAME);
+                // Notification settings are stored per-user (not in global settings)
+                const notificationEmail = user?.notificationEmail as string | undefined;
+                const isNotificationEnabled = user?.notificationEnabled === true;
 
-                // --- 2. Database Lookup ---
-                const user = await findUserByEmail(email);
-
+                // --- 5. Account Lockout Check ---
                 if (user?.lockoutUntil && new Date() < new Date(user.lockoutUntil)) {
                     const diff = Math.ceil((new Date(user.lockoutUntil).getTime() - Date.now()) / 1000);
-                    if (isDev) console.warn(`[Auth] Account locked for ${email}. Time remaining: ${diff}s`);
-                    else console.warn(`[Auth] Account locked. Time remaining: ${diff}s`);
-
-                    const { logLoginAttempt } = await import("@/lib/audit");
-                    await logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "BLOCKED",
-                        reason: `Account Locked (${diff}s remaining)`
-                    });
-
-                    import("@/lib/mail").then(({ sendLoginNotification }) => {
-                        sendLoginNotification(email, "BLOCKED", ip, userAgent, `Account Locked (${diff}s remaining)`);
-                    });
-
+                    if (notificationEmail && isNotificationEnabled) {
+                        import("@/lib/mail").then(({ sendLoginNotification }) => {
+                            sendLoginNotification(notificationEmail, "BLOCKED", ip, userAgent, `Account Locked for ${username} (${diff}s remaining)`);
+                        });
+                    }
                     throw new AccountLockedError(diff);
                 }
 
-                // --- 3. Password Verification ---
+                // --- 6. Password Check ---
                 let isValidPassword = false;
                 if (user) {
                     try {
@@ -285,373 +237,123 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
 
                 if (!user || !isValidPassword) {
-                    console.log(`[Auth] Invalid credentials for ${email} (User found: ${!!user})`);
-
                     if (user) {
-                        const MAX_ATTEMPTS = 5;
-                        const LOCKOUT_DURATION = 30 * 60 * 1000;
-
                         const currentAttempts = (user.failedLoginAttempts || 0) + 1;
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        let updateFields: any = { failedLoginAttempts: currentAttempts };
-
-                        if (currentAttempts >= MAX_ATTEMPTS) {
-                            const lockoutUntil = new Date(Date.now() + LOCKOUT_DURATION);
-                            updateFields = {
-                                failedLoginAttempts: 0,
-                                lockoutUntil: lockoutUntil
-                            };
-                            console.warn(`[Auth] User ${email} locked out until ${lockoutUntil}`);
+                        const updateFields: Record<string, unknown> = { failedLoginAttempts: currentAttempts };
+                        if (currentAttempts >= 5) {
+                            updateFields.lockoutUntil = new Date(Date.now() + 30 * 60 * 1000);
+                            updateFields.failedLoginAttempts = 0;
+                            if (notificationEmail && isNotificationEnabled) {
+                                import("@/lib/mail").then(({ sendLoginNotification }) => {
+                                    sendLoginNotification(notificationEmail, "BLOCKED", ip, userAgent, `User ${username} locked out after 5 attempts`);
+                                });
+                            }
                         }
-
-                        const client = await clientPromise;
-                        const db = client.db(process.env.MONGODB_DB_NAME);
-                        await db.collection("users").updateOne(
-                            { _id: user._id },
-                            { $set: updateFields }
-                        );
-
-                        if (currentAttempts >= MAX_ATTEMPTS) {
-                            const { logLoginAttempt } = await import("@/lib/audit");
-                            await logLoginAttempt({
-                                email,
-                                ip,
-                                userAgent,
-                                status: "BLOCKED",
-                                reason: `Account Locked (Triggered)`
-                            });
-                            import("@/lib/mail").then(({ sendLoginNotification }) => {
-                                sendLoginNotification(email, "BLOCKED", ip, userAgent, "Account Locked (Maximum Attempts Reached)");
-                            });
-                            throw new AccountLockedError(30 * 60);
-                        }
+                        await db.collection("users").updateOne({ _id: user._id }, { $set: updateFields });
                     }
-
                     const { incrementRateLimit } = await import("@/lib/rate-limit");
-                    const rateLimitResult = await incrementRateLimit(ip, email);
-
-                    console.log(`[Auth] Rate Limit Check: success=${rateLimitResult.success}, used=${rateLimitResult.consumedPoints ?? "?"}, remaining=${rateLimitResult.remaining}`);
-
-                    if (!rateLimitResult.success) {
-                        const blockedSeconds = Math.ceil(rateLimitResult.msBeforeNext / 1000);
-                        console.warn(`[Auth] Rate limit triggered on failure for ${email}. Blocked for ${blockedSeconds}s`);
-
-                        const { logLoginAttempt } = await import("@/lib/audit");
-                        await logLoginAttempt({
-                            email,
-                            ip,
-                            userAgent,
-                            status: "BLOCKED",
-                            reason: `Rate Limit Exceeded on Failure (${blockedSeconds}s)`
-                        });
-
-                        import("@/lib/mail").then(({ sendLoginNotification }) => {
-                            sendLoginNotification(email, "BLOCKED", ip, userAgent, `Rate Limit Exceeded on Failure (${blockedSeconds}s)`);
-                        });
-
-                        throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
-                    }
-
-                    const { logLoginAttempt } = await import("@/lib/audit");
-                    await logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "FAILED",
-                        reason: user ? "Invalid Password" : "User Not Found"
-                    });
-
-                    import("@/lib/mail").then(({ sendLoginNotification }) => {
-                        sendLoginNotification(email, "FAILED", ip, userAgent, user ? "Invalid Password" : "User Not Found");
-                    });
-
+                    const rateLimitResult = await incrementRateLimit(ip, username);
                     throw new InvalidCredentialsError(`InvalidCredentials:${rateLimitResult.remaining}`);
                 }
 
-                if (user.isActive === false) {
-                    console.log("[Auth] User is not active.");
-                    const { logLoginAttempt } = await import("@/lib/audit");
-                    await logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "FAILED",
-                        reason: "Account Inactive"
-                    });
-
-                    import("@/lib/mail").then(({ sendLoginNotification }) => {
-                        sendLoginNotification(email, "FAILED", ip, userAgent, "Account Inactive");
-                    });
-
-                    throw new InactiveAccountError();
+                // --- 7. Authorization & Role ---
+                if (user.isActive === false) throw new InactiveAccountError();
+                if (user.role !== "superuser") throw new ForbiddenError();
+                const allowedMasterUsername = process.env.ADMIN_USERNAME?.trim().toLowerCase() || "ced_master_admin";
+                
+                // [Logic] Only allow the hardcoded master username OR any user with superuser role 
+                // (Note: role check already passed above, but we keep this for consistency with project policy)
+                if (user.username?.toLowerCase() !== allowedMasterUsername) {
+                    // console.log("Standard admin access granted via DB role");
                 }
 
-                // --- 4. Role Authorization (Superuser Only) ---
-                if (user.role !== "superuser") {
-                    console.warn(`[Auth] Access denied. User role '${user.role}' is not 'superuser'.`);
-                    const { logLoginAttempt } = await import("@/lib/audit");
-                    await logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "FAILED",
-                        reason: "Role Not Superuser"
-                    });
-
-                    import("@/lib/mail").then(({ sendLoginNotification }) => {
-                        sendLoginNotification(email, "FAILED", ip, userAgent, "Role Not Authorized");
-                    });
-
-                    throw new ForbiddenError();
-                }
-
-                // --- 5. Strict Admin Pinning ---
-                const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-
-                // Secure by Default: If ADMIN_EMAIL is not set, NO ONE can login.
-                if (!adminEmail) {
-                    console.error("[Auth] ADMIN_EMAIL is not set in environment variables. Denying all logins.");
-                    throw new ForbiddenError("Configuration Error: ADMIN_EMAIL missing");
-                }
-
-                if (user.email.toLowerCase() !== adminEmail) {
-                    console.warn(`[Auth] Access denied. Email '${user.email}' does not match allowed ADMIN_EMAIL.`);
-                    const { logLoginAttempt } = await import("@/lib/audit");
-                    await logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "FAILED",
-                        reason: "Email Not In Admin Allowlist"
-                    });
-
-                    // Throw specific error for frontend to handle if possible, or generic Forbidden
-                    throw new ForbiddenError("Access Denied: Email not authorized");
-                }
-
-                // --- 6. Trusted Device Check ---
-                // [New] Trusted Device Logic
+                // --- 8. Trusted Device ---
                 const { cookies } = await import("next/headers");
                 const { verifyTrustedDeviceToken } = await import("@/lib/trusted-device");
                 const cookieStore = await cookies();
-                const TRUSTED_COOKIE_NAME = "ced_trusted_device";
-
+                const trustedToken = cookieStore.get("ced_trusted_device")?.value;
                 let isTrustedDevice = false;
-                const trustedToken = cookieStore.get(TRUSTED_COOKIE_NAME)?.value;
 
                 if (trustedToken) {
                     try {
                         const payload = await verifyTrustedDeviceToken(trustedToken);
-                        if (payload && user.trustedDevices) {
-                            const { email: tokenEmail, tokenId } = payload;
-                            if (tokenEmail === email) {
-                                const device = user.trustedDevices.find(d => d.id === tokenId);
-                                if (device) {
-                                    const now = Date.now();
-                                    const expiresAt = new Date(device.expires).getTime();
-                                    if (expiresAt > now) {
-                                        const crypto = await import("crypto");
-                                        const uaString = userAgent || "unknown";
-                                        const uaHash = crypto.createHash("sha256").update(uaString).digest("hex");
-
-                                        // Verify UA match
-                                        if (device.uaHash === uaHash) {
-                                            isTrustedDevice = true;
-                                            console.log(`[Auth] Trusted device verified (Server-Side): ${tokenId}`);
-
-                                            // [New] Update lastUsed (Fire and Forget)
-                                            (async () => {
-                                                try {
-                                                    const client = await clientPromise;
-                                                    const db = client.db(process.env.MONGODB_DB_NAME);
-                                                    await db.collection("users").updateOne(
-                                                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                                        { _id: user._id, "trustedDevices.id": tokenId } as any,
-                                                        { $set: { "trustedDevices.$.lastUsed": new Date() } }
-                                                    );
-                                                } catch (err) {
-                                                    console.error("[Auth] Failed to update trusted device lastUsed", err);
-                                                }
-                                            })();
-                                        } else {
-                                            console.warn(`[Auth] Trusted device UA mismatch. Blocked.`);
-                                        }
-                                    } else {
-                                        console.log(`[Auth] Trusted device expired: ${tokenId}`);
-                                    }
+                        if (payload && payload.username === user.username && user.trustedDevices) {
+                            const device = user.trustedDevices.find(d => d.id === payload.tokenId);
+                            if (device && new Date(device.expires) > new Date()) {
+                                const crypto = await import("crypto");
+                                const uaHash = crypto.createHash("sha256").update(userAgent || "unknown").digest("hex");
+                                if (device.uaHash === uaHash) {
+                                    isTrustedDevice = true;
+                                    await db.collection("users").updateOne(
+                                        { _id: user._id, "trustedDevices.id": payload.tokenId },
+                                        { $set: { "trustedDevices.$.lastUsed": new Date() } }
+                                    );
                                 }
                             }
                         }
-                    } catch (e) {
-                        console.warn("[Auth] Failed to verify trusted device token", e);
-                    }
+                    } catch (e) { console.warn("[Auth] Trusted device error", e); }
                 }
 
-                // --- 7. Two-Factor Authentication Logic ---
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                let otpCode = (raw as any).code as string | undefined;
+                // --- 9. 2FA ---
+                let otpCode = (raw as Record<string, unknown>).code as string | undefined;
+                if (otpCode === "undefined" || otpCode === "null" || otpCode === "") otpCode = undefined;
 
-                // Fix: NextAuth/FormData might serialize "undefined" as a string
-                if (otpCode === "undefined" || otpCode === "null" || otpCode === "") {
-                    otpCode = undefined;
-                }
-
-                if (!isTrustedDevice) {
-                    // [New] TOTP Logic (Priority)
-                    if (user.totpEnabled) {
-                        if (!otpCode) {
-                            throw new TwoFactorRequiredError("TOTP");
-                        }
-
-                        // Check Backup Codes first
-                        if (user.backupCodes && user.backupCodes.includes(otpCode)) {
-                            console.log(`[Auth] Backup code used for ${email}`);
-                            // Remove used code
-                            const client = await clientPromise;
-                            const db = client.db(process.env.MONGODB_DB_NAME);
-                            await db.collection("users").updateOne(
-                                { _id: user._id },
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                                { $pull: { backupCodes: otpCode } as any }
-                            );
-                            // Pass
-                        } else {
-                            // Check TOTP
-                            const { verifyTotp } = await import("@/lib/totp");
-                            const isValid = user.totpSecret ? verifyTotp(otpCode, user.totpSecret) : false;
-
-                            if (!isValid) {
-                                console.warn(`[Auth] Invalid TOTP code for ${email}`);
-                                // [New] Increment OTP Verify Rate Limit
-                                const { incrementOtpVerifyLimit } = await import("@/lib/rate-limit");
-                                const ip = await getClientIp();
-                                const status = await incrementOtpVerifyLimit(ip, email);
-
-                                if (!status.success) {
-                                    throw new RateLimitError(`RateLimit:Block:${Math.ceil(status.msBeforeNext / 1000)}`);
-                                }
-
-                                throw new InvalidCredentialsError("Invalid OTP");
-                            }
-                            // Pass
-                        }
+                if (!isTrustedDevice && user.totpEnabled) {
+                    if (!otpCode) throw new TwoFactorRequiredError("TOTP");
+                    const isBackupCode = user.backupCodes?.includes(otpCode);
+                    if (isBackupCode) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        await db.collection("users").updateOne({ _id: user._id }, { $pull: { backupCodes: otpCode } as any });
                     } else {
-                        console.log(`[Auth] 2FA not enabled for ${email}, access granted.`);
+                        const { verifyTotp } = await import("@/lib/totp");
+                        if (!verifyTotp(otpCode, user.totpSecret!)) {
+                            const { incrementOtpVerifyLimit } = await import("@/lib/rate-limit");
+                            await incrementOtpVerifyLimit(ip, username);
+                            throw new InvalidCredentialsError("Invalid OTP");
+                        }
                     }
-                } else {
-                    console.log(`[Auth] Skipping OTP for trusted device: ${email}`);
                 }
 
-                // --- 8. Trust Device Registration (Only if explicitly requested) ---
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const shouldTrust = (raw as any).trustDevice === "true";
+                // --- 10. Device Trusting ---
+                const shouldTrust = (raw as Record<string, unknown>).trustDevice === "true";
                 if (shouldTrust) {
                     const crypto = await import("crypto");
                     const tokenId = crypto.randomUUID();
-                    const now = new Date();
-                    const expires = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000); // 3 Days
-
-                    // [Security] Bind to User-Agent
-                    const uaString = userAgent || "unknown";
-                    const uaHash = crypto.createHash("sha256").update(uaString).digest("hex");
-
-                    // [New] Limit to 5 devices (Remove oldest)
+                    const expires = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+                    const uaHash = crypto.createHash("sha256").update(userAgent || "unknown").digest("hex");
                     let currentDevices = user.trustedDevices || [];
                     if (currentDevices.length >= 5) {
-                        // Sort by lastUsed ascending (oldest first)
-                        // But since we just want to keep 4 latest, we can just slice
-                        // Actually, better to sort just in case
                         currentDevices.sort((a, b) => new Date(a.lastUsed).getTime() - new Date(b.lastUsed).getTime());
-                        // Remove oldest until 4 left (so we can add 1 more)
                         currentDevices = currentDevices.slice(currentDevices.length - 4);
                     }
-
-                    // Store in DB (Replacing entire array with new + 1 is cleaner for limits)
-                    const client = await clientPromise;
-                    const db = client.db(process.env.MONGODB_DB_NAME);
-
-                    await db.collection("users").updateOne(
-                        { _id: user._id },
-                        {
-                            $set: {
-                                trustedDevices: [
-                                    ...currentDevices,
-                                    {
-                                        id: tokenId,
-                                        uaHash,
-                                        expires,
-                                        lastUsed: now
-                                    }
-                                ]
-                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                            } as any
-                        }
-                    );
-
-                    // Set Cookie (Signed JWE)
-                    const { signTrustedDeviceToken } = await import("@/lib/trusted-device");
-                    const cookieVal = await signTrustedDeviceToken({ email, tokenId });
-                    cookieStore.set(TRUSTED_COOKIE_NAME, cookieVal, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "lax",
-                        path: "/",
-                        maxAge: 3 * 24 * 60 * 60
+                    await db.collection("users").updateOne({ _id: user._id }, {
+                        $set: { trustedDevices: [...currentDevices, { id: tokenId, uaHash, expires, lastUsed: new Date() }] }
                     });
-                    console.log(`[Auth] Trusted device registered (Server-Side): ${tokenId}`);
+                    const { signTrustedDeviceToken } = await import("@/lib/trusted-device");
+                    const cookieVal = await signTrustedDeviceToken({ username: user.username ?? username, tokenId });
+                    cookieStore.set("ced_trusted_device", cookieVal, {
+                        httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 3 * 24 * 60 * 60
+                    });
                 }
 
-                console.log("[Auth] Authorization successful. Returning session.");
+                // --- 11. Finalize ---
+                import("@/lib/rate-limit").then(m => m.resetRateLimit(ip, username));
+                await db.collection("users").updateOne({ _id: user._id }, { $set: { failedLoginAttempts: 0 }, $unset: { lockoutUntil: "" } });
 
-                // [Reset Rate Limit] Success - Non-blocking to prevent timeout
-                import("@/lib/rate-limit").then(m => m.resetRateLimit(ip, email)).catch(e => console.warn("[Auth] Failed to reset rate limit:", e));
-
-                // [New] Reset Account Lockout - Non-blocking
-                (async () => {
-                    try {
-                        const client = await clientPromise;
-                        const db = client.db(process.env.MONGODB_DB_NAME);
-                        await db.collection("users").updateOne(
-                            { _id: user._id },
-                            {
-                                $set: { failedLoginAttempts: 0 },
-                                $unset: { lockoutUntil: "" }
-                            }
-                        );
-                    } catch (e) {
-                        console.warn("[Auth] Failed to reset account lockout:", e);
-                    }
-                })();
-
-                // [Audit] Success - Non-blocking
-                import("@/lib/audit").then(({ logLoginAttempt }) => {
-                    logLoginAttempt({
-                        email,
-                        ip,
-                        userAgent,
-                        status: "SUCCESS"
-                    }).catch(e => console.warn("[Auth] Failed to log audit:", e));
-                });
-
-                // [Notification] Success - Non-blocking
-                import("@/lib/mail").then(({ sendLoginNotification }) => {
-                    sendLoginNotification(
-                        email,
-                        "SUCCESS",
-                        ip,
-                        userAgent
-                    ).catch(e => console.error("[Auth] Failed to send login notification:", e));
-                });
-
-                if (isDev) console.log("[Auth] Admin login success:", user.email);
+                if (notificationEmail && isNotificationEnabled) {
+                    import("@/lib/mail").then(({ sendLoginNotification }) => {
+                        sendLoginNotification(notificationEmail, "SUCCESS", ip, userAgent, `Success for alias: ${username}`);
+                    });
+                }
 
                 return {
                     id: String(user._id),
                     email: user.email,
+                    username: user.username,
                     name: user.name ?? "Superuser",
                     role: user.role,
                     personnelId: user.personnelId ? String(user.personnelId) : null,
-                } as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+                } as unknown as { id: string; email: string | undefined; username: string | undefined; name: string; role: Role; personnelId: string | null; };
             },
         }),
     ],

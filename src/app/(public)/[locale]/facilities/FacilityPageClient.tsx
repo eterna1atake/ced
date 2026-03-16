@@ -354,7 +354,7 @@ export default function FacilityPageClient() {
                               </div>
                               <h3 className="text-lg font-semibold text-slate-900">{t("machineCount")}</h3>
                             </div>
-                            <p className="text-2xl font-bold text-[#35622F]">{activeFacility.capacity}</p>
+                            <p className="text-2xl font-bold text-[#35622F]">{getLocalized(activeFacility.capacity)}</p>
                           </div>
                         )}
                       </div>

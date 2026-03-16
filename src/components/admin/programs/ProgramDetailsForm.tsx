@@ -10,6 +10,7 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 import { useTranslations } from "next-intl";
 import type { ProgramItem } from "@/types/program";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 type ProgramDetailsFormProps = {
@@ -23,7 +24,8 @@ type ProgramDetailsFormProps = {
 
 export default function ProgramDetailsForm({ initialData, generalData, onSubmit, isLoading = false, onFormDataChange }: ProgramDetailsFormProps) {
     const t = useTranslations("Admin.forms");
-    const [formData, setFormData] = useState<Partial<ProgramDetailData>>({
+    const { setIsDirty } = useUnsavedChanges();
+    const [formData, _setFormData] = useState<Partial<ProgramDetailData>>({
         id: "",
         name: { th: "", en: "" },
         degree: { full: { th: "", en: "" }, short: { th: "", en: "" } },
@@ -39,6 +41,11 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
         admission: { th: "", en: "" },
         ...initialData,
     });
+
+    const setFormData: typeof _setFormData = useCallback((value) => {
+        setIsDirty(true);
+        _setFormData(value);
+    }, [setIsDirty]);
 
     const syncFromGeneral = () => {
         if (!generalData) return;
@@ -65,7 +72,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
     const [lastInitialData, setLastInitialData] = useState(initialData);
     if (initialData !== lastInitialData) {
         setLastInitialData(initialData);
-        setFormData(prev => ({ ...prev, ...initialData }));
+        _setFormData(prev => ({ ...prev, ...initialData }));
     }
 
     // Debounce onFormDataChange to prevent focus loss during typing
@@ -88,10 +95,11 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
 
     // --- Helper Functions ---
 
-    const handleChange = useCallback((path: string[], value: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const handleChange = useCallback((path: string[], value: unknown) => {
         setFormData((prev) => {
             // Helper to recursively clone and update
-            const updateRecursive = (current: any, pathIdx: number): any => { // eslint-disable-line @typescript-eslint/no-explicit-any
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const updateRecursive = (current: any, pathIdx: number): any => {
                 if (pathIdx === path.length) {
                     return value;
                 }
@@ -121,7 +129,7 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
 
             return updateRecursive(prev, 0);
         });
-    }, []);
+    }, [setFormData]);
 
     const { translate, isTranslating } = useAutoTranslate();
 
@@ -137,15 +145,135 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
             });
             return prev;
         });
-    }, [translate, handleChange]);
+    }, [translate, handleChange, setFormData]);
 
     const isPathTranslating = useCallback((path: string[]) => {
         const key = path.join('.');
         return isTranslating[key] || false;
     }, [isTranslating]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+
+        // Basic Info
+        if (!formData.name?.th) newErrors['name.th'] = t("common.required");
+        if (!formData.name?.en) newErrors['name.en'] = t("common.required");
+        if (!formData.degree?.full?.th) newErrors['degree.full.th'] = t("common.required");
+        if (!formData.degree?.full?.en) newErrors['degree.full.en'] = t("common.required");
+        if (!formData.degree?.short?.th) newErrors['degree.short.th'] = t("common.required");
+        if (!formData.degree?.short?.en) newErrors['degree.short.en'] = t("common.required");
+
+        if (!formData.admission?.th) newErrors['admission.th'] = t("common.required");
+        if (!formData.admission?.en) newErrors['admission.en'] = t("common.required");
+
+        if (!formData.language?.th) newErrors['language.th'] = t("common.required");
+        if (!formData.language?.en) newErrors['language.en'] = t("common.required");
+
+        if (!formData.programFormat?.title?.th) newErrors['programFormat.title.th'] = t("common.required");
+        if (!formData.programFormat?.title?.en) newErrors['programFormat.title.en'] = t("common.required");
+
+        if (!formData.gradAttribute?.title?.th) newErrors['gradAttribute.title.th'] = t("common.required");
+        if (!formData.gradAttribute?.title?.en) newErrors['gradAttribute.title.en'] = t("common.required");
+
+        if (!formData.suitableFor?.title?.th) newErrors['suitableFor.title.th'] = t("common.required");
+        if (!formData.suitableFor?.title?.en) newErrors['suitableFor.title.en'] = t("common.required");
+
+        // Curriculum Validation
+        if (formData.curriculum) {
+            formData.curriculum.forEach((sec, sIdx) => {
+                if (!sec.title.th) newErrors[`sections[${sIdx}].title.th`] = t("common.required");
+                if (!sec.title.en) newErrors[`sections[${sIdx}].title.en`] = t("common.required");
+
+                sec.items.forEach((item, iIdx) => {
+                    if (!item.id) newErrors[`sections[${sIdx}].items[${iIdx}].id`] = t("common.required");
+                    if (!item.title.th) newErrors[`sections[${sIdx}].items[${iIdx}].title.th`] = t("common.required");
+                    if (!item.title.en) newErrors[`sections[${sIdx}].items[${iIdx}].title.en`] = t("common.required");
+
+                    item.subItems?.forEach((sub, subIdx) => {
+                        if (!sub.title?.th) newErrors[`sections[${sIdx}].items[${iIdx}].subItems[${subIdx}].title.th`] = t("common.required");
+                        if (!sub.title?.en) newErrors[`sections[${sIdx}].items[${iIdx}].subItems[${subIdx}].title.en`] = t("common.required");
+                    });
+                });
+            });
+        }
+
+        // Program Format Validation
+        if (formData.programFormat?.items) {
+            formData.programFormat.items.forEach((item, idx) => {
+                if (!item.title?.th) newErrors[`programFormat.items[${idx}].title.th`] = t("common.required");
+                if (!item.title?.en) newErrors[`programFormat.items[${idx}].title.en`] = t("common.required");
+                item.subItems?.forEach((sub, sIdx) => {
+                    if (!sub.th) newErrors[`programFormat.items[${idx}].subItems[${sIdx}].th`] = t("common.required");
+                    if (!sub.en) newErrors[`programFormat.items[${idx}].subItems[${sIdx}].en`] = t("common.required");
+                });
+            });
+        }
+
+        // Grad Attributes Validation
+        if (formData.gradAttribute?.items) {
+            formData.gradAttribute.items.forEach((item, idx) => {
+                if (!item.title?.th) newErrors[`gradAttribute.items[${idx}].title.th`] = t("common.required");
+                if (!item.title?.en) newErrors[`gradAttribute.items[${idx}].title.en`] = t("common.required");
+                item.subItems?.forEach((sub, sIdx) => {
+                    if (!sub.th) newErrors[`gradAttribute.items[${idx}].subItems[${sIdx}].th`] = t("common.required");
+                    if (!sub.en) newErrors[`gradAttribute.items[${idx}].subItems[${sIdx}].en`] = t("common.required");
+                });
+            });
+        }
+
+        // Suitable For Validation
+        if (formData.suitableFor?.items) {
+            formData.suitableFor.items.forEach((item, idx) => {
+                if (!item.title?.th) newErrors[`suitableFor.items[${idx}].title.th`] = t("common.required");
+                if (!item.title?.en) newErrors[`suitableFor.items[${idx}].title.en`] = t("common.required");
+                item.subItems?.forEach((sub, sIdx) => {
+                    if (!sub.th) newErrors[`suitableFor.items[${idx}].subItems[${sIdx}].th`] = t("common.required");
+                    if (!sub.en) newErrors[`suitableFor.items[${idx}].subItems[${sIdx}].en`] = t("common.required");
+                });
+            });
+        }
+
+        // Documents Validation
+        if (formData.documents) {
+            formData.documents.forEach((doc, idx) => {
+                if (!doc.name.th) newErrors[`documents[${idx}].name.th`] = t("common.required");
+                if (!doc.name.en) newErrors[`documents[${idx}].name.en`] = t("common.required");
+                if (!doc.url) newErrors[`documents[${idx}].url`] = t("common.required");
+            });
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const handleClearError = (path: string) => {
+        if (errors[path]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[path];
+                return newErrors;
+            });
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            import("sweetalert2").then((Swal) => {
+                Swal.default.fire({
+                    title: t("common.missingInfoTitle"),
+                    text: t("common.missingInfoText"),
+                    icon: "error",
+                    confirmButtonColor: "#f43f5e",
+                });
+            });
+            return;
+        }
+
+        setIsDirty(false);
         onSubmit(formData as ProgramDetailData);
     };
 
@@ -181,9 +309,27 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         )}
                     </div>
                     <div className="space-y-6 px-0 md:px-2">
-                        <BilingualField label={t("programDetails.programName")} path={['name']} />
-                        <BilingualField label={t("programDetails.degreeFull")} path={['degree', 'full']} />
-                        <BilingualField label={t("programDetails.degreeShort")} path={['degree', 'short']} />
+                        <BilingualField
+                            label={t("programDetails.programName")}
+                            path={['name']}
+                            required
+                            error={{ th: errors['name.th'], en: errors['name.en'] }}
+                            onFocus={(lang) => handleClearError(`name.${lang}`)}
+                        />
+                        <BilingualField
+                            label={t("programDetails.degreeFull")}
+                            path={['degree', 'full']}
+                            required
+                            error={{ th: errors['degree.full.th'], en: errors['degree.full.en'] }}
+                            onFocus={(lang) => handleClearError(`degree.full.${lang}`)}
+                        />
+                        <BilingualField
+                            label={t("programDetails.degreeShort")}
+                            path={['degree', 'short']}
+                            required
+                            error={{ th: errors['degree.short.th'], en: errors['degree.short.en'] }}
+                            onFocus={(lang) => handleClearError(`degree.short.${lang}`)}
+                        />
                     </div>
                 </section>
 
@@ -193,7 +339,13 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {t("programDetails.programFormat")}
                     </h3>
                     <div className="space-y-6 px-0 md:px-2">
-                        <BilingualField label={t("programDetails.sectionTitle")} path={['programFormat', 'title']} />
+                        <BilingualField
+                            label={t("programDetails.sectionTitle")}
+                            path={['programFormat', 'title']}
+                            required
+                            error={{ th: errors['programFormat.title.th'], en: errors['programFormat.title.en'] }}
+                            onFocus={(lang) => handleClearError(`programFormat.title.${lang}`)}
+                        />
 
                         {/* Items List */}
                         <div className="mt-6 space-y-6">
@@ -230,30 +382,42 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`programFormat.items[${idx}].title.th`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>TH</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`programFormat.items[${idx}].title.th`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.th || ""}
                                                         placeholder="รูปแบบหลัก (ไทย)"
+                                                        onFocus={() => handleClearError(`programFormat.items[${idx}].title.th`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.programFormat?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
                                                             setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                            handleClearError(`programFormat.items[${idx}].title.th`);
                                                         }}
                                                     />
+                                                    {errors[`programFormat.items[${idx}].title.th`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`programFormat.items[${idx}].title.th`]}</p>}
                                                 </div>
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`programFormat.items[${idx}].title.en`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>EN</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`programFormat.items[${idx}].title.en`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.en || ""}
                                                         placeholder="Main Format (EN)"
+                                                        onFocus={() => handleClearError(`programFormat.items[${idx}].title.en`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.programFormat?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
                                                             setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                            handleClearError(`programFormat.items[${idx}].title.en`);
                                                         }}
                                                     />
+                                                    {errors[`programFormat.items[${idx}].title.en`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`programFormat.items[${idx}].title.en`]}</p>}
                                                 </div>
                                             </div>
                                         </div>
@@ -303,30 +467,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         </button>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="หัวข้อย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.programFormat?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                            }}
-                                                        />
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.en}
-                                                            placeholder="Sub-item (EN)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.programFormat?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`programFormat.items[${idx}].subItems[${sIdx}].th`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.th}
+                                                                placeholder="หัวข้อย่อย (ไทย)"
+                                                                onFocus={() => handleClearError(`programFormat.items[${idx}].subItems[${sIdx}].th`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.programFormat?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                                    handleClearError(`programFormat.items[${idx}].subItems[${sIdx}].th`);
+                                                                }}
+                                                            />
+                                                            {errors[`programFormat.items[${idx}].subItems[${sIdx}].th`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`programFormat.items[${idx}].subItems[${sIdx}].th`]}</p>}
+                                                        </div>
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`programFormat.items[${idx}].subItems[${sIdx}].en`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.en}
+                                                                placeholder="Sub-item (EN)"
+                                                                onFocus={() => handleClearError(`programFormat.items[${idx}].subItems[${sIdx}].en`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.programFormat?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, programFormat: { ...prev.programFormat!, items: newItems } }));
+                                                                    handleClearError(`programFormat.items[${idx}].subItems[${sIdx}].en`);
+                                                                }}
+                                                            />
+                                                            {errors[`programFormat.items[${idx}].subItems[${sIdx}].en`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`programFormat.items[${idx}].subItems[${sIdx}].en`]}</p>}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
@@ -381,7 +561,13 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {t("programDetails.gradAttributes")}
                     </h3>
                     <div className="space-y-6 px-0 md:px-2">
-                        <BilingualField label={t("programDetails.sectionTitle")} path={['gradAttribute', 'title']} />
+                        <BilingualField
+                            label={t("programDetails.sectionTitle")}
+                            path={['gradAttribute', 'title']}
+                            required
+                            error={{ th: errors['gradAttribute.title.th'], en: errors['gradAttribute.title.en'] }}
+                            onFocus={(lang) => handleClearError(`gradAttribute.title.${lang}`)}
+                        />
 
                         {/* Items List */}
                         <div className="mt-6 space-y-6">
@@ -418,30 +604,42 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`gradAttribute.items[${idx}].title.th`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>TH</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`gradAttribute.items[${idx}].title.th`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.th || ""}
                                                         placeholder="หัวข้อหลัก (ไทย)"
+                                                        onFocus={() => handleClearError(`gradAttribute.items[${idx}].title.th`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.gradAttribute?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
                                                             setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                            handleClearError(`gradAttribute.items[${idx}].title.th`);
                                                         }}
                                                     />
+                                                    {errors[`gradAttribute.items[${idx}].title.th`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`gradAttribute.items[${idx}].title.th`]}</p>}
                                                 </div>
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`gradAttribute.items[${idx}].title.en`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>EN</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`gradAttribute.items[${idx}].title.en`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.en || ""}
                                                         placeholder="Main Title (EN)"
+                                                        onFocus={() => handleClearError(`gradAttribute.items[${idx}].title.en`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.gradAttribute?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
                                                             setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                            handleClearError(`gradAttribute.items[${idx}].title.en`);
                                                         }}
                                                     />
+                                                    {errors[`gradAttribute.items[${idx}].title.en`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`gradAttribute.items[${idx}].title.en`]}</p>}
                                                 </div>
                                             </div>
                                         </div>
@@ -491,30 +689,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         </button>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="หัวข้อย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.gradAttribute?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                            }}
-                                                        />
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.en}
-                                                            placeholder="Sub-item (EN)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.gradAttribute?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`gradAttribute.items[${idx}].subItems[${sIdx}].th`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.th}
+                                                                placeholder="หัวข้อย่อย (ไทย)"
+                                                                onFocus={() => handleClearError(`gradAttribute.items[${idx}].subItems[${sIdx}].th`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.gradAttribute?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                                    handleClearError(`gradAttribute.items[${idx}].subItems[${sIdx}].th`);
+                                                                }}
+                                                            />
+                                                            {errors[`gradAttribute.items[${idx}].subItems[${sIdx}].th`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`gradAttribute.items[${idx}].subItems[${sIdx}].th`]}</p>}
+                                                        </div>
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`gradAttribute.items[${idx}].subItems[${sIdx}].en`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.en}
+                                                                placeholder="Sub-item (EN)"
+                                                                onFocus={() => handleClearError(`gradAttribute.items[${idx}].subItems[${sIdx}].en`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.gradAttribute?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, gradAttribute: { ...prev.gradAttribute!, items: newItems } }));
+                                                                    handleClearError(`gradAttribute.items[${idx}].subItems[${sIdx}].en`);
+                                                                }}
+                                                            />
+                                                            {errors[`gradAttribute.items[${idx}].subItems[${sIdx}].en`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`gradAttribute.items[${idx}].subItems[${sIdx}].en`]}</p>}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
@@ -569,7 +783,13 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {t("programDetails.suitableFor")}
                     </h3>
                     <div className="space-y-6 px-0 md:px-2">
-                        <BilingualField label={t("programDetails.sectionTitle")} path={['suitableFor', 'title']} />
+                        <BilingualField
+                            label={t("programDetails.sectionTitle")}
+                            path={['suitableFor', 'title']}
+                            required
+                            error={{ th: errors['suitableFor.title.th'], en: errors['suitableFor.title.en'] }}
+                            onFocus={(lang) => handleClearError(`suitableFor.title.${lang}`)}
+                        />
 
                         {/* Items List */}
                         <div className="mt-6 space-y-6">
@@ -606,30 +826,42 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">TH</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`suitableFor.items[${idx}].title.th`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>TH</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`suitableFor.items[${idx}].title.th`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.th || ""}
                                                         placeholder="กลุ่มอาชีพหลัก (ไทย)"
+                                                        onFocus={() => handleClearError(`suitableFor.items[${idx}].title.th`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.suitableFor?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, th: e.target.value } };
                                                             setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                            handleClearError(`suitableFor.items[${idx}].title.th`);
                                                         }}
                                                     />
+                                                    {errors[`suitableFor.items[${idx}].title.th`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`suitableFor.items[${idx}].title.th`]}</p>}
                                                 </div>
                                                 <div className="relative">
-                                                    <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">EN</span>
+                                                    <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`suitableFor.items[${idx}].title.en`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>EN</span>
                                                     <input
-                                                        className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600 font-medium"
+                                                        className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`suitableFor.items[${idx}].title.en`]
+                                                            ? "border-red-500 focus:ring-red-500/20"
+                                                            : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                            }`}
                                                         value={item.title?.en || ""}
                                                         placeholder="Career Group (EN)"
+                                                        onFocus={() => handleClearError(`suitableFor.items[${idx}].title.en`)}
                                                         onChange={(e) => {
                                                             const newItems = [...(formData.suitableFor?.items || [])];
                                                             newItems[idx] = { ...newItems[idx], title: { ...newItems[idx].title, en: e.target.value } };
                                                             setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                            handleClearError(`suitableFor.items[${idx}].title.en`);
                                                         }}
                                                     />
+                                                    {errors[`suitableFor.items[${idx}].title.en`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`suitableFor.items[${idx}].title.en`]}</p>}
                                                 </div>
                                             </div>
                                         </div>
@@ -679,30 +911,46 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                                                         </button>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.th}
-                                                            placeholder="อาชีพย่อย (ไทย)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.suitableFor?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                            }}
-                                                        />
-                                                        <input
-                                                            className="w-full px-3 py-2 border border-slate-100 dark:border-slate-700 rounded text-xs outline-none focus:ring-2 focus:ring-primary-main/10 focus:border-primary-main/50 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200"
-                                                            value={sub.en}
-                                                            placeholder="Specific Career (EN)"
-                                                            onChange={(e) => {
-                                                                const newItems = [...(formData.suitableFor?.items || [])];
-                                                                const newSubItems = [...(newItems[idx].subItems || [])];
-                                                                newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
-                                                                newItems[idx] = { ...newItems[idx], subItems: newSubItems };
-                                                                setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
-                                                            }}
-                                                        />
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`suitableFor.items[${idx}].subItems[${sIdx}].th`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.th}
+                                                                placeholder="อาชีพย่อย (ไทย)"
+                                                                onFocus={() => handleClearError(`suitableFor.items[${idx}].subItems[${sIdx}].th`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.suitableFor?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], th: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                                    handleClearError(`suitableFor.items[${idx}].subItems[${sIdx}].th`);
+                                                                }}
+                                                            />
+                                                            {errors[`suitableFor.items[${idx}].subItems[${sIdx}].th`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`suitableFor.items[${idx}].subItems[${sIdx}].th`]}</p>}
+                                                        </div>
+                                                        <div>
+                                                            <input
+                                                                className={`w-full px-3 py-2 border rounded text-xs outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 ${errors[`suitableFor.items[${idx}].subItems[${sIdx}].en`]
+                                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-100 dark:border-slate-700 focus:border-primary-main/50"
+                                                                    }`}
+                                                                value={sub.en}
+                                                                placeholder="Specific Career (EN)"
+                                                                onFocus={() => handleClearError(`suitableFor.items[${idx}].subItems[${sIdx}].en`)}
+                                                                onChange={(e) => {
+                                                                    const newItems = [...(formData.suitableFor?.items || [])];
+                                                                    const newSubItems = [...(newItems[idx].subItems || [])];
+                                                                    newSubItems[sIdx] = { ...newSubItems[sIdx], en: e.target.value };
+                                                                    newItems[idx] = { ...newItems[idx], subItems: newSubItems };
+                                                                    setFormData(prev => ({ ...prev, suitableFor: { ...prev.suitableFor!, items: newItems } }));
+                                                                    handleClearError(`suitableFor.items[${idx}].subItems[${sIdx}].en`);
+                                                                }}
+                                                            />
+                                                            {errors[`suitableFor.items[${idx}].subItems[${sIdx}].en`] && <p className="text-[9px] text-red-500 mt-0.5">{errors[`suitableFor.items[${idx}].subItems[${sIdx}].en`]}</p>}
+                                                        </div>
                                                     </div>
                                                 </div>
                                                 <button type="button" className="text-slate-300 hover:text-red-400 p-1.5"
@@ -761,62 +1009,76 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                             <div key={idx} className="flex gap-4 items-start pb-4 border-b border-gray-50 last:border-0 relative group">
                                 <div className="flex-1 space-y-3">
                                     <div className="flex justify-end mb-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const text = doc.name.th;
-                                                    const key = `doc-${idx}`;
-                                                    translate(key, text, (translated) => {
-                                                        const newDocs = [...(formData.documents || [])];
-                                                        newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, en: translated } };
-                                                        setFormData(prev => ({ ...prev, documents: newDocs }));
-                                                    });
-                                                }}
-                                                disabled={isTranslating[`doc-${idx}`] || !doc.name.th}
-                                                className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
-                                            >
-                                                {isTranslating[`doc-${idx}`] ? (
-                                                    <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-                                                ) : (
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
-                                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
-                                                    </svg>
-                                                )}
-                                                {isTranslating[`doc-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
-                                            </button>
-                                        </div>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameTh")}</span>
-                                                <input
-                                                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const text = doc.name.th;
+                                                const key = `doc-${idx}`;
+                                                translate(key, text, (translated) => {
+                                                    const newDocs = [...(formData.documents || [])];
+                                                    newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, en: translated } };
+                                                    setFormData(prev => ({ ...prev, documents: newDocs }));
+                                                });
+                                            }}
+                                            disabled={isTranslating[`doc-${idx}`] || !doc.name.th}
+                                            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 disabled:text-slate-400 dark:disabled:text-slate-600 flex items-center gap-1 transition-colors"
+                                        >
+                                            {isTranslating[`doc-${idx}`] ? (
+                                                <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                                    <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
+                                                    <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                                </svg>
+                                            )}
+                                            {isTranslating[`doc-${idx}`] ? t("common.translating") : t("common.autoTranslate")}
+                                        </button>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="relative">
+                                            <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`documents[${idx}].name.th`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>{t("programDetails.docNameTh")}</span>
+                                            <input
+                                                className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`documents[${idx}].name.th`]
+                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                    : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                    }`}
                                                 value={doc.name.th}
+                                                onFocus={() => handleClearError(`documents[${idx}].name.th`)}
                                                 onChange={(e) => {
                                                     const newDocs = [...(formData.documents || [])];
                                                     newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, th: e.target.value } };
                                                     setFormData(prev => ({ ...prev, documents: newDocs }));
+                                                    handleClearError(`documents[${idx}].name.th`);
                                                 }} />
-                                            </div>
-                                            <div className="relative">
-                                                <span className="absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t("programDetails.docNameEn")}</span>
-                                                <input
-                                                className="w-full px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-600"
+                                            {errors[`documents[${idx}].name.th`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`documents[${idx}].name.th`]}</p>}
+                                        </div>
+                                        <div className="relative">
+                                            <span className={`absolute -top-2 left-2 px-1 bg-white dark:bg-slate-800 text-[10px] font-semibold uppercase tracking-wider ${errors[`documents[${idx}].name.en`] ? "text-red-500" : "text-slate-400 dark:text-slate-500"}`}>{t("programDetails.docNameEn")}</span>
+                                            <input
+                                                className={`w-full px-4 py-3 border rounded-lg text-sm outline-none focus:ring-2 transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-medium ${errors[`documents[${idx}].name.en`]
+                                                    ? "border-red-500 focus:ring-red-500/20"
+                                                    : "border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 focus:ring-primary-main/20 focus:border-primary-main"
+                                                    }`}
                                                 value={doc.name.en}
+                                                onFocus={() => handleClearError(`documents[${idx}].name.en`)}
                                                 onChange={(e) => {
                                                     const newDocs = [...(formData.documents || [])];
                                                     newDocs[idx] = { ...newDocs[idx], name: { ...newDocs[idx].name, en: e.target.value } };
                                                     setFormData(prev => ({ ...prev, documents: newDocs }));
+                                                    handleClearError(`documents[${idx}].name.en`);
                                                 }} />
-                                            </div>
+                                            {errors[`documents[${idx}].name.en`] && <p className="text-[10px] text-red-500 mt-1 ml-1">{errors[`documents[${idx}].name.en`]}</p>}
                                         </div>
+                                    </div>
                                     <div className="pl-1">
                                         <FileUpload label="" value={doc.url} accept=".pdf"
                                             folder="ced_web/programs"
+                                            error={errors[`documents[${idx}].url`]}
                                             onChange={(url) => {
                                                 const newDocs = [...(formData.documents || [])];
                                                 newDocs[idx] = { ...newDocs[idx], url };
                                                 setFormData(prev => ({ ...prev, documents: newDocs }));
+                                                handleClearError(`documents[${idx}].url`);
                                             }} />
                                     </div>
                                 </div>
@@ -851,6 +1113,8 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                             value={formData.curriculum || []}
                             onChange={(newVal) => setFormData(prev => ({ ...prev, curriculum: newVal }))}
                             t={t}
+                            errors={errors}
+                            onClearError={handleClearError}
                         />
                     </div>
                 </section>
@@ -861,7 +1125,14 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {t("programDetails.language")}
                     </h3>
                     <div className="px-0 md:px-2">
-                        <BilingualField label={t("programDetails.description")} path={['language']} multiline />
+                        <BilingualField
+                            label={t("programDetails.description")}
+                            path={['language']}
+                            multiline
+                            required
+                            error={{ th: errors['language.th'], en: errors['language.en'] }}
+                            onFocus={(lang) => handleClearError(`language.${lang}`)}
+                        />
                     </div>
                 </section>
 
@@ -871,7 +1142,14 @@ export default function ProgramDetailsForm({ initialData, generalData, onSubmit,
                         {t("programDetails.admission")}
                     </h3>
                     <div className="px-0 md:px-2">
-                        <BilingualField label={t("programDetails.description")} path={['admission']} multiline />
+                        <BilingualField
+                            label={t("programDetails.description")}
+                            path={['admission']}
+                            multiline
+                            required
+                            error={{ th: errors['admission.th'], en: errors['admission.en'] }}
+                            onFocus={(lang) => handleClearError(`admission.${lang}`)}
+                        />
                     </div>
                 </section>
 

@@ -40,7 +40,7 @@
     "closeMenu": "ปิดเมนู",
     "close": "ปิด",
     "menuItem1": "หน้าหลัก",
-    "menuItem2": "บุคคลากร",
+    "menuItem2": "บุคลากร",
     "menuItem3": "วิชาการ",
     "menuItem4": "งานวิจัย",
     "menuItem5": "ข่าวสารและกิจกรรม",
@@ -129,6 +129,7 @@
     "title": "ข่าวสารและกิจกรรม",
     "description": "ติดตามอัปเดตล่าสุดจากภาควิชาคอมพิวเตอร์ศึกษา",
     "readMore": "อ่านเพิ่มเติม",
+    "pin": "ปักหมุดข่าว",
     "noNews": "ขณะนี้ยังไม่มีข่าวประชาสัมพันธ์",
     "loading": "กำลังโหลดข่าว...",
     "fetchError": "ไม่สามารถโหลดข่าวได้ในขณะนี้ โปรดลองใหม่อีกครั้ง",
@@ -564,17 +565,101 @@
       "logout": "ออกจากระบบ",
       "superAdmin": "ผู้ดูแลระบบสูงสุด",
       "adminUser": "ผู้จัดการระบบ",
+      "dashboard": "แดชบอร์ด",
       "settings": "ตั้งค่า",
       "notifications": "การแจ้งเตือน",
       "profile": "โปรไฟล์"
     },
+    "breadcrumbs": {
+      "dashboard": "แดชบอร์ด",
+      "hero": "ฮีโร่แบนเนอร์",
+      "news": "ข่าวสารและกิจกรรม",
+      "awards": "รางวัลและผลงาน",
+      "training": "งานอบรม",
+      "personnel": "ข้อมูลบุคลากร",
+      "programs": "หลักสูตร",
+      "facilities": "สิ่งอำนวยความสะดวก",
+      "onlineResources": "แหล่งเรียนรู้ออนไลน์",
+      "services": "บริการนักศึกษา",
+      "forms": "แบบฟอร์มคำร้อง",
+      "loginHistory": "ประวัติการใช้งาน",
+      "settings": "ตั้งค่า",
+      "profile": "โปรไฟล์ของฉัน",
+      "create": "เพิ่ม",
+      "edit": "แก้ไข",
+      "createItem": "เพิ่ม{item}",
+      "editItem": "แก้ไข{item}",
+      "createGeneral": "เพิ่มข้อมูล",
+      "editGeneral": "แก้ไขข้อมูล"
+    },
     "profile": {
       "title": "โปรไฟล์ผู้ดูแลระบบ",
       "personalInfo": "ข้อมูลส่วนตัว",
-      "name": "ชื่อผู้ใช้งาน",
-      "email": "อีเมล",
+      "name": "ชื่อ-นามสกุล",
+      "username": "ชื่อผู้ใช้งาน (Admin Alias)",
+      "email": "อีเมลหลัก (Account Identity)",
       "role": "บทบาท",
-      "status": "สถานะ"
+      "status": "สถานะ",
+      "statusActive": "ใช้งานอยู่",
+      "statusInactive": "ไม่ใช้งาน",
+      "emailNotSet": "ยังไม่ได้ตั้งค่า – ตั้งค่าได้ที่หน้า Settings เพื่อรับแจ้งเตือนการ Login",
+      "twoFactor": {
+        "title": "การยืนยันตัวตนแบบสองชั้น (2FA)",
+        "enabled": "เปิดใช้งานแล้ว",
+        "disabled": "ยังไม่ได้เปิดใช้งาน",
+        "description": "บัญชีของคุณได้รับการปกป้องด้วย Google Authenticator คุณจะต้องระบุรหัสจากแอปเมื่อเข้าสู่ระบบ",
+        "setupDescription": "เพิ่มความปลอดภัยให้บัญชีของคุณด้วยการใช้ Google Authenticator หรือ Authy เพื่อสร้างรหัส OTP",
+        "enable": "เปิดใช้งาน 2FA",
+        "disable": "ปิดใช้งาน 2FA",
+        "step1": "ขั้นตอนที่ 1: สแกน QR Code",
+        "step1Desc": "เปิดแอป Authenticator แล้วสแกนรหัสนี้",
+        "step2": "ขั้นตอนที่ 2: ระบุรหัสยืนยัน",
+        "verify": "ตรวจสอบ",
+        "success": "เปิดใช้งาน 2FA สำเร็จ!",
+        "backupCodesTitle": "สำคัญ: บันทึกรหัสสำรอง (Backup Codes)",
+        "backupCodesDesc": "หากคุณทำมือถือหาย รหัสเหล่านี้เป็นทางเดียวที่จะเข้าถึงบัญชีได้ โปรดเก็บไว้ในที่ปลอดภัย",
+        "copyAll": "คัดลอกรหัสทั้งหมด",
+        "processing": "กำลังดำเนินการ...",
+        "viewBackup": "ดูรหัสสำรอง"
+      },
+      "notifications": {
+        "sectionTitle": "ความปลอดภัย และ การแจ้งเตือน",
+        "description": "เมื่อมีการ Login เข้าสู่ระบบ ระบบจะส่งอีเมลแจ้งเตือนไปยังที่อยู่ด้านล่างนี้",
+        "emailLabel": "อีเมลรับแจ้งเตือน Login",
+        "toggleLabel": "เปิดการแจ้งเตือนทางอีเมล (Login Notification)",
+        "statusOn": "สถานะ: เปิดอยู่",
+        "statusOff": "สถานะ: ปิดอยู่",
+        "saveButton": "บันทึกการตั้งค่า",
+        "saving": "กำลังบันทึก...",
+        "emailRequired": "จำเป็นต้องระบุอีเมล",
+        "emailRequiredText": "ต้องมีอีเมลก่อนจึงเปิดการแจ้งเตือนได้",
+        "saveSuccess": "บันทึกสำเร็จ!",
+        "saveError": "เกิดข้อผิดพลาด"
+      }
+    },
+    "login": {
+      "title": "เข้าสู่ระบบผู้ดูแลระบบ",
+      "subtitle": "CED Website Administration",
+      "aliasLabel": "ชื่อผู้ใช้งาน (Admin Alias)",
+      "passwordLabel": "รหัสผ่าน (Password)",
+      "rememberMe": "จำไว้ในระบบ",
+      "forgotPassword": "ลืมรหัสผ่าน",
+      "submit": "เข้าสู่ระบบ",
+      "loggingIn": "เข้าสู่ระบบ...",
+      "otpTitle": "ยืนยันตัวตน (2FA)",
+      "otpSubtitle": "กรอกรหัส 6 หลักจากแอป Authenticator",
+      "backupTitle": "ยืนยันด้วยรหัสสำรอง",
+      "backupSubtitle": "กรอกรหัสสำรอง 8 หลัก (Backup Code)",
+      "otpPlaceholder": "000000",
+      "backupPlaceholder": "XXXXXXXX",
+      "back": "ย้อนกลับ",
+      "useBackup": "ใช้รหัสสำรอง (Backup Code)",
+      "useOtp": "ใช้อุปกรณ์ยืนยันตัวตน",
+      "verifyOtp": "ยืนยันรหัส OTP",
+      "verifying": "ตรวจสอบรหัส...",
+      "refCode": "รหัสอ้างอิง",
+      "openApp": "เปิดแอป Authenticator เพื่อดูรหัส",
+      "enterBackup": "กรอกรหัสสำรองของคุณ"
     },
     "pages": {
       "dashboard": {
@@ -616,47 +701,91 @@
       "awards": {
         "title": "รางวัลและความสำเร็จ",
         "description": "จัดการความสำเร็จของนักศึกษาและบุคลากร",
-        "add": "เพิ่มรางวัล"
+        "add": "เพิ่มรางวัล",
+        "createTitle": "บันทึกความสำเร็จ",
+        "createSubtitle": "เพิ่มข้อมูลความสำเร็จของนักศึกษาหรือบุคลากร",
+        "editTitle": "แก้ไขข้อมูลความสำเร็จ",
+        "editSubtitle": "อัปเดตรายละเอียดรางวัลหรือความสำเร็จ",
+        "backToList": "กลับไปหน้าหลัก"
       },
       "news": {
         "title": "ข่าวสารและกิจกรรม",
         "description": "จัดการบทความข่าวและกิจกรรมทั้งหมด",
-        "add": "สร้างใหม่"
+        "add": "สร้างใหม่",
+        "createTitle": "สร้างข่าวใหม่",
+        "createSubtitle": "ร่างบทความหรือกิจกรรมใหม่สำหรับเว็บไซต์",
+        "editTitle": "แก้ไขข่าวสาร",
+        "editSubtitle": "อัปเดตข้อมูลบทความหรือกิจกรรมที่มีอยู่",
+        "backToList": "กลับไปหน้าหลัก",
+        "pin": "ปักหมุดข่าว",
+        "unpin": "เลิกปักหมุด",
+        "pinned": "ปักหมุดข่าว",
+        "unpinned": "เลิกปักหมุดแล้ว",
+        "pinLimitTitle": "ปักหมุดเต็มแล้ว",
+        "pinLimitText": "สามารถปักหมุดข่าวได้สูงสุด {max} รายการ กรุณาเลิกปักหมุดข่าวอื่นก่อน"
       },
       "personnel": {
         "title": "บุคลากร",
         "description": "จัดการข้อมูลอาจารย์และเจ้าหน้าที่",
-        "add": "เพิ่มบุคลากร"
+        "add": "เพิ่มบุคลากร",
+        "createTitle": "เพิ่มข้อมูลบุคลากร",
+        "createSubtitle": "สร้างโปรไฟล์อาจารย์หรือเจ้าหน้าที่ใหม่",
+        "editTitle": "แก้ไขข้อมูลบุคลากร",
+        "editSubtitle": "อัปเดตข้อมูลบุคลากรและรูปถ่ายโปรไฟล์"
       },
       "forms": {
         "title": "แบบฟอร์มคำร้อง",
         "description": "จัดการไฟล์ดาวน์โหลดและลิงก์เอกสาร",
-        "add": "เพิ่มไฟล์"
+        "add": "เพิ่มไฟล์",
+        "createTitle": "เพิ่มแบบฟอร์มคำร้อง",
+        "createSubtitle": "อัปโหลดเอกสารใหม่หรือเพิ่มลิงก์ดาวน์โหลด",
+        "editTitle": "แก้ไขแบบฟอร์มคำร้อง",
+        "editSubtitle": "อัปเดตรายละเอียดแบบฟอร์มหรือเปลี่ยนไฟล์"
       },
       "hero": {
         "title": "ภาพสไลด์หน้าแรก",
         "description": "จัดการรูปภาพที่แสดงบนสไลด์หน้าแรก",
-        "add": "เพิ่มรูปภาพ"
+        "add": "เพิ่มรูปภาพ",
+        "createTitle": "เพิ่มสไลด์หน้าแรก",
+        "createSubtitle": "เพิ่มรูปภาพและข้อความตอบโต้สำหรับสไลด์หน้าแรก",
+        "editTitle": "แก้ไขสไลด์หน้าแรก",
+        "editSubtitle": "อัปเดตรูปภาพ ข้อความ หรือลำดับการแสดงผล"
       },
       "onlineResources": {
         "title": "แหล่งเรียนรู้ออนไลน์",
         "description": "จัดการลิงก์ภายนอกและเครื่องมืออย่างปลอดภัย",
-        "add": "เพิ่มแหล่งเรียนรู้"
+        "add": "เพิ่มแหล่งเรียนรู้",
+        "createTitle": "เพิ่มแหล่งเรียนรู้",
+        "createSubtitle": "เพิ่มเครื่องมือภายนอก ระบบ หรือลิงก์การเรียนรู้ใหม่",
+        "editTitle": "แก้ไขแหล่งเรียนรู้",
+        "editSubtitle": "อัปเดตข้อมูลแหล่งเรียนรู้และรูปแบบการแสดงผล"
       },
       "programs": {
         "title": "หลักสูตรการศึกษา",
         "description": "ดูข้อมูลหลักสูตรปริญญาตรี โท และเอก",
-        "add": "เพิ่มหลักสูตร"
+        "add": "เพิ่มหลักสูตร",
+        "createTitle": "เพิ่มหลักสูตร",
+        "createSubtitle": "เพิ่มข้อมูลหลักสูตรหรือรายละเอียดปริญญาใหม่",
+        "editTitle": "แก้ไขหลักสูตร",
+        "editSubtitle": "อัปเดตข้อมูลหลักสูตรและรายละเอียดต่างๆ"
       },
       "services": {
         "title": "บริการนักศึกษา",
         "description": "จัดการลิงก์บริการและไอคอน",
-        "add": "เพิ่มบริการ"
+        "add": "เพิ่มบริการ",
+        "createTitle": "เพิ่มลิงก์บริการ",
+        "createSubtitle": "เพิ่มลิงก์บริการนักศึกษาหรือหน่วยงานใหม่",
+        "editTitle": "แก้ไขลิงก์บริการ",
+        "editSubtitle": "อัปเดตลิงก์ ชื่อ หรือคำอธิบายบริการ"
       },
       "facilities": {
         "title": "ห้องต่างๆ และแล็บ",
         "description": "จัดการพื้นที่เรียนรู้และอุปกรณ์",
-        "add": "เพิ่มห้องใหม่"
+        "add": "เพิ่มห้องใหม่",
+        "createTitle": "เพิ่มหัองหรือแล็บ",
+        "createSubtitle": "ลงทะเบียนห้องปฏิบัติการ ห้องเรียน หรือพื้นที่ของภาควิชา",
+        "editTitle": "แก้ไขข้อมูลห้องหรือแล็บ",
+        "editSubtitle": "อัปเดตรายละเอียดห้องและรายการอุปกรณ์"
       },
       "auditLogs": {
         "title": "ประวัติการใช้งานและบันทึก",
@@ -664,12 +793,36 @@
       },
       "settings": {
         "title": "ตั้งค่าทั่วไป",
-        "description": "จัดการการตั้งค่าเว็บไซต์และข้อมูลการติดต่อ"
+        "description": "จัดการการตั้งค่าเว็บไซต์และข้อมูลการติดต่อ",
+        "unlockConfirmTitle": "เปิดการแก้ไข?",
+        "unlockConfirmText": "คุณกำลังจะปลดล็อกส่วนนี้เพื่อแก้ไข กรุณาอย่าลืมบันทึกข้อมูลหลังจากแก้ไขเสร็จสิ้น",
+        "lockConfirmTitle": "ล็อกส่วนนี้?",
+        "lockConfirmText": "ล็อกส่วนนี้เพื่อป้องกันการแก้ไขโดยไม่ตั้งใจ",
+        "confirmYes": "ใช่, ดำเนินการ",
+        "confirmCancel": "ยกเลิก"
       },
       "training": {
-        "title": "หลักสูตรอบรม",
-        "description": "จัดการงานอบรมและสัมมนา",
-        "add": "เพิ่มงานอบรม"
+        "title": "การอบรมและกิจกรรม",
+        "description": "จัดการโพสต์ Facebook ที่ฝังอยู่ในส่วนการอบรม",
+        "fbEmbedTitle": "ลิงก์ฝัง Facebook",
+        "post": "โพสต์ที่ {number}",
+        "postHint": "วาง URL ของโพสต์หรือ iframe src",
+        "previewArea": "พื้นที่แสดงตัวอย่าง",
+        "fetching": "กำลังโหลดการตั้งค่า...",
+        "saveChanges": "บันทึกการเปลี่ยนแปลง",
+        "saving": "กำลังบันทึก...",
+        "incompleteTitle": "ข้อมูลไม่ครบถ้วน",
+        "incompleteText": "กรุณาระบุลิงก์ฝัง Facebook ให้ครบทั้ง 3 ช่อง",
+        "saveSuccessTitle": "บันทึกสำเร็จ!",
+        "saveSuccessText": "บันทึกลิงก์ฝัง Facebook สำเร็จ!",
+        "errorTitle": "ข้อผิดพลาด",
+        "somethingWentWrong": "เกิดข้อผิดพลาดบางอย่าง",
+        "common": {
+          "saveConfirmTitle": "คุณแน่ใจหรือไม่?",
+          "saveConfirmText": "คุณต้องการบันทึกการเปลี่ยนแปลงนี้หรือไม่?",
+          "save": "บันทึก",
+          "cancel": "ยกเลิก"
+        }
       },
       "guide": {
         "title": "คู่มือการใช้งานระบบผู้ดูแล",
@@ -786,8 +939,6 @@
         "authorEn": "ผู้เขียน (อังกฤษ)",
         "authorThPlaceholder": "ชื่อผู้เขียน (ภาษาไทย)",
         "authorEnPlaceholder": "Author Name (English)",
-        "summaryTh": "บทคัดย่อ (ไทย)",
-        "summaryEn": "บทคัดย่อ (อังกฤษ)",
         "contentTh": "เนื้อหา (ไทย)",
         "contentEn": "เนื้อหา (อังกฤษ)",
         "publishNews": "เผยแพร่ข่าว",
@@ -819,10 +970,10 @@
           "Certification": "ใบรับรอง/ประกาศนียบัตร",
           "Professional Development": "การพัฒนาวิชาชีพ"
         },
-        "summaryThPlaceholder": "บทคัดย่อ (ภาษาไทย)",
-        "summaryEnPlaceholder": "Abstract/Summary (English)",
         "contentThPlaceholder": "เนื้อหา (ภาษาไทย)",
-        "contentEnPlaceholder": "Content (English)"
+        "contentEnPlaceholder": "Content (English)",
+        "slugErrorTitle": "สลัก (Slug) นี้มีอยู่แล้ว",
+        "slugErrorText": "สลัก หรือ ชื่อภาษาอังกฤษนี้ถูกใช้งานไปแล้วในข่าวอื่น กรุณาเปลี่ยนสลักให้ไม่ซ้ำกัน"
       },
       "awards": {
         "details": "รายละเอียดรางวัล",
@@ -842,7 +993,7 @@
         "additionalInfo": "ข้อมูลเพิ่มเติม",
         "year": "ปี (พ.ศ.)",
         "yearPlaceholder": "2568",
-        "fullDate": "วันที่เต็ม (ไม่บังคับ)",
+        "fullDate": "วัน/เดือน/ปี ของรางวัล",
         "fullDatePlaceholder": "12 มกราคม 2568",
         "awardImage": "รูปภาพรางวัล",
         "saveAward": "บันทึกข้อมูลรางวัล"
@@ -885,8 +1036,8 @@
       "services": {
         "details": "รายละเอียดบริการ",
         "serviceTitle": "ชื่อบริการ",
-        "titlePlaceholderTh": "ชื่อบริการ (ไทย)",
-        "titlePlaceholderEn": "ชื่อบริการ (อังกฤษ)",
+        "titlePlaceholderTh": "ชื่อบริการ (ภาษาไทย)",
+        "titlePlaceholderEn": "Service name (English)",
         "category": "หมวดหมู่",
         "categories": {
           "software": "ซอฟต์แวร์ / ใบอนุญาต",
@@ -1139,7 +1290,15 @@
       "loginSuccess": "เข้าสู่ระบบสำเร็จ",
       "loginFailed": "ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง",
       "invalidCode": "รหัสไม่ถูกต้อง",
+      "twoFactorDisabledTitle": "ปิดใช้งานแล้ว!",
       "twoFactorDisabled": "ปิดใช้งานการยืนยันตัวตนแบบสองขั้นตอนแล้ว",
+      "twoFactorSetupFailed": "ไม่สามารถเริ่มตั้งค่า 2FA ได้ กรุณาลองใหม่อีกครั้ง",
+      "twoFactorVerifyFailed": "การยืนยันล้มเหลว กรุณาตรวจสอบรหัสและลองใหม่อีกครั้ง",
+      "twoFactorDisableFailed": "ไม่สามารถปิดใช้งาน 2FA ได้ กรุณาลองใหม่อีกครั้ง",
+      "twoFactorDisableConfirmText": "การปิดใช้งาน 2FA จะทำให้บัญชีของคุณมีความปลอดภัยน้อยลง",
+      "twoFactorDisableConfirmButton": "ใช่, ปิดเลย!",
+      "accountProtected": "บัญชีของคุณได้รับการป้องกันแล้ว",
+      "orEnterManualCode": "หรือกรอกรหัสด้วยตนเอง",
       "sessionExpiredTitle": "เซสชันหมดอายุ",
       "sessionExpiredText": "เซสชันของคุณหมดอายุแล้ว กรุณาเข้าสู่ระบบอีกครั้ง",
       "loginAgainButton": "เข้าสู่ระบบ",

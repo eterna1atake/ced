@@ -5,6 +5,7 @@ import FileUpload from "@/components/admin/FileUpload";
 import { BilingualInput } from '../common/BilingualInput';
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 type ProgramFormProps = {
     initialData?: Partial<ProgramItem>;
@@ -42,6 +43,9 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         setFormData(prev => ({ ...prev, ...initialData }));
     }
 
+    const { setIsDirty } = useUnsavedChanges();
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = (field: keyof ProgramItem['th']) => {
@@ -51,9 +55,36 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         });
     };
 
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setIsDirty(true);
+        setFormData((prev) => {
+            const newData = { ...prev, [name]: value };
+
+            // Auto-generate path when id or level changes
+            if (name === "id" || name === "level") {
+                const newId = name === "id" ? value : prev.id;
+                const newLevel = name === "level" ? value : prev.level;
+                if (newId) {
+                    newData.link = `/programs/${newLevel}/${newId}`;
+                } else {
+                    newData.link = "";
+                }
+            }
+            return newData;
+        });
+
+        handleClearError(name);
     };
 
     const handleNestedChange = (
@@ -61,6 +92,7 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
         field: keyof ProgramItem['th'],
         value: string
     ) => {
+        setIsDirty(true);
         setFormData((prev) => ({
             ...prev,
             [lang]: {
@@ -68,34 +100,74 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                 [field]: value,
             },
         }));
+
+        const errorKey = `${field}${lang.charAt(0).toUpperCase() + lang.slice(1)}`;
+        handleClearError(errorKey);
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.id) newErrors.id = t("common.required");
+        if (!formData.link) newErrors.link = t("common.required");
+        if (!formData.imageSrc) newErrors.imageSrc = t("common.required");
+        if (!formData.th?.degree) newErrors.degreeTh = t("common.required");
+        if (!formData.en?.degree) newErrors.degreeEn = t("common.required");
+        if (!formData.th?.title) newErrors.titleTh = t("common.required");
+        if (!formData.en?.title) newErrors.titleEn = t("common.required");
+        if (!formData.th?.subtitle) newErrors.subtitleTh = t("common.required");
+        if (!formData.en?.subtitle) newErrors.subtitleEn = t("common.required");
+        if (!formData.th?.description) newErrors.descriptionTh = t("common.required");
+        if (!formData.en?.description) newErrors.descriptionEn = t("common.required");
+        if (!formData.imageAlt) newErrors.imageAlt = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            import("sweetalert2").then((Swal) => {
+                Swal.default.fire({
+                    title: t("common.missingInfoTitle"),
+                    text: t("common.missingInfoText"),
+                    icon: "error",
+                    confirmButtonColor: "#f43f5e",
+                });
+            });
+            return;
+        }
+
+        setIsDirty(false);
         onSubmit(formData as ProgramItem);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("programs.generalInfo")}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Program ID (ReadOnly if editing) */}
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Program ID (Unique Identifier)</label>
+                    <label className={`block text-sm font-medium mb-1 ${errors.id ? "text-red-500" : "text-slate-700 dark:text-slate-300"}`}>Program ID (Unique Identifier)</label>
                     <input
                         type="text"
                         name="id"
                         value={formData.id}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("id")}
                         readOnly={!!initialData?.id}
                         required
                         placeholder="e.g. ced, tct, mtct"
-                        className={`w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-md outline-none ${initialData?.id
-                            ? "bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed"
-                            : "bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
+                        className={`w-full px-4 py-2 border rounded-md outline-none ${initialData?.id
+                            ? "bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed border-slate-200 dark:border-slate-700"
+                            : errors.id
+                                ? "border-red-500 focus:ring-2 focus:ring-red-500/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500"
                             }`}
                     />
+                    {errors.id && <p className="text-[10px] text-red-500 mt-1">{errors.id}</p>}
                     <p className="text-[10px] text-slate-400 mt-1">
                         {initialData?.id
                             ? "Unique ID for this program (cannot be changed after creation)"
@@ -120,17 +192,17 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
 
                 {/* Program Link (URL) */}
                 <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Detail Page Path (e.g. /programs/bachelor/ced)</label>
+                    <label className={`block text-sm font-medium mb-1 ${errors.link ? "text-red-500" : "text-slate-700 dark:text-slate-300"}`}>Detail Page Path (e.g. /programs/bachelor/ced)</label>
                     <input
                         type="text"
                         name="link"
                         value={formData.link}
-                        onChange={handleChange}
+                        readOnly
                         placeholder="/programs/bachelor/ced"
-                        required
-                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        className="w-full px-4 py-2 border rounded-md outline-none bg-slate-100 dark:bg-slate-800/50 text-slate-500 cursor-not-allowed border-slate-200 dark:border-slate-700"
                     />
-                    <p className="text-[10px] text-slate-400 mt-1">Specify the internal path to the detailed information page.</p>
+                    {errors.link && <p className="text-[10px] text-red-500 mt-1">{errors.link}</p>}
+                    <p className="text-[10px] text-slate-400 mt-1">This path is automatically generated from the program level and ID.</p>
                 </div>
 
                 {/* Image Upload */}
@@ -138,23 +210,35 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                     <FileUpload
                         label={t("programs.coverImage")}
                         value={formData.imageSrc}
-                        onChange={(url) => setFormData(prev => ({ ...prev, imageSrc: url }))}
+                        onChange={(url) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, imageSrc: url }));
+                            handleClearError("imageSrc");
+                        }}
+                        onFocus={() => handleClearError("imageSrc")}
                         accept="image/*"
                         folder="ced_web/programs"
+                        required
+                        error={errors.imageSrc}
                     />
                 </div>
 
                 {/* Alt Text */}
                 <div className="col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{t("programs.imageAlt")}</label>
+                    <label className={`block text-sm font-medium mb-1 ${errors.imageAlt ? "text-red-500" : "text-slate-700 dark:text-slate-300"}`}>{t("programs.imageAlt")}</label>
                     <input
                         type="text"
                         name="imageAlt"
                         value={formData.imageAlt}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("imageAlt")}
                         required
-                        className="w-full px-4 py-2 border border-slate-200 dark:border-slate-700 rounded-md focus:ring-2 focus:ring-indigo-500 outline-none bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                        className={`w-full px-4 py-2 border rounded-md outline-none focus:ring-2 ${errors.imageAlt
+                            ? "border-red-500 focus:ring-red-500/20 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
+                            : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-indigo-500"
+                            }`}
                     />
+                    {errors.imageAlt && <p className="text-[10px] text-red-500 mt-1">{errors.imageAlt}</p>}
                 </div>
             </div>
 
@@ -170,6 +254,9 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                     onChange={(lang, val) => handleNestedChange(lang, 'degree', val)}
                     onTranslate={() => handleTranslate('degree')}
                     isTranslating={isTranslating.degree}
+                    required
+                    error={{ th: errors.degreeTh, en: errors.degreeEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "degreeTh" : "degreeEn")}
                 />
 
                 <BilingualInput
@@ -182,6 +269,9 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                     onChange={(lang, val) => handleNestedChange(lang, 'title', val)}
                     onTranslate={() => handleTranslate('title')}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
 
                 <BilingualInput
@@ -194,6 +284,9 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                     onChange={(lang, val) => handleNestedChange(lang, 'subtitle', val)}
                     onTranslate={() => handleTranslate('subtitle')}
                     isTranslating={isTranslating.subtitle}
+                    required
+                    error={{ th: errors.subtitleTh, en: errors.subtitleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "subtitleTh" : "subtitleEn")}
                 />
 
                 <BilingualInput
@@ -203,6 +296,9 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                     onChange={(lang, val) => handleNestedChange(lang, 'description', val)}
                     onTranslate={() => handleTranslate('description')}
                     isTranslating={isTranslating.description}
+                    required
+                    error={{ th: errors.descriptionTh, en: errors.descriptionEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "descriptionTh" : "descriptionEn")}
                 />
             </div>
 
@@ -210,6 +306,7 @@ export default function ProgramForm({ initialData, onSubmit, isLoading = false }
                 <SaveButton
                     isLoading={isLoading}
                     label={t("programs.saveProgram")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

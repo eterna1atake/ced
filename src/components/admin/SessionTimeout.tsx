@@ -35,7 +35,7 @@ export default function SessionTimeout() {
                     allowOutsideClick: false,
                     allowEscapeKey: false
                 }).then(() => {
-                    signOut({ callbackUrl: "/admin/login?error=SessionExpired" });
+                    signOut({ callbackUrl: "/ced-portal/login?error=SessionExpired" });
                 });
 
             } else if (timeLeft <= WARNING_MS) {

@@ -6,11 +6,12 @@ import FileUpload from "@/components/admin/FileUpload";
 import SaveButton from "@/components/admin/common/SaveButton";
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import type { Facility } from "@/types/facility";
 import Swal from "sweetalert2";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 interface FacilityFormProps {
     initialData?: Partial<Facility>;
@@ -33,13 +34,21 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
         id: "",
         name: { th: "", en: "" },
         description: { th: "", en: "" },
-        capacity: "",
+        capacity: { th: "", en: "" },
         equipment: [],
         gallery: [],
         image: "",
         ...initialData
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [capacityValue, setCapacityValue] = useState<string>(() => {
+        // Extract numbers from initial capacity string if it exists
+        const cap = initialData?.capacity;
+        const val = typeof cap === 'string' ? cap : (cap?.th || "");
+        return val.replace(/\D/g, "");
+    });
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = async (field: "name" | "description", text: string) => {
@@ -53,57 +62,114 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                     en: translatedText
                 }
             }));
+
         });
+    };
+
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
+        handleClearError(name);
+    };
+
+    const handleLocalizedChange = (field: "name" | "description", lang: "th" | "en", value: string) => {
+        setIsDirty(true);
+        setFormData(prev => ({
+            ...prev,
+            [field]: {
+                ...prev[field]!,
+                [lang]: value
+            }
+        }));
+
+        const errorKey = field === "name" ? (lang === "th" ? "nameTh" : "nameEn") :
+            field === "description" ? (lang === "th" ? "descriptionTh" : "descriptionEn") : "";
+        if (errorKey) {
+            handleClearError(errorKey);
+        }
     };
 
     const handleEquipmentChange = (index: number, value: string) => {
+        setIsDirty(true);
         const newEquipment = [...(formData.equipment || [])];
         newEquipment[index] = value;
         setFormData(prev => ({ ...prev, equipment: newEquipment }));
     };
 
     const addEquipment = () => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, equipment: [...(prev.equipment || []), ""] }));
     };
 
     const removeEquipment = (index: number) => {
+        setIsDirty(true);
         const newEquipment = [...(formData.equipment || [])];
         newEquipment.splice(index, 1);
         setFormData(prev => ({ ...prev, equipment: newEquipment }));
     };
 
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.id) newErrors.id = t("common.required");
+        if (!formData.name?.th) newErrors.nameTh = t("common.required");
+        if (!formData.name?.en) newErrors.nameEn = t("common.required");
+        if (!formData.description?.th) newErrors.descriptionTh = t("common.required");
+        if (!formData.description?.en) newErrors.descriptionEn = t("common.required");
+        if (!capacityValue) newErrors.capacity = t("common.required");
+        if (!formData.image) newErrors.image = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!formData.name?.th || !formData.name?.en || !formData.id) {
+        if (!validate()) {
             Swal.fire({
-                title: safeT("common.missingInfoTitle", "Missing Information"),
-                text: safeT("common.missingInfoText", "Please fill in all required fields"),
-                icon: "warning"
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
             });
             return;
         }
 
         // ID Validation: Must start with 44- or 52-
-        if (!/^(44|52)-/.test(formData.id)) {
+        if (!/^(44|52)-/.test(formData.id!)) {
             Swal.fire({
                 title: "Invalid Room ID",
                 text: "Room ID must start with a building number (44- or 52-), for example: 52-205",
                 icon: "warning"
             });
+            setErrors(prev => ({ ...prev, id: "Must start with 44- or 52-" }));
             return;
         }
 
-        onSubmit(formData as Facility);
+        setIsDirty(false);
+        const submissionData = {
+            ...formData,
+            capacity: {
+                th: capacityValue ? `${capacityValue} คน` : "",
+                en: capacityValue ? `${capacityValue} students` : ""
+            }
+        };
+        onSubmit(submissionData as Facility);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <div className="border-b dark:border-slate-800 pb-4">
                 <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">
                     {initialData?.id ? t("facilities.editFacility") : t("facilities.newFacility")}
@@ -121,13 +187,26 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                         required
                         placeholder={t("facilities.roomNumberPlaceholder")}
                         hint={t("facilities.roomNumberHint")}
+                        error={errors.id}
+                        onFocus={() => handleClearError("id")}
                     />
                     <FormInput
                         label={t("facilities.capacity")}
                         name="capacity"
-                        value={formData.capacity || ""}
-                        onChange={handleChange}
+                        type="text"
+                        inputMode="numeric"
+                        value={capacityValue}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            setCapacityValue(val);
+                            setIsDirty(true);
+                            handleClearError("capacity");
+                        }}
+                        required
+                        error={errors.capacity}
+                        onFocus={() => handleClearError("capacity")}
                         placeholder={t("facilities.capacityPlaceholder")}
+                        suffix={<span className="text-slate-400 text-sm pr-2">คน / students</span>}
                     />
                 </div>
 
@@ -135,28 +214,28 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                 <BilingualInput
                     label={t("facilities.roomName")}
                     value={formData.name || { th: "", en: "" }}
-                    onChange={(lang, value) => setFormData(prev => ({
-                        ...prev,
-                        name: { ...prev.name!, [lang]: value }
-                    }))}
+                    onChange={(lang, value) => handleLocalizedChange("name", lang, value)}
                     placeholder={{ th: t("facilities.roomNamePlaceholderTh"), en: t("facilities.roomNamePlaceholderEn") }}
                     onTranslate={() => handleTranslate("name", formData.name?.th || "")}
                     isTranslating={isTranslating.name}
+                    required
+                    error={{ th: errors.nameTh, en: errors.nameEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
                 />
 
                 {/* Bilingual Description */}
                 <BilingualInput
                     label={t("facilities.description")}
                     value={formData.description || { th: "", en: "" }}
-                    onChange={(lang, value) => setFormData(prev => ({
-                        ...prev,
-                        description: { ...prev.description!, [lang]: value }
-                    }))}
+                    onChange={(lang, value) => handleLocalizedChange("description", lang, value)}
                     multiline
                     rows={3}
                     placeholder={{ th: t("facilities.descriptionPlaceholderTh"), en: t("facilities.descriptionPlaceholderEn") }}
                     onTranslate={() => handleTranslate("description", formData.description?.th || "")}
                     isTranslating={isTranslating.description}
+                    required
+                    error={{ th: errors.descriptionTh, en: errors.descriptionEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "descriptionTh" : "descriptionEn")}
                 />
             </div>
 
@@ -204,12 +283,17 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                 <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">{safeT("common.media", "Media")}</h4>
 
                 <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {safeT("common.coverImage", "Cover Image")}
-                    </label>
                     <FileUpload
+                        label={safeT("common.coverImage", "Cover Image")}
                         value={formData.image}
-                        onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                        required
+                        error={errors.image}
+                        onChange={(url) => {
+                            setIsDirty(true);
+                            setFormData(prev => ({ ...prev, image: url }));
+                            handleClearError("image");
+                        }}
+                        onFocus={() => handleClearError("image")}
                         accept="image/*"
                         folder="ced_web/facilities"
                     />
@@ -217,7 +301,7 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
 
                 <div>
                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                        {safeT("common.galleryImages", "Gallery Images")} ({formData.gallery?.length || 0})
+                        {safeT("common.galleryImages", "Gallery Images")} ({formData.gallery?.length || 0}/2)
                     </label>
                     {/* Gallery Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -228,30 +312,40 @@ export default function FacilityForm({ initialData, onSubmit, isLoading = false 
                                 <button
                                     type="button"
                                     onClick={() => {
+                                        setIsDirty(true);
                                         const newGallery = [...(formData.gallery || [])];
                                         newGallery.splice(index, 1);
                                         setFormData(prev => ({ ...prev, gallery: newGallery }));
                                     }}
-                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                                    className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 z-10"
                                 >
-                                    <FontAwesomeIcon icon={faTrash} className="w-3 h-3" />
+                                    <FontAwesomeIcon icon={faXmark} className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         ))}
-                        <FileUpload
-                            label={safeT("common.addGalleryImage", "Add Image")}
-                            onChange={(url) => {
-                                if (url) setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), url] }));
-                            }}
-                            accept="image/*"
-                            folder="ced_web/facilities/gallery"
-                        />
+                        {(!formData.gallery || formData.gallery.length < 2) && (
+                            <FileUpload
+                                label={safeT("common.addGalleryImage", "Add Image")}
+                                onChange={(url) => {
+                                    if (url) {
+                                        setIsDirty(true);
+                                        setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), url] }));
+                                    }
+                                }}
+                                accept="image/*"
+                                folder="ced_web/facilities/gallery"
+                            />
+                        )}
                     </div>
                 </div>
             </div>
 
             <div className="flex justify-end pt-6 border-t dark:border-slate-800">
-                <SaveButton isLoading={isLoading} label={t("facilities.saveFacility")} />
+                <SaveButton
+                    isLoading={isLoading}
+                    label={t("facilities.saveFacility")}
+                    loadingLabel={t("common.saving")}
+                />
             </div>
         </form>
     );

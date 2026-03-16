@@ -6,7 +6,7 @@ export type Facility = {
     image: string;
     description?: LocalizedString;
     gallery?: string[];
-    capacity?: string;
+    capacity?: LocalizedString;
     equipment?: string[];
     building?: string;
 };

@@ -4,7 +4,6 @@ export type INewsItem = {
     _id?: string;
     slug: string;
     title: { th: string; en: string };
-    summary: { th: string; en: string };
     content: { th: string; en: string };
     imageSrc: string;
     imageAlt?: string;
@@ -14,6 +13,8 @@ export type INewsItem = {
     author: { th: string; en: string };
     status: 'published' | 'draft' | 'archived';
     tags: string[];
+    isPinned: boolean;
+    pinnedAt?: Date | null;
     createdAt?: Date;
     updatedAt?: Date;
 };
@@ -30,10 +31,6 @@ const NewsSchema = new Schema<INewsItem>(
         title: {
             th: { type: String, required: [true, 'Thai title is required'], trim: true },
             en: { type: String, required: [true, 'English title is required'], trim: true },
-        },
-        summary: {
-            th: { type: String, default: "" },
-            en: { type: String, default: "" },
         },
         content: {
             th: { type: String, default: "" },
@@ -75,12 +72,26 @@ const NewsSchema = new Schema<INewsItem>(
             type: [String],
             default: [],
             index: true
+        },
+        isPinned: {
+            type: Boolean,
+            default: false,
+            index: true
+        },
+        pinnedAt: {
+            type: Date,
+            default: null
         }
     },
     {
         timestamps: true,
     }
 );
+
+// Force model refresh during development if needed
+if (process.env.NODE_ENV === 'development') {
+    delete models.News;
+}
 
 const News = models.News || model<INewsItem>('News', NewsSchema);
 

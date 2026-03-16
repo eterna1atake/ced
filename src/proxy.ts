@@ -19,19 +19,19 @@ const intlMiddleware = createMiddleware({
 // }
 
 function isAdminApiPath(pathname: string) {
-  return pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+  return pathname === "/api/ced-portal" || pathname.startsWith("/api/ced-portal/");
 }
 
 // function isAdminPath(pathname: string) {
-//   return pathname === "/admin" || pathname.startsWith("/admin/");
+//   return pathname === "/ced-portal" || pathname.startsWith("/ced-portal/");
 // }
 
 function isAdminLoginPath(pathname: string) {
   return (
-    pathname === "/admin/login" ||
-    pathname.startsWith("/admin/login/") ||
-    pathname === "/admin/forgot-password" ||
-    pathname.startsWith("/admin/forgot-password/")
+    pathname === "/ced-portal/login" ||
+    pathname.startsWith("/ced-portal/login/") ||
+    pathname === "/ced-portal/forgot-password" ||
+    pathname.startsWith("/ced-portal/forgot-password/")
   );
 }
 
@@ -86,14 +86,14 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
       `img-src 'self' blob: data: https://res.cloudinary.com https://*.facebook.com https://scontent.xx.fbcdn.net https://external.xx.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' https://fonts.gstatic.com data:; ` +
-      `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com ` +
+      `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.gstatic.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com; ` +
       `object-src 'self' https://res.cloudinary.com blob:; ` +
       `worker-src 'self' blob:; ` +
-      `connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net https://analytics.google.com https://*.googleapis.com https://res.cloudinary.com; ` +
+      `connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net https://analytics.google.com https://*.googleapis.com https://res.cloudinary.com https://www.google.com https://recaptcha.google.com; ` +
       `base-uri 'self';`
     );
 
-    res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), browsing-topics=()");
+    res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
     // Set CSRF Cookie
     res.cookies.set("ced_csrf_token", csrfToken, {
@@ -115,12 +115,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     if (isAdminApiPath(pathname)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const role = (req.auth?.user as any)?.role as string | undefined;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const email = (req.auth?.user as any)?.email as string | undefined;
-      const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-      const allowed = role === "superuser" && !!adminEmail && email?.toLowerCase() === adminEmail;
-
-      if (!allowed) {
+      if (role !== "superuser") {
         return applyHeaders(NextResponse.json({ error: "forbidden" }, { status: 403 }));
       }
     }
@@ -130,15 +125,15 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
   // 2. Handle Localization for all pages (including Admin)
   const response = intlMiddleware(req);
 
-  // 3. Handle Admin Authentication for both /admin and /:locale/admin
-  const isLocalizedAdmin = locales.some(l => pathname.startsWith(`/${l}/admin`));
-  const isPlainAdmin = pathname.startsWith("/admin");
+  // 3. Handle Admin Authentication for both /ced-portal and /:locale/ced-portal
+  const isLocalizedAdmin = locales.some(l => pathname.startsWith(`/${l}/ced-portal`));
+  const isPlainAdmin = pathname.startsWith("/ced-portal");
 
   if (isLocalizedAdmin || isPlainAdmin) {
     // Extract actual subpath within admin
     let adminSubpath = pathname;
     if (isLocalizedAdmin) {
-      // Remove /:locale/admin
+      // Remove /:locale/ced-portal
       const parts = pathname.split('/').filter(Boolean);
       adminSubpath = "/" + parts.slice(1).join("/");
     }
@@ -146,18 +141,13 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     if (!isAdminLoginPath(adminSubpath)) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const role = (req.auth?.user as any)?.role as string | undefined;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const email = (req.auth?.user as any)?.email as string | undefined;
-      const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-      const allowed = role === "superuser" && !!adminEmail && email?.toLowerCase() === adminEmail;
 
-      if (!allowed) {
-        // Redirect to login
+      if (role !== "superuser") {
+        // [Security] Rewrite to 404 to not reveal the admin path exists
         const locale = locales.find(l => pathname.startsWith(`/${l}`)) || "th";
         const url = req.nextUrl.clone();
-        url.pathname = `/${locale}/admin/login`;
-        url.searchParams.set("callbackUrl", req.nextUrl.pathname + req.nextUrl.search);
-        return applyHeaders(NextResponse.redirect(url));
+        url.pathname = `/${locale}/404-not-found`;
+        return applyHeaders(NextResponse.rewrite(url));
       }
     }
   }
@@ -170,6 +160,6 @@ export const config = {
   matcher: [
     // ครอบทุกหน้า ยกเว้นไฟล์ static
     "/((?!_next|.*\\..*).*)",
-    "/api/admin/:path*",
+    "/api/ced-portal/:path*",
   ],
 };

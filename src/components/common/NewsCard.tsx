@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, type ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faChevronRight, faThumbTack } from "@fortawesome/free-solid-svg-icons";
 
 
 export interface NewsCardProps {
@@ -20,6 +20,7 @@ export interface NewsCardProps {
   dateFormatOptions?: Intl.DateTimeFormatOptions;
   readMoreLabel?: string;
   makeWholeCardClickable?: boolean;
+  isPinned?: boolean;
 }
 
 /**
@@ -41,9 +42,10 @@ export default function NewsCard({
   dateFormatOptions,
   readMoreLabel = "Read more",
   makeWholeCardClickable = false,
+  isPinned = false,
 }: NewsCardProps) {
   const cardClasses = [
-    "group relative flex h-full w-full max-w-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg min-w-0",
+    "group relative flex h-full w-full max-w-full flex-col rounded-lg border bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg min-w-0",
     className,
   ]
     .filter(Boolean)
@@ -87,7 +89,7 @@ export default function NewsCard({
       suppressHydrationWarning
     >
       {coverImage ? (
-        <div className="relative h-48 md:h-56 lg:h-64 w-full overflow-hidden bg-slate-50">
+        <div className="relative h-48 md:h-56 lg:h-64 w-full overflow-hidden bg-slate-50 rounded-t-lg">
           <Image
             src={coverImage}
             alt={imageAlt ?? title}
@@ -102,16 +104,24 @@ export default function NewsCard({
               {category}
             </span>
           )}
+
+          {isPinned && (
+            <div className="absolute top-3 right-3 z-50 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-md text-white shadow-md transition-all duration-300 group-hover:scale-110 pointer-events-none select-none">
+              <FontAwesomeIcon icon={faThumbTack} className="text-white rotate-45 text-sm" />
+            </div>
+          )}
         </div>
       ) : (
-        category && (
-          <div className="px-4 pt-4 md:px-6 md:pt-6">
+        <div className="px-4 pt-4 md:px-6 md:pt-6 flex justify-between items-center">
+          {category ? (
             <span className="inline-flex items-center rounded-lg bg-primary-main/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-main">
               {category}
             </span>
-          </div>
-        )
+          ) : <div />}
+        </div>
       )}
+
+
 
       <div className="flex flex-1 flex-col gap-3 md:gap-4 p-4 md:p-6 min-w-0">
         <h3 className="text-lg md:text-xl font-semibold text-slate-900 transition-colors duration-200 group-hover:text-primary-main line-clamp-2 min-h-[3.5rem] break-all">
@@ -161,7 +171,7 @@ export default function NewsCard({
     return (
       <Link
         href={targetHref ?? href}
-        className="block h-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/60 focus-visible:ring-offset-2"
+        className="block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/60 focus-visible:ring-offset-2"
       >
 
         {cardContent}

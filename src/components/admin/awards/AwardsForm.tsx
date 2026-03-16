@@ -9,6 +9,7 @@ import { FormInput } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // --- Types & Interfaces ---
 
@@ -45,18 +46,33 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
         advisors: { th: extractLangText(initialData?.advisors, 'th'), en: extractLangText(initialData?.advisors, 'en') },
         image: initialData?.image || "",
         gallery: initialData?.gallery || [],
-        year: initialData?.year || "",
-        date: initialData?.date || "",
+        date: initialData?.date && !isNaN(new Date(initialData.date).getTime())
+            ? new Date(initialData.date).toISOString().split('T')[0]
+            : (initialData?.year ? `${initialData.year}-01-01` : new Date().toISOString().split('T')[0]),
     });
+
+    const { setIsDirty } = useUnsavedChanges();
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, [name]: value }));
-    }, []);
+    }, [setIsDirty]);
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const { translate, isTranslating } = useAutoTranslate();
 
+    const handleClearError = useCallback((name: string) => {
+        setErrors(prev => {
+            if (!prev[name]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+        });
+    }, []);
+
     const handleFieldChange = (field: 'title' | 'project' | 'team' | 'advisors', lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [field]: {
@@ -64,6 +80,10 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                 [lang]: value
             }
         }));
+
+        // Clear error as user types
+        const errorKey = `${field}${lang.charAt(0).toUpperCase() + lang.slice(1)}`;
+        handleClearError(errorKey);
     };
 
     const handleTranslate = (field: 'title' | 'project' | 'team' | 'advisors') => {
@@ -73,11 +93,42 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
     };
 
     const handleImageChange = useCallback((url: string) => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, image: url }));
-    }, []);
+        handleClearError("image");
+    }, [setIsDirty, handleClearError]);
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.title.th) newErrors.titleTh = t("common.required");
+        if (!formData.title.en) newErrors.titleEn = t("common.required");
+        if (!formData.project.th) newErrors.projectTh = t("common.required");
+        if (!formData.project.en) newErrors.projectEn = t("common.required");
+        if (!formData.team.th) newErrors.teamTh = t("common.required");
+        if (!formData.team.en) newErrors.teamEn = t("common.required");
+        if (!formData.advisors.th) newErrors.advisorsTh = t("common.required");
+        if (!formData.advisors.en) newErrors.advisorsEn = t("common.required");
+        if (!formData.date) newErrors.date = t("common.required");
+        if (!formData.image) newErrors.image = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            import("sweetalert2").then((Swal) => {
+                Swal.default.fire({
+                    title: t("common.missingInfoTitle"),
+                    text: t("common.missingInfoText"),
+                    icon: "error",
+                    confirmButtonColor: "#f43f5e",
+                });
+            });
+            return;
+        }
 
         const team = mergeLocalizedArrays(
             parseLines(formData.team.th),
@@ -97,10 +148,11 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
             advisors,
             image: formData.image,
             gallery: (formData.gallery || []).filter(Boolean),
-            year: formData.year,
+            year: formData.date.split('-')[0] || "", // Extract year from YYYY-MM-DD
             date: formData.date
         };
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -117,6 +169,9 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                     placeholder={{ th: t("awards.awardTitlePlaceholderTh"), en: t("awards.awardTitlePlaceholderEn") }}
                     onTranslate={() => handleTranslate("title")}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
 
                 <BilingualInput
@@ -126,6 +181,9 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                     placeholder={{ th: t("awards.projectNamePlaceholderTh"), en: t("awards.projectNamePlaceholderEn") }}
                     onTranslate={() => handleTranslate("project")}
                     isTranslating={isTranslating.project}
+                    required
+                    error={{ th: errors.projectTh, en: errors.projectEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "projectTh" : "projectEn")}
                 />
             </div>
 
@@ -141,6 +199,9 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                     placeholder={{ th: t("awards.teamMembersPlaceholderTh"), en: t("awards.teamMembersPlaceholderEn") }}
                     onTranslate={() => handleTranslate("team")}
                     isTranslating={isTranslating.team}
+                    required
+                    error={{ th: errors.teamTh, en: errors.teamEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "teamTh" : "teamEn")}
                 />
 
                 <BilingualInput
@@ -152,6 +213,9 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                     placeholder={{ th: t("awards.advisorsPlaceholderTh"), en: t("awards.advisorsPlaceholderEn") }}
                     onTranslate={() => handleTranslate("advisors")}
                     isTranslating={isTranslating.advisors}
+                    required
+                    error={{ th: errors.advisorsTh, en: errors.advisorsEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "advisorsTh" : "advisorsEn")}
                 />
             </div>
 
@@ -161,19 +225,15 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormInput
-                        label={t("awards.year")}
-                        name="year"
-                        value={formData.year}
-                        onChange={handleChange}
-                        required
-                        placeholder={t("awards.yearPlaceholder")}
-                    />
-                    <FormInput
                         label={t("awards.fullDate")}
                         name="date"
+                        type="date"
                         value={formData.date}
                         onChange={handleChange}
+                        required
                         placeholder={t("awards.fullDatePlaceholder")}
+                        error={errors.date}
+                        onFocus={() => handleClearError("date")}
                     />
                 </div>
 
@@ -184,64 +244,72 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                         onChange={handleImageChange}
                         accept="image/*"
                         folder="ced_web/awards"
+                        error={errors.image}
+                        required
+                        onFocus={() => handleClearError("image")}
                     />
                 </div>
 
                 {/* Gallery Images */}
-                {/* Gallery Images */}
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
-                            {t("common.galleryImages")} (Optional)
-                        </label>
-                        <button
-                            type="button"
-                            onClick={() => setFormData(prev => ({ ...prev, gallery: [...(prev.gallery || []), ""] }))}
-                            className="text-sm text-indigo-600 hover:text-indigo-500 font-medium flex items-center gap-1"
-                        >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            {t("common.addGalleryImage")}
-                        </button>
-                    </div>
+                <div className="space-y-4 pt-4 border-t">
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t("common.galleryImages")} ({formData.gallery?.length || 0}/5)
+                    </label>
 
+                    {/* Image Grid */}
                     {formData.gallery && formData.gallery.length > 0 && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {formData.gallery.map((url, index) => (
-                                <div key={`gallery-${index}-${url}`} className="relative group">
-                                    <FileUpload
-                                        label={`${t("common.media")} ${index + 1}`}
-                                        value={url}
-                                        onChange={(newUrl) => {
-                                            setFormData(prev => {
-                                                const newGallery = [...(prev.gallery || [])];
-                                                newGallery[index] = newUrl;
-                                                return { ...prev, gallery: newGallery };
-                                            });
-                                        }}
-                                        accept="image/*"
-                                        helperText="Support JPG, PNG, WebP"
-                                        folder="ced_web/awards"
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-4">
+                            {formData.gallery.map((img, index) => (
+                                <div key={index} className="relative group aspect-video bg-slate-100 dark:bg-slate-800 rounded-md overflow-hidden border border-slate-200 dark:border-slate-700">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src={img}
+                                        alt={`Gallery ${index + 1}`}
+                                        className="w-full h-full object-contain"
                                     />
-                                    {/* Remove Slot Button - positioned next to the label */}
                                     <button
                                         type="button"
-                                        onClick={() => setFormData(prev => ({
-                                            ...prev,
-                                            gallery: (prev.gallery || []).filter((_, i) => i !== index)
-                                        }))}
-                                        className="absolute top-0 right-0 text-red-500 hover:text-red-700 transition-colors p-1 z-30 flex items-center gap-1 text-[10px] font-bold uppercase"
-                                        title="Delete slot"
+                                        onClick={() => {
+                                            setIsDirty(true);
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                gallery: prev.gallery.filter((_, i) => i !== index)
+                                            }));
+                                        }}
+                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
                                     >
-                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                                            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                                         </svg>
-                                        Delete
                                     </button>
                                 </div>
                             ))}
                         </div>
+                    )}
+
+                    {/* Add Image Button */}
+                    {(formData.gallery?.length || 0) < 5 ? (
+                        <FileUpload
+                            label={t("common.addGalleryImage")}
+                            onChange={(url) => {
+                                if (url) {
+                                    setIsDirty(true);
+                                    setFormData(prev => ({
+                                        ...prev,
+                                        gallery: [...(prev.gallery || []), url]
+                                    }));
+                                }
+                            }}
+                            accept="image/*"
+                            folder="ced_web/awards"
+                        />
+                    ) : (
+                        <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-md border border-amber-200 shadow-sm flex items-center gap-2">
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            {t("common.maxImagesReached", { max: 5 })}
+                        </p>
                     )}
                 </div>
             </div>
@@ -251,6 +319,7 @@ export default function AwardsForm({ initialData, onSubmit, isLoading = false }:
                 <SaveButton
                     isLoading={isLoading}
                     label={t("awards.saveAward")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

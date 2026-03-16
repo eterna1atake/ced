@@ -8,6 +8,7 @@ import { FormSelect } from "@/components/admin/common/FormInputs";
 import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // These matches FORM_REQUESTS_DATA structure but will be stored in and fetched from DB
 const CATEGORIES = [
@@ -52,6 +53,8 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         en: { name: initialData?.en?.name || "" },
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = () => {
@@ -60,25 +63,62 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         });
     };
 
+    const handleClearError = (name: string) => {
+        if (errors[name]) {
+            setErrors(prev => {
+                const newErrors = { ...prev };
+                delete newErrors[name];
+                return newErrors;
+            });
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
+        setIsDirty(true);
         if (name === "categoryId") {
             const firstSection = SECTIONS[value][0].id;
             setFormData(prev => ({ ...prev, categoryId: value, sectionId: firstSection }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
+
+        handleClearError(name);
     };
 
     const handleNameChange = (lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             [lang]: { name: value }
         }));
+
+        const errorKey = lang === 'th' ? "nameTh" : "nameEn";
+        handleClearError(errorKey);
+    };
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.th.name) newErrors.nameTh = t("common.required");
+        if (!formData.en.name) newErrors.nameEn = t("common.required");
+        if (!formData.url) newErrors.url = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
 
         const result = await Swal.fire({
             title: t("common.saveConfirmTitle") || "Are you sure?",
@@ -92,12 +132,13 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
         });
 
         if (result.isConfirmed) {
+            setIsDirty(false);
             await onSubmit(formData);
         }
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg dark:border dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4 mb-6">{t("formRequest.details")}</h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -106,6 +147,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     name="categoryId"
                     value={formData.categoryId}
                     onChange={handleChange}
+                    onFocus={() => handleClearError("categoryId")}
                     options={CATEGORIES.map(c => ({ value: c.id, label: `${c.en} / ${c.th}` }))}
                 />
 
@@ -114,18 +156,8 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     name="sectionId"
                     value={formData.sectionId}
                     onChange={handleChange}
+                    onFocus={() => handleClearError("sectionId")}
                     options={(SECTIONS[formData.categoryId] || []).map(s => ({ value: s.id, label: `${s.en} / ${s.th}` }))}
-                />
-            </div>
-
-            <div className="col-span-2">
-                <FileUpload
-                    label={t("formRequest.file")}
-                    value={formData.url}
-                    onChange={(url) => setFormData(prev => ({ ...prev, url: url }))}
-                    accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
-                    folder="ced_web/forms"
-                    helperText={t("formRequest.fileHint")}
                 />
             </div>
 
@@ -137,6 +169,33 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                     placeholder={{ th: t("formRequest.namePlaceholderTh"), en: t("formRequest.namePlaceholderEn") }}
                     onTranslate={handleTranslate}
                     isTranslating={isTranslating.name}
+                    required
+                    error={{ th: errors.nameTh, en: errors.nameEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "nameTh" : "nameEn")}
+                />
+            </div>
+
+            <div className="col-span-2">
+                <FileUpload
+                    label={t("formRequest.file")}
+                    value={formData.url}
+                    onChange={(url) => {
+                        setIsDirty(true);
+                        setFormData(prev => ({ ...prev, url: url }));
+                        if (errors.url) {
+                            setErrors(prev => {
+                                const newErrors = { ...prev };
+                                delete newErrors.url;
+                                return newErrors;
+                            });
+                        }
+                    }}
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
+                    folder="ced_web/forms"
+                    helperText={t("formRequest.fileHint")}
+                    required
+                    error={errors.url}
+                    onFocus={() => handleClearError("url")}
                 />
             </div>
 
@@ -144,7 +203,7 @@ export default function FormRequestForm({ initialData, onSubmit, isLoading = fal
                 <SaveButton
                     isLoading={isLoading}
                     label={t("formRequest.save")}
-                    disabled={!formData.url}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

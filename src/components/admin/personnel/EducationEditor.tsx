@@ -3,14 +3,18 @@
 import { EducationEntry } from "@/types/personnel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FormSelect } from "@/components/admin/common/FormInputs";
+import { FormInput, FormSelect } from "@/components/admin/common/FormInputs";
 import { DEGREE_LEVELS } from "./constants";
 
-export const EducationEditor = ({ value, onChange, onTranslate, translatingField }: {
+export const EducationEditor = ({ value, onChange, onTranslate, translatingField, errors = {}, onClearError, t }: {
     value: EducationEntry[],
     onChange: (val: EducationEntry[]) => void,
     onTranslate: (idx: number, field: 'major' | 'university') => void,
-    translatingField: string | null
+    translatingField: string | null,
+    errors?: Record<string, string>,
+    onClearError?: (name: string) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    t: any
 }) => {
     const addEntry = () => onChange([...value, {
         level: DEGREE_LEVELS[0],
@@ -34,7 +38,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
         <div className="space-y-8 bg-white dark:bg-slate-900">
             <div className="flex justify-between items-center mb-2">
                 <label className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                    Education History
+                    {t("personnel.education")}
                 </label>
             </div>
             {value.map((edu, idx) => (
@@ -43,7 +47,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                         {/* level Selection */}
                         <div className="md:col-span-4">
                             <FormSelect
-                                label="Degree Level"
+                                label={t("personnel.degreeLevel")}
                                 name={`edu-level-${idx}`}
                                 value={`${edu.level.th}|${edu.level.en}`}
                                 onChange={(e) => {
@@ -60,7 +64,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                         {/* Major / Field of Study */}
                         <div className="md:col-span-4">
                             <div className="flex justify-between items-center mb-1">
-                                <label className="block text-sm font-semibold text-slate-700">Major / Field</label>
+                                <label className="block text-sm font-semibold text-slate-700">{t("personnel.majorField")}</label>
                                 <button
                                     type="button"
                                     onClick={() => onTranslate(idx, 'major')}
@@ -70,20 +74,30 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                                     {translatingField === `edu-${idx}-major` ? "..." : "Translate"}
                                 </button>
                             </div>
-                            <div className="space-y-2">
-                                <input
-                                    type="text"
+                            <div className="space-y-4">
+                                <FormInput
+                                    label=""
+                                    name={`edu-${idx}-majorTh`}
                                     placeholder="สาขาวิชา (ไทย)"
                                     value={edu.major.th}
-                                    onChange={(e) => updateEntry(idx, 'major', 'th', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'major', 'th', e.target.value);
+                                        onClearError?.(`edu-${idx}-majorTh`);
+                                    }}
+                                    onFocus={() => onClearError?.(`edu-${idx}-majorTh`)}
+                                    error={errors[`edu-${idx}-majorTh`]}
                                 />
-                                <input
-                                    type="text"
+                                <FormInput
+                                    label=""
+                                    name={`edu-${idx}-majorEn`}
                                     placeholder="Major / Field (English)"
                                     value={edu.major.en}
-                                    onChange={(e) => updateEntry(idx, 'major', 'en', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'major', 'en', e.target.value);
+                                        onClearError?.(`edu-${idx}-majorEn`);
+                                    }}
+                                    onFocus={() => onClearError?.(`edu-${idx}-majorEn`)}
+                                    error={errors[`edu-${idx}-majorEn`]}
                                 />
                             </div>
                         </div>
@@ -91,7 +105,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                         {/* University */}
                         <div className="md:col-span-4">
                             <div className="flex justify-between items-center mb-1">
-                                <label className="block text-sm font-semibold text-slate-700">University</label>
+                                <label className="block text-sm font-semibold text-slate-700">{t("personnel.university")}</label>
                                 <button
                                     type="button"
                                     onClick={() => onTranslate(idx, 'university')}
@@ -101,20 +115,30 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                                     {translatingField === `edu-${idx}-university` ? "..." : "Translate"}
                                 </button>
                             </div>
-                            <div className="space-y-2">
-                                <input
-                                    type="text"
+                            <div className="space-y-4">
+                                <FormInput
+                                    label=""
+                                    name={`edu-${idx}-uniTh`}
                                     placeholder="มหาวิทยาลัย (ไทย)"
                                     value={edu.university.th}
-                                    onChange={(e) => updateEntry(idx, 'university', 'th', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'university', 'th', e.target.value);
+                                        onClearError?.(`edu-${idx}-uniTh`);
+                                    }}
+                                    onFocus={() => onClearError?.(`edu-${idx}-uniTh`)}
+                                    error={errors[`edu-${idx}-uniTh`]}
                                 />
-                                <input
-                                    type="text"
+                                <FormInput
+                                    label=""
+                                    name={`edu-${idx}-uniEn`}
                                     placeholder="University (English)"
                                     value={edu.university.en}
-                                    onChange={(e) => updateEntry(idx, 'university', 'en', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'university', 'en', e.target.value);
+                                        onClearError?.(`edu-${idx}-uniEn`);
+                                    }}
+                                    onFocus={() => onClearError?.(`edu-${idx}-uniEn`)}
+                                    error={errors[`edu-${idx}-uniEn`]}
                                 />
                             </div>
                         </div>
@@ -136,7 +160,7 @@ export const EducationEditor = ({ value, onChange, onTranslate, translatingField
                 className="w-full py-3 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 font-semibold hover:border-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
             >
                 <FontAwesomeIcon icon={faPlus} />
-                Add Education Entry
+                {t("personnel.addEducation")}
             </button>
         </div>
     );

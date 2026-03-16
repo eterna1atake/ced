@@ -2,10 +2,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 // SVG Icons for generic usage
 const Icons = {
@@ -39,8 +40,10 @@ export default function AdminSidebar({
     setIsCollapsed?: (val: boolean) => void;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const t = useTranslations("Admin.sidebar");
     const locale = useLocale();
+    const { isDirty, setIsDirty } = useUnsavedChanges();
 
     // Prevent scrolling when mobile sidebar is open
     useEffect(() => {
@@ -60,40 +63,40 @@ export default function AdminSidebar({
         {
             title: t("content"),
             items: [
-                { label: t("dashboard"), href: `/${locale}/admin`, icon: Icons.Dashboard },
-                { label: t("hero"), href: `/${locale}/admin/hero`, icon: Icons.Content },
-                { label: t("news"), href: `/${locale}/admin/news`, icon: Icons.News },
-                { label: t("awards"), href: `/${locale}/admin/awards`, icon: Icons.Award },
-                { label: t("training"), href: `/${locale}/admin/training`, icon: Icons.Training },
+                { label: t("dashboard"), href: `/${locale}/ced-portal`, icon: Icons.Dashboard },
+                { label: t("hero"), href: `/${locale}/ced-portal/hero`, icon: Icons.Content },
+                { label: t("news"), href: `/${locale}/ced-portal/news`, icon: Icons.News },
+                { label: t("awards"), href: `/${locale}/ced-portal/awards`, icon: Icons.Award },
+                { label: t("training"), href: `/${locale}/ced-portal/training`, icon: Icons.Training },
             ]
         },
         {
             title: t("people"),
             items: [
-                { label: t("personnel"), href: `/${locale}/admin/personnel`, icon: Icons.Person },
+                { label: t("personnel"), href: `/${locale}/ced-portal/personnel`, icon: Icons.Person },
             ]
         },
         {
             title: t("academic"),
             items: [
-                { label: t("programs"), href: `/${locale}/admin/programs`, icon: Icons.Program },
-                { label: t("facilities"), href: `/${locale}/admin/facilities`, icon: Icons.Room },
-                { label: t("onlineResources"), href: `/${locale}/admin/online-resources`, icon: Icons.Globe },
+                { label: t("programs"), href: `/${locale}/ced-portal/programs`, icon: Icons.Program },
+                { label: t("facilities"), href: `/${locale}/ced-portal/facilities`, icon: Icons.Room },
+                { label: t("onlineResources"), href: `/${locale}/ced-portal/online-resources`, icon: Icons.Globe },
             ]
         },
         {
             title: t("services"),
             items: [
-                { label: t("studentServices"), href: `/${locale}/admin/services`, icon: Icons.Service },
-                { label: t("formRequests"), href: `/${locale}/admin/forms`, icon: Icons.Form },
+                { label: t("studentServices"), href: `/${locale}/ced-portal/services`, icon: Icons.Service },
+                { label: t("formRequests"), href: `/${locale}/ced-portal/forms`, icon: Icons.Form },
             ]
         },
         {
             title: t("system"),
             items: [
-                { label: t("loginHistory"), href: `/${locale}/admin/login-history`, icon: Icons.History },
-                { label: t("settings"), href: `/${locale}/admin/settings`, icon: Icons.Settings },
-                { label: t("myProfile"), href: `/${locale}/admin/profile`, icon: Icons.Person },
+                { label: t("loginHistory"), href: `/${locale}/ced-portal/login-history`, icon: Icons.History },
+                { label: t("settings"), href: `/${locale}/ced-portal/settings`, icon: Icons.Settings },
+                { label: t("myProfile"), href: `/${locale}/ced-portal/profile`, icon: Icons.Person },
             ]
         }
     ];
@@ -199,15 +202,42 @@ export default function AdminSidebar({
 
                             <div className="space-y-1">
                                 {group.items.map((item) => {
-                                    const isActive = pathname === item.href;
+                                    const isActive = item.href === `/${locale}/ced-portal`
+                                        ? pathname === item.href
+                                        : pathname.startsWith(item.href) && (pathname.length === item.href.length || pathname[item.href.length] === '/');
                                     const Icon = item.icon;
                                     return (
                                         <Link
                                             key={item.label}
                                             href={item.href}
-                                            onClick={() => {
-                                                setIsOpen(false);
-                                                if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                            onClick={(e) => {
+                                                if (isDirty) {
+                                                    e.preventDefault();
+                                                    import("sweetalert2").then((Swal) => {
+                                                        Swal.default.fire({
+                                                            title: locale === 'th' ? "แจ้งเตือนการเปลี่ยนหน้า" : "Unsaved Changes",
+                                                            text: locale === 'th'
+                                                                ? "คุณกำลังกรอกข้อมูลอยู่หน้านี้ คุณแน่ใจใช่ไหมว่าต้องการเปลี่ยนหน้า?"
+                                                                : "You have unsaved changes. Are you sure you want to leave?",
+                                                            icon: "warning",
+                                                            showCancelButton: true,
+                                                            confirmButtonColor: "#3085d6",
+                                                            cancelButtonColor: "#d33",
+                                                            confirmButtonText: locale === 'th' ? "แน่ใจ, เปลี่ยนหน้า" : "Yes, leave",
+                                                            cancelButtonText: locale === 'th' ? "ยกเลิก" : "Cancel",
+                                                        }).then((result) => {
+                                                            if (result.isConfirmed) {
+                                                                setIsDirty(false);
+                                                                setIsOpen(false);
+                                                                if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                                                router.push(item.href);
+                                                            }
+                                                        });
+                                                    });
+                                                } else {
+                                                    setIsOpen(false);
+                                                    if (isCollapsed && setIsCollapsed) setIsCollapsed(false);
+                                                }
                                             }}
                                             title={isCollapsed ? item.label : undefined}
                                             className={`

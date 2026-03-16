@@ -5,9 +5,11 @@ import clientPromise from "@/lib/mongodb";
 export async function POST() {
     try {
         const session = await auth();
-        const userEmail = session?.user?.email;
+        // Use username (alias) as primary identifier — email is optional
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sessionUsername = (session?.user as any)?.username;
 
-        if (!userEmail) {
+        if (!session || !sessionUsername) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -16,7 +18,7 @@ export async function POST() {
 
         // Disable TOTP and remove secrets/backup codes
         const result = await db.collection("users").updateOne(
-            { email: userEmail },
+            { username: sessionUsername },
             {
                 $set: { totpEnabled: false },
                 $unset: {
@@ -26,8 +28,8 @@ export async function POST() {
             }
         );
 
-        if (result.modifiedCount === 0) {
-            // It's possible it was already disabled, which is fine, but checking just in case user doesn't exist which shouldn't happen
+        if (result.matchedCount === 0) {
+            return NextResponse.json({ error: "ไม่พบข้อมูลผู้ใช้" }, { status: 404 });
         }
 
         return NextResponse.json({ success: true, message: "Two-Factor Authentication disabled" });

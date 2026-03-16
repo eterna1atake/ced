@@ -1,4 +1,4 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 export type IFacility = {
     _id?: string;
@@ -7,12 +7,17 @@ export type IFacility = {
     image: string;
     description: { th: string; en: string };
     gallery: string[];
-    capacity: string;
+    capacity: { th: string; en: string };
     equipment: string[];
     building?: string; // Derived from ID usually, but good to have explicit or virtual
     createdAt?: Date;
     updatedAt?: Date;
 };
+
+const LocalizedSchema = new Schema({
+    th: { type: String, default: "" },
+    en: { type: String, default: "" },
+}, { _id: false });
 
 const FacilitySchema = new Schema<IFacility>(
     {
@@ -21,7 +26,6 @@ const FacilitySchema = new Schema<IFacility>(
             required: [true, 'Facility ID is required'],
             unique: true,
             trim: true,
-            // 44-xxx or 52-xxx
             validate: {
                 validator: function (v: string) {
                     return /^(44|52)-/.test(v);
@@ -38,12 +42,9 @@ const FacilitySchema = new Schema<IFacility>(
             required: [true, 'Cover image is required'],
             trim: true,
         },
-        description: {
-            th: { type: String, default: "" },
-            en: { type: String, default: "" },
-        },
+        description: LocalizedSchema,
         gallery: [{ type: String }],
-        capacity: { type: String, default: "" },
+        capacity: LocalizedSchema,
         equipment: [{ type: String }],
     },
     {
@@ -62,6 +63,17 @@ FacilitySchema.virtual('building').get(function () {
     return 'Unknown';
 });
 
-const Facility = models.Facility || model<IFacility>('Facility', FacilitySchema);
+// In Next.js dev mode, the model might be cached with an old schema.
+// We try to delete it to ensure the new schema with localized capacity is used.
+if (process.env.NODE_ENV === 'development') {
+    try {
+        mongoose.deleteModel('Facility');
+        console.log("DEBUG: Deleted Facility model for schema refresh");
+    } catch {
+        // Model might not exist yet
+    }
+}
 
+const Facility = mongoose.models.Facility || mongoose.model<IFacility>('Facility', FacilitySchema);
+console.log("DEBUG: Facility model capacity path type:", Facility.schema.path('capacity').constructor.name);
 export default Facility;

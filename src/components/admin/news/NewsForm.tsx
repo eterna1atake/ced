@@ -10,6 +10,7 @@ import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 import type { NewsSeedItem } from "@/types/news";
 import FileUpload from "@/components/admin/FileUpload";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 type NewsFormProps = {
@@ -65,11 +66,10 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     const [formData, setFormData] = useState<Partial<NewsSeedItem>>({
         title: { en: "", th: "" },
         slug: "",
-        summary: { en: "", th: "" },
         content: { en: "", th: "" },
         imageSrc: "",
         author: { en: "", th: "" },
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD in local time
         status: "draft",
         tags: [],
         ...initialData,
@@ -90,26 +90,16 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
     }, [session, initialData]);
 
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
-    const handleTranslate = async (field: "title" | "summary" | "content", text: string) => {
+    const handleTranslate = async (field: "title" | "content", text: string) => {
         await translate(field, text, (translated) => {
             handleLocalizedChange(field, "en", translated);
         });
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => {
-            const updates: Partial<NewsSeedItem> = { [name]: value };
-            // Clear tags if category changes
-            if (name === "category") {
-                updates.tags = [];
-            }
-            return { ...prev, ...updates };
-        });
-
-        // Clear error for the field
+    const handleClearError = (name: string) => {
         if (errors[name]) {
             setErrors(prev => {
                 const newErrors = { ...prev };
@@ -119,6 +109,21 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         }
     };
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setIsDirty(true);
+        setFormData((prev) => {
+            const updates: Partial<NewsSeedItem> = { [name]: value };
+            // Clear tags if category changes
+            if (name === "category") {
+                updates.tags = [];
+            }
+            return { ...prev, ...updates };
+        });
+
+        handleClearError(name);
+    };
+
     const generateSlug = (text: string) => {
         return text
             .toLowerCase()
@@ -126,7 +131,8 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             .replace(/ +/g, '-');
     };
 
-    const handleLocalizedChange = (field: "title" | "summary" | "content" | "author", locale: "en" | "th", value: string) => {
+    const handleLocalizedChange = (field: "title" | "content" | "author", locale: "en" | "th", value: string) => {
+        setIsDirty(true);
         setFormData((prev) => {
             const updates = {
                 [field]: {
@@ -152,20 +158,13 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         // Clear error
         // Let's use simpler keys based on input names
         const nameKey = field === "title" ? (locale === 'en' ? 'titleEn' : 'titleTh') :
-            field === "summary" ? (locale === 'en' ? 'summaryEn' : 'summaryTh') :
-                field === "content" ? (locale === 'en' ? 'contentEn' : 'contentTh') :
-                    (locale === 'en' ? 'authorEn' : 'authorTh');
+            field === "content" ? (locale === 'en' ? 'contentEn' : 'contentTh') :
+                (locale === 'en' ? 'authorEn' : 'authorTh');
 
-        if (errors[nameKey]) {
-            setErrors(prev => {
-                const newErrors = { ...prev };
-                delete newErrors[nameKey];
-                // Also clear slug error if auto-generated
-                if (field === "title" && locale === "en") {
-                    delete newErrors.slug;
-                }
-                return newErrors;
-            });
+        handleClearError(nameKey);
+        // Also clear slug error if auto-generated
+        if (field === "title" && locale === "en") {
+            handleClearError('slug');
         }
     };
 
@@ -173,6 +172,9 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
         const newErrors: Record<string, string> = {};
         if (!formData.title?.en) newErrors.titleEn = t("common.required");
         if (!formData.title?.th) newErrors.titleTh = t("common.required");
+
+        if (!formData.content?.th) newErrors.contentTh = t("common.required");
+        if (!formData.content?.en) newErrors.contentEn = t("common.required");
 
         // If slug is missing but English title exists, auto-generate it
         if (!formData.slug && formData.title?.en) {
@@ -218,6 +220,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             updatedAt: new Date().toISOString(),
         } as NewsSeedItem;
 
+        setIsDirty(false);
         onSubmit(submissionData);
     };
 
@@ -239,23 +242,24 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="titleTh"
                         value={formData.title?.th || ""}
                         onChange={(e) => handleLocalizedChange("title", "th", e.target.value)}
+                        onFocus={() => handleClearError("titleTh")}
                         required
                         placeholder={t("news.titleThPlaceholder")}
                         error={errors.titleTh}
-                        suffix={
+                        labelAction={
                             <button
                                 type="button"
                                 onClick={() => handleTranslate("title", formData.title?.th || "")}
                                 disabled={isTranslating.title || !formData.title?.th}
-                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1 transition-colors whitespace-nowrap"
+                                className="text-[10px] uppercase tracking-wider font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1.5 transition-all"
                                 title={t("common.autoTranslate")}
                             >
                                 {isTranslating.title ? (
                                     <div className="w-3 h-3 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
                                 ) : (
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1" />
-                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1" fill="none" />
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                                        <path d="M4 14l3-6 3 6M5 12h4" stroke="currentColor" strokeWidth="1.5" />
+                                        <path d="M11 8l3 6M11 11c1 0 2 0.5 2 1.5s-1 1.5-2 1.5" stroke="currentColor" strokeWidth="1.5" fill="none" />
                                     </svg>
                                 )}
                                 {isTranslating.title ? t("common.translating") : t("common.autoTranslate")}
@@ -267,6 +271,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="titleEn"
                         value={formData.title?.en || ""}
                         onChange={(e) => handleLocalizedChange("title", "en", e.target.value)}
+                        onFocus={() => handleClearError("titleEn")}
                         required
                         placeholder={t("news.titleEnPlaceholder")}
                         error={errors.titleEn}
@@ -280,6 +285,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="slug"
                         value={formData.slug || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("slug")}
                         required
                         placeholder={t("news.slugPlaceholder")}
                         error={errors.slug}
@@ -290,8 +296,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="date"
                         type="date"
                         value={formData.date || ""}
-                        onChange={() => { }} // No-op
-                        disabled // Read-only as per request
+                        onChange={handleChange}
                         required
                     />
                 </div>
@@ -303,6 +308,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="category"
                         value={formData.category || ""}
                         onChange={handleChange}
+                        onFocus={() => handleClearError("category")}
                         error={errors.category}
                         options={[
                             { value: "", label: t("news.selectCategory") },
@@ -314,6 +320,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         name="tags"
                         value={formData.tags?.[0] || ""}
                         onChange={(e) => {
+                            setIsDirty(true);
                             setFormData(prev => ({ ...prev, tags: [e.target.value] }));
                         }}
                         options={[
@@ -342,8 +349,6 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                     />
                 </div>
 
-
-
                 {/* Section 6: Content */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <FormTextarea
@@ -352,13 +357,16 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         rows={12}
                         value={formData.content?.th || ""}
                         onChange={(e) => handleLocalizedChange("content", "th", e.target.value)}
+                        onFocus={() => handleClearError("contentTh")}
                         placeholder={t("news.contentThPlaceholder")}
-                        hint={
+                        required
+                        error={errors.contentTh}
+                        labelAction={
                             <button
                                 type="button"
                                 onClick={() => handleTranslate("content", formData.content?.th || "")}
                                 disabled={isTranslating.content || !formData.content?.th}
-                                className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 mt-1 transition-colors flex items-center gap-1"
+                                className="text-[10px] uppercase tracking-wider font-bold text-indigo-600 hover:text-indigo-800 disabled:text-slate-400 flex items-center gap-1.5 transition-all"
                             >
                                 {isTranslating.content ? (
                                     <div className="w-2 h-2 border border-indigo-600 border-t-transparent rounded-full animate-spin" />
@@ -378,7 +386,10 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         rows={12}
                         value={formData.content?.en || ""}
                         onChange={(e) => handleLocalizedChange("content", "en", e.target.value)}
+                        onFocus={() => handleClearError("contentEn")}
                         placeholder={t("news.contentEnPlaceholder")}
+                        required
+                        error={errors.contentEn}
                     />
                 </div>
 
@@ -393,17 +404,15 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                         </label>
                         <FileUpload
                             value={formData.imageSrc}
+                            onFocus={() => handleClearError("imageSrc")}
                             onChange={(url) => {
+                                setIsDirty(true);
                                 setFormData(prev => ({ ...prev, imageSrc: url }));
-                                if (errors.imageSrc) {
-                                    setErrors(prev => {
-                                        const newErrors = { ...prev };
-                                        delete newErrors.imageSrc;
-                                        return newErrors;
-                                    });
-                                }
+                                handleClearError("imageSrc");
                             }}
                             accept="image/*"
+                            error={errors.imageSrc}
+                            required
                         />
                     </div>
 
@@ -428,6 +437,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                                         <button
                                             type="button"
                                             onClick={() => {
+                                                setIsDirty(true);
                                                 const newGallery = [...(formData.galleryImages || [])];
                                                 newGallery.splice(index, 1);
                                                 setFormData(prev => ({ ...prev, galleryImages: newGallery }));
@@ -449,6 +459,7 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
                                 label={t("common.addGalleryImage")}
                                 onChange={(url) => {
                                     if (url) {
+                                        setIsDirty(true);
                                         setFormData(prev => ({
                                             ...prev,
                                             galleryImages: [...(prev.galleryImages || []), url]
@@ -468,19 +479,21 @@ export default function NewsForm({ initialData, onSubmit, isLoading = false }: N
             </div>
 
             <div className="flex justify-end items-center gap-4 pt-6 border-t mt-8">
-                <button
-                    type="button"
-                    disabled={isLoading}
-                    onClick={() => handleSubmit('draft')}
-                    className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
-                >
-                    {t("common.saveAsDraft")}
-                </button>
+                {!initialData?.id && (
+                    <button
+                        type="button"
+                        disabled={isLoading}
+                        onClick={() => handleSubmit('draft')}
+                        className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-md hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 disabled:opacity-50"
+                    >
+                        {t("common.saveAsDraft")}
+                    </button>
+                )}
                 <SaveButton
                     isLoading={isLoading}
                     onClick={() => handleSubmit('published')}
-                    label={t("news.publishNews")}
-                    loadingLabel={t("news.publishing")}
+                    label={initialData?.id ? t("common.saveChanges") : t("news.publishNews")}
+                    loadingLabel={initialData?.id ? t("common.saving") : t("news.publishing")}
                     type="button"
                 />
             </div>

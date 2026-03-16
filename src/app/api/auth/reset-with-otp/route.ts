@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zStrongPassword } from "@/lib/password";
 
 const ResetSchema = z.object({
-    email: z.string().email(),
+    username: z.string().min(1, "Username/Email Required"),
     otp: z.string().length(6, "OTP ต้องมี 6 หลัก"),
     newPassword: zStrongPassword,
     captchaToken: z.string().min(1, "Captcha Required"),
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "ข้อมูลไม่ถูกต้อง" }, { status: 400 });
         }
 
-        const { email, otp, newPassword, captchaToken } = validation.data;
-        const normalizedEmail = email.toLowerCase();
+        const { username, otp, newPassword, captchaToken } = validation.data;
+        const normalizedUsername = username.toLowerCase();
         const userAgent = req.headers.get("user-agent") ?? "unknown-ua";
 
         // --- 1. Security & Rate Limiting ---
@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         const { checkOtpVerifyLimit, incrementOtpVerifyLimit, resetOtpVerifyLimit } = await import("@/lib/rate-limit");
 
         // Check Rate Limit (3 attempts / 10 mins)
-        const limitRes = await checkOtpVerifyLimit(ip, normalizedEmail);
+        const limitRes = await checkOtpVerifyLimit(ip, normalizedUsername);
         if (!limitRes.success) {
             const blockedSeconds = Math.ceil(limitRes.msBeforeNext / 1000);
             return NextResponse.json({ error: `พยายามผิดเกินกำหนด กรุณารอ ${blockedSeconds} วินาที` }, { status: 429 });
@@ -52,20 +52,19 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Captcha Validation Failed" }, { status: 400 });
         }
 
-        // 2. Restricted Check again (Double safety)
-        const allowedEmail = process.env.ALLOW_RESET_EMAIL;
-        if (!allowedEmail || normalizedEmail !== allowedEmail.toLowerCase()) {
-            return NextResponse.json({ error: "Unauthorized Email" }, { status: 403 });
-        }
-
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB_NAME);
 
-        // Find user by email
-        const user = await db.collection("users").findOne({ email: normalizedEmail });
+        // Find user by either username/alias or legacy email
+        const user = await db.collection("users").findOne({
+            $or: [
+                { username: normalizedUsername },
+                { email: normalizedUsername }
+            ]
+        });
 
         if (!user) {
-            await incrementOtpVerifyLimit(ip, normalizedEmail);
+            await incrementOtpVerifyLimit(ip, normalizedUsername);
             return NextResponse.json({ error: "Invalid Request" }, { status: 400 });
         }
 
@@ -78,12 +77,12 @@ export async function POST(req: NextRequest) {
         const isValidTotp = verifyTotp(otp, user.totpSecret);
 
         if (!isValidTotp) {
-            await incrementOtpVerifyLimit(ip, normalizedEmail);
+            await incrementOtpVerifyLimit(ip, normalizedUsername);
             return NextResponse.json({ error: "รหัส Google Authenticator ไม่ถูกต้อง" }, { status: 400 });
         }
 
         // Success: Reset limit
-        await resetOtpVerifyLimit(ip, normalizedEmail);
+        await resetOtpVerifyLimit(ip, normalizedUsername);
 
         // 5. Update Password & Invalidate Sessions
         const passwordHash = await argon2.hash(newPassword);
@@ -95,8 +94,7 @@ export async function POST(req: NextRequest) {
                     passwordHash,
                     lastPasswordReset: new Date(), // [New] Invalidate Sessions
                     trustedDevices: [] // [Security] Revoke all trusted devices
-                },
-                // $unset: { resetOtpHash: "", resetOtpExpires: "" } // No longer dealing with Email OTP fields here
+                }
             }
         );
 
@@ -106,16 +104,21 @@ export async function POST(req: NextRequest) {
 
             await logSystemEvent({
                 action: "CHANGE_PASSWORD",
-                actorEmail: email,
+                actorEmail: username,
                 ip,
                 userAgent,
                 details: "Reset password via TOTP (Google Authenticator)",
                 targetId: String(user._id)
             });
 
-            // [New] Notification Email
-            const { sendLoginNotification } = await import("@/lib/mail");
-            sendLoginNotification(email, "SUCCESS", ip, userAgent, "Your password has been reset using Google Authenticator.");
+            // [New] Notification Email - Send to the configured admin notification email strictly
+            const notificationSetting = await db.collection("settings").findOne({ key: "adminNotificationEmail" });
+            const notificationEmail = notificationSetting?.value;
+            
+            if (notificationEmail) {
+                const { sendLoginNotification } = await import("@/lib/mail");
+                sendLoginNotification(notificationEmail, "SUCCESS", ip, userAgent, `Password has been reset for account: ${username}`);
+            }
         } catch (e) {
             console.error("Audit log error", e);
         }

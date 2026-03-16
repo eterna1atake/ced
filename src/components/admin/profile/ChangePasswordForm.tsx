@@ -6,8 +6,8 @@ import { z } from "zod";
 import { signOut } from "next-auth/react";
 import SaveButton from '../common/SaveButton';
 import { FormInput } from "@/components/admin/common/FormInputs";
-
 import { useTranslations } from "next-intl";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 
 export default function ChangePasswordForm() {
@@ -16,6 +16,8 @@ export default function ChangePasswordForm() {
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
 
     // Visibility States
     const [showCurrent, setShowCurrent] = useState(false);
@@ -36,19 +38,28 @@ export default function ChangePasswordForm() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
+        setErrors({});
 
         const validation = changeSchema.safeParse({ currentPassword, newPassword, confirmPassword });
         if (!validation.success) {
-            Swal.fire({
-                icon: "warning",
-                title: t("common.invalidInfoTitle"),
-                text: validation.error.flatten().fieldErrors ? Object.values(validation.error.flatten().fieldErrors).flat()[0] : t("common.invalidInfoText"),
-                confirmButtonColor: "#EF4444",
+            const fieldErrors: Record<string, string> = {};
+            validation.error.issues.forEach((issue) => {
+                if (issue.path[0]) {
+                    fieldErrors[issue.path[0] as string] = issue.message;
+                }
             });
-            setLoading(false);
+            setErrors(fieldErrors);
+
+            Swal.fire({
+                icon: "error",
+                title: t("common.invalidInfoTitle"),
+                text: Object.values(fieldErrors)[0] || t("common.invalidInfoText"),
+                confirmButtonColor: "#f43f5e",
+            });
             return;
         }
+
+        setLoading(true);
 
         try {
             // [Fix] Add CSRF Token to headers
@@ -79,7 +90,8 @@ export default function ChangePasswordForm() {
                 });
 
                 // Auto Logout
-                await signOut({ callbackUrl: "/admin/login" });
+                setIsDirty(false);
+                await signOut({ callbackUrl: "/ced-portal/login" });
 
             } else {
                 Swal.fire({
@@ -134,8 +146,13 @@ export default function ChangePasswordForm() {
                     name="currentPassword"
                     type={showCurrent ? "text" : "password"}
                     value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    onChange={(e) => {
+                        setIsDirty(true);
+                        setCurrentPassword(e.target.value);
+                        if (errors.currentPassword) setErrors(prev => { const n = { ...prev }; delete n.currentPassword; return n; });
+                    }}
                     required
+                    error={errors.currentPassword}
                     suffix={<ToggleButton isVisible={showCurrent} onClick={() => setShowCurrent(!showCurrent)} />}
                 />
 
@@ -145,8 +162,13 @@ export default function ChangePasswordForm() {
                         name="newPassword"
                         type={showNew ? "text" : "password"}
                         value={newPassword}
-                        onChange={(e) => setNewPassword(e.target.value)}
+                        onChange={(e) => {
+                            setIsDirty(true);
+                            setNewPassword(e.target.value);
+                            if (errors.newPassword) setErrors(prev => { const n = { ...prev }; delete n.newPassword; return n; });
+                        }}
                         required
+                        error={errors.newPassword}
                         placeholder={t("changePassword.newPasswordPlaceholder")}
                         suffix={<ToggleButton isVisible={showNew} onClick={() => setShowNew(!showNew)} />}
                     />
@@ -155,8 +177,13 @@ export default function ChangePasswordForm() {
                         name="confirmPassword"
                         type={showConfirm ? "text" : "password"}
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        onChange={(e) => {
+                            setIsDirty(true);
+                            setConfirmPassword(e.target.value);
+                            if (errors.confirmPassword) setErrors(prev => { const n = { ...prev }; delete n.confirmPassword; return n; });
+                        }}
                         required
+                        error={errors.confirmPassword}
                         suffix={<ToggleButton isVisible={showConfirm} onClick={() => setShowConfirm(!showConfirm)} />}
                     />
                 </div>

@@ -77,8 +77,8 @@ export default function Navbar() {
           } else {
             setSearchResults([]);
           }
-        } catch (error: any) {
-          if (error.name === 'AbortError') {
+        } catch (error: unknown) { // Changed 'any' to 'unknown' for better type safety
+          if (error instanceof Error && error.name === 'AbortError') {
             return; // Ignore abort errors
           }
           console.error("Search error:", error);
@@ -137,7 +137,7 @@ export default function Navbar() {
 
   const closeMenu = useCallback(() => {
     setIsMenuOpen(false);
-  }, []);
+  }, []); // Added missing dependency array for useCallback
 
   const handleMenuNavigate = useCallback(
     (href: string) => {
@@ -170,6 +170,7 @@ export default function Navbar() {
               src="/images/logo/logo_1.png"
               alt="CED Logo"
               fill
+              sizes="(max-width: 768px) 160px, (max-width: 1024px) 192px, 200px"
               className="object-contain object-left"
               priority
             />
@@ -372,6 +373,7 @@ export default function Navbar() {
               alt="CED Logo"
               width={60}
               height={30}
+              style={{ width: '60px', height: 'auto' }}
               priority
             />
           </div>

@@ -21,20 +21,21 @@ async function main() {
     console.log("-----------------------------");
 
     const uri = process.env.MONGODB_URI;
-    const adminEmail = process.env.ADMIN_EMAIL;
     const dbName = process.env.MONGODB_DB_NAME;
 
     if (!uri) {
         console.error("❌ MONGODB_URI is missing in .env");
         process.exit(1);
     }
-    if (!adminEmail) {
-        console.error("❌ ADMIN_EMAIL is missing in .env");
-        process.exit(1);
-    }
 
     console.log(`target DB: ${dbName}`);
-    console.log(`Target Email: ${adminEmail}`);
+
+    // Ask for username (Admin Alias)
+    const username = await question("Enter Admin Alias (Username): ");
+    if (!username || username.length < 3) {
+        console.error("❌ Username must be at least 3 characters.");
+        process.exit(1);
+    }
 
     // Ask for password
     const password = await question("Enter Admin Password: ");
@@ -55,11 +56,11 @@ async function main() {
         console.log("Hashing password...");
         const passwordHash = await argon2.hash(password);
 
-        // Check if user exists
-        const existingUser = await users.findOne({ email: adminEmail.toLowerCase() });
+        // Check if user exists by username (Alias)
+        const existingUser = await users.findOne({ username: username.toLowerCase() });
 
-        const updateData = {
-            email: adminEmail.toLowerCase(),
+        const userData = {
+            username: username.toLowerCase(),
             passwordHash: passwordHash,
             role: "superuser",
             isActive: true,
@@ -69,16 +70,18 @@ async function main() {
         };
 
         if (existingUser) {
-            console.log(`User ${adminEmail} exists. Updating...`);
+            console.log(`User Alias: ${username} exists. Updating...`);
             await users.updateOne(
-                { email: adminEmail.toLowerCase() },
-                { $set: updateData }
+                { username: username.toLowerCase() },
+                { $set: userData }
             );
             console.log("✅ User Updated Successfully!");
         } else {
-            console.log(`User ${adminEmail} not found. Creating...`);
+            console.log(`User Alias: ${username} not found. Creating...`);
+            // For new users, we use alias as a placeholder for email if not provided
             await users.insertOne({
-                ...updateData,
+                ...userData,
+                email: `${username.toLowerCase()}@internal.ced`, // Placeholder for legacy field
                 createdAt: new Date(),
             });
             console.log("✅ User Created Successfully!");

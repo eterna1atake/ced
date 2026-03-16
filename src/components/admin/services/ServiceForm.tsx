@@ -9,6 +9,7 @@ import { BilingualInput } from "@/components/admin/common/BilingualInput";
 import SaveButton from '../common/SaveButton';
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 import Swal from "sweetalert2";
+import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
 
 type ServiceFormProps = {
     initialData?: Partial<Service>;
@@ -36,6 +37,8 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         ...initialData,
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { setIsDirty } = useUnsavedChanges();
     const { translate, isTranslating } = useAutoTranslate();
 
     const handleTranslate = () => {
@@ -44,12 +47,25 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
         });
     };
 
-    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+    const handleClearError = useCallback((name: string) => {
+        setErrors(prev => {
+            if (!prev[name]) return prev;
+            const newErrors = { ...prev };
+            delete newErrors[name];
+            return newErrors;
+        });
     }, []);
 
+    const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setIsDirty(true);
+        setFormData((prev) => ({ ...prev, [name]: value }));
+
+        handleClearError(name);
+    }, [setIsDirty, handleClearError]);
+
     const handleTitleChange = useCallback((lang: 'th' | 'en', value: string) => {
+        setIsDirty(true);
         setFormData(prev => ({
             ...prev,
             title: {
@@ -57,10 +73,34 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                 [lang]: value
             }
         }));
-    }, []);
+
+        const errorKey = lang === 'th' ? 'titleTh' : 'titleEn';
+        handleClearError(errorKey);
+    }, [setIsDirty, handleClearError]);
+
+    const validate = () => {
+        const newErrors: Record<string, string> = {};
+        if (!formData.title?.th) newErrors.titleTh = t("common.required");
+        if (!formData.title?.en) newErrors.titleEn = t("common.required");
+        if (!formData.link) newErrors.link = t("common.required");
+        if (!formData.icon) newErrors.icon = t("common.required");
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validate()) {
+            Swal.fire({
+                title: t("common.missingInfoTitle"),
+                text: t("common.missingInfoText"),
+                icon: "error",
+                confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
 
         const result = await Swal.fire({
             title: t("common.saveConfirmTitle") || "Are you sure?",
@@ -78,16 +118,19 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                 ...formData,
                 id: formData.id || `service-${Date.now()}`,
             } as Service;
+            setIsDirty(false);
             onSubmit(submissionData);
         }
     };
 
     const handleIconChange = useCallback((url: string) => {
+        setIsDirty(true);
         setFormData(prev => ({ ...prev, icon: url }));
-    }, []);
+        handleClearError("icon");
+    }, [setIsDirty, handleClearError]);
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
+        <form onSubmit={handleSubmit} noValidate className="space-y-8 bg-white dark:bg-slate-900 p-8 rounded-lg shadow-sm border border-slate-200 dark:border-slate-800">
             <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100 border-b dark:border-slate-800 pb-4">{t("services.details")}</h3>
 
             <div className="space-y-6">
@@ -102,6 +145,9 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                     }}
                     onTranslate={handleTranslate}
                     isTranslating={isTranslating.title}
+                    required
+                    error={{ th: errors.titleTh, en: errors.titleEn }}
+                    onFocus={(lang) => handleClearError(lang === 'th' ? "titleTh" : "titleEn")}
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -121,6 +167,9 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                         value={formData.link || ""}
                         onChange={handleChange}
                         placeholder="https://..."
+                        required
+                        error={errors.link}
+                        onFocus={() => handleClearError("link")}
                     />
                 </div>
 
@@ -132,8 +181,11 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                         onChange={handleIconChange}
                         accept="image/*"
                         folder="ced_web/services"
+                        required
+                        error={errors.icon}
+                        onFocus={() => handleClearError("icon")}
+                        helperText={t("services.iconHint")}
                     />
-                    <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">{t("services.iconHint")}</p>
                 </div>
             </div>
 
@@ -141,6 +193,7 @@ export default function ServiceForm({ initialData, onSubmit, isLoading = false }
                 <SaveButton
                     isLoading={isLoading}
                     label={t("services.saveService")}
+                    loadingLabel={t("common.saving")}
                 />
             </div>
         </form>

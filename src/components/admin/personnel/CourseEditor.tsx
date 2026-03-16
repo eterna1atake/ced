@@ -3,12 +3,18 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTrash, faPlus } from "@fortawesome/free-solid-svg-icons";
 
-export const CourseEditor = ({ value, onChange, onTranslate, translatingField, isStaff = false }: {
+import { FormInput } from "@/components/admin/common/FormInputs";
+
+export const CourseEditor = ({ value, onChange, onTranslate, translatingField, isStaff = false, errors = {}, onClearError, t }: {
     value: { courseId?: string; th: string; en: string }[],
     onChange: (val: { courseId?: string; th: string; en: string }[]) => void,
     onTranslate: (idx: number) => void,
     translatingField: string | null,
-    isStaff?: boolean
+    isStaff?: boolean,
+    errors?: Record<string, string>,
+    onClearError?: (name: string) => void,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    t: any
 }) => {
     const addEntry = () => onChange([...value, { courseId: "", th: "", en: "" }]);
     const removeEntry = (index: number) => onChange(value.filter((_, i) => i !== index));
@@ -22,7 +28,7 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
         <div className="space-y-4">
             <div className="flex justify-between items-center mb-2">
                 <label className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                    {isStaff ? "Responsibilities (งานที่รับผิดชอบ)" : "Courses Taught"}
+                    {isStaff ? "Responsibilities (งานที่รับผิดชอบ)" : t("personnel.courses")}
                 </label>
             </div>
             <div className="grid grid-cols-1 gap-3">
@@ -35,20 +41,25 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                             {!isStaff && (
                                 <div className="md:col-span-2">
                                     <div className="flex items-center mb-1">
-                                        <span className="text-[10px] font-bold text-slate-400 uppercase">Course ID</span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase">{t("personnel.courseIdOptional")}</span>
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder="รหัส (Optional)"
+                                    <FormInput
+                                        label=""
+                                        name={`course-${idx}-id`}
+                                        placeholder={t("personnel.courseIdOptional")}
                                         value={course.courseId || ""}
-                                        onChange={(e) => updateEntry(idx, 'courseId', e.target.value)}
-                                        className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                        onChange={(e) => {
+                                            updateEntry(idx, 'courseId', e.target.value);
+                                            onClearError?.(`course-${idx}-id`);
+                                        }}
+                                        onFocus={() => onClearError?.(`course-${idx}-id`)}
+                                        error={errors[`course-${idx}-id`]}
                                     />
                                 </div>
                             )}
                             <div className={`md:col-span-${isStaff ? 6 : 5}`}>
                                 <div className="flex justify-between items-center mb-1">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase">Thai</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase">{t("personnel.thai")}</span>
                                     <button
                                         type="button"
                                         onClick={() => onTranslate(idx)}
@@ -58,24 +69,34 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                                         {translatingField === `course-${idx}` ? "..." : "Translate"}
                                     </button>
                                 </div>
-                                <input
-                                    type="text"
+                                <FormInput
+                                    label=""
+                                    name={`course-${idx}-th`}
                                     placeholder={isStaff ? "งานที่รับผิดชอบ (ไทย)" : "ชื่อวิชา (ไทย)"}
                                     value={course.th}
-                                    onChange={(e) => updateEntry(idx, 'th', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'th', e.target.value);
+                                        onClearError?.(`course-${idx}-th`);
+                                    }}
+                                    onFocus={() => onClearError?.(`course-${idx}-th`)}
+                                    error={errors[`course-${idx}-th`]}
                                 />
                             </div>
                             <div className={`md:col-span-${isStaff ? 6 : 5}`}>
                                 <div className="flex items-center mb-1">
-                                    <span className="text-[10px] font-bold text-slate-400 uppercase">English</span>
+                                    <span className="text-[10px] font-bold text-slate-400 uppercase">{t("personnel.english")}</span>
                                 </div>
-                                <input
-                                    type="text"
+                                <FormInput
+                                    label=""
+                                    name={`course-${idx}-en`}
                                     placeholder={isStaff ? "Responsibility (English)" : "Course Name (English)"}
                                     value={course.en}
-                                    onChange={(e) => updateEntry(idx, 'en', e.target.value)}
-                                    className="w-full px-4 py-2 h-[42px] border border-slate-200 dark:border-slate-700 rounded-lg outline-none transition-all bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main hover:border-slate-300 dark:hover:border-slate-600 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                    onChange={(e) => {
+                                        updateEntry(idx, 'en', e.target.value);
+                                        onClearError?.(`course-${idx}-en`);
+                                    }}
+                                    onFocus={() => onClearError?.(`course-${idx}-en`)}
+                                    error={errors[`course-${idx}-en`]}
                                 />
                             </div>
                         </div>
@@ -97,7 +118,7 @@ export const CourseEditor = ({ value, onChange, onTranslate, translatingField, i
                 className="w-full py-3 border-2 border-dashed border-slate-300 rounded-lg text-slate-500 font-semibold hover:border-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
             >
                 <FontAwesomeIcon icon={faPlus} />
-                {isStaff ? "Add Responsibility" : "Add Course"}
+                {isStaff ? "Add Responsibility" : t("personnel.addCourse")}
             </button>
         </div>
     );

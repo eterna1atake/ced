@@ -19,7 +19,7 @@ export function useAutoTranslate() {
                 .find((row) => row.startsWith("ced_csrf_token="))
                 ?.split("=")[1];
 
-            const res = await fetch("/api/admin/translate", {
+            const res = await fetch("/api/ced-portal/translate", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
