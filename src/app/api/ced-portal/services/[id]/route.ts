@@ -91,7 +91,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Updated Student Service: ${updatedService.title.en} (ID: ${id})`,
             ip,
             targetId: id
@@ -121,7 +121,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "DELETE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Deleted Student Service: ${deletedService.title.en} (ID: ${id})`,
             ip,
             targetId: id

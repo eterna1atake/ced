@@ -1,12 +1,18 @@
 import { NextResponse } from "next/server";
 import mongoose from "mongoose";
 import dbConnect, { getConnectionState } from "@/lib/mongoose";
+import { auth } from "@/lib/auth";
 import os from "os";
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {
+        const session = await auth();
+        if (!session || session.user.role !== "superuser") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         await dbConnect();
         const dbState = getConnectionState();
 

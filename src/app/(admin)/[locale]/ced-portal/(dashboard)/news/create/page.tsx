@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useRouter } from "next/navigation";
 import NewsForm from "@/components/admin/news/NewsForm";
@@ -21,10 +22,7 @@ export default function CreateNewsPage() {
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id, ...submitData } = data;
 
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch("/api/ced-portal/news", {
                 method: "POST",
@@ -51,7 +49,7 @@ export default function CreateNewsPage() {
             }
 
             await Swal.fire({
-                title: "Success!",
+                title: tAlert("success"),
                 text: tAlert("createdText"),
                 icon: "success",
                 timer: 1500,
@@ -61,7 +59,7 @@ export default function CreateNewsPage() {
             router.push("/ced-portal/news");
         } catch (error: unknown) {
             console.error(error);
-            const msg = error instanceof Error ? error.message : "Unknown error occurred";
+            const msg = error instanceof Error ? error.message : tAlert("createFailed");
             Swal.fire({
                 icon: "error",
                 title: tAlert("error"),

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export type TranslationField = "title" | "summary" | "content" | "name" | "description" | "project" | "department" | "position";
 
 export function useAutoTranslate() {
     const [isTranslating, setIsTranslating] = useState<Record<string, boolean>>({});
+    const tAlert = useTranslations("Admin.alerts");
 
     const translate = async (
         field: TranslationField | string,
@@ -36,8 +38,8 @@ export function useAutoTranslate() {
             console.error("Translation error:", error);
             const Swal = (await import("sweetalert2")).default;
             Swal.fire({
-                title: "Translation Failed",
-                text: "Could not translate text automatically. Please try again or enter manually.",
+                title: tAlert("translationFailed"),
+                text: tAlert("translationFailedDesc"),
                 icon: "error",
                 timer: 3000,
                 toast: true,

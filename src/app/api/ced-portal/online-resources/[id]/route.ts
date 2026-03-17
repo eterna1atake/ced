@@ -67,7 +67,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
 
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Updated Online Resource: ${validatedData.en.title} (Key: ${validatedData.key})`,
             ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown",
             targetId: String(id)
@@ -98,7 +98,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
 
         await logSystemEvent({
             action: "DELETE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Deleted Online Resource: ${resource.en.title} (Key: ${resource.key})`,
             ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown",
             targetId: String(id)

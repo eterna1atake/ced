@@ -81,7 +81,7 @@ export async function PATCH(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `${shouldPin ? "Pinned" : "Unpinned"} News: ${updatedNews.title.en}`,
             ip,
             targetId: String(updatedNews._id)

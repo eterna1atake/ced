@@ -28,7 +28,7 @@ interface DashboardStats {
     logs: {
         _id: string;
         action: string;
-        actorEmail: string;
+        actor: string;
         timestamp: string;
         status?: string;
         details?: string;
@@ -247,7 +247,7 @@ export default function AdminDashboardPage() {
                                             {log.action.replace('_', ' ')}
                                         </Text>
                                         <Text className="truncate text-xs text-slate-500">
-                                            by {log.actorEmail}
+                                            by {log.actor}
                                         </Text>
                                     </div>
                                 </div>

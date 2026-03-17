@@ -13,13 +13,6 @@ const ChangePasswordSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        // 0. CSRF Protection (Double Submit Cookie)
-        const csrfCookie = req.cookies.get("ced_csrf_token")?.value;
-        const csrfHeader = req.headers.get("x-csrf-token");
-
-        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-            return NextResponse.json({ error: "CSRF Error: Invalid Token" }, { status: 403 });
-        }
 
         // 0.1 Rate Limiting Imports
         const { checkChangePasswordLimit, incrementChangePasswordLimit, resetChangePasswordLimit } = await import("@/lib/rate-limit");
@@ -29,15 +22,18 @@ export async function POST(req: NextRequest) {
 
         // 1. Check Authentication
         const session = await auth();
-        if (!session || !session.user?.email) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const userSession = session?.user as any;
+
+        if (!session || !userSession?.username) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const email = session.user.email;
+        const username = userSession.username;
 
-        // 2. Check Rate Limit (IP + Email)
+        // 2. Check Rate Limit (IP + Username)
         // Checked AFTER auth so we can scope to the user, preventing NAT blocking.
-        const limitRes = await checkChangePasswordLimit(ip, email);
+        const limitRes = await checkChangePasswordLimit(ip, username);
         if (!limitRes.success) {
             const blockedSeconds = Math.ceil(limitRes.msBeforeNext / 1000);
             return NextResponse.json({ error: `Too many attempts. Try again in ${blockedSeconds}s` }, { status: 429 });
@@ -60,7 +56,7 @@ export async function POST(req: NextRequest) {
         const db = client.db(process.env.MONGODB_DB_NAME);
 
         // 3. Find User
-        const user = await db.collection("users").findOne({ email });
+        const user = await db.collection("users").findOne({ username });
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
@@ -70,7 +66,7 @@ export async function POST(req: NextRequest) {
         const isValid = await argon2.verify(user.passwordHash, currentPassword);
         if (!isValid) {
             // Increment rate limit on failure
-            await incrementChangePasswordLimit(ip, email);
+            await incrementChangePasswordLimit(ip, username);
             return NextResponse.json({ error: "รหัสผ่านปัจจุบันไม่ถูกต้อง" }, { status: 400 });
         }
 
@@ -90,7 +86,7 @@ export async function POST(req: NextRequest) {
         );
 
         // [New] Reset Rate Limit on Success
-        await resetChangePasswordLimit(ip, email);
+        await resetChangePasswordLimit(ip, username);
 
         // 7. Audit Log
         try {
@@ -98,7 +94,7 @@ export async function POST(req: NextRequest) {
 
             await logSystemEvent({
                 action: "CHANGE_PASSWORD",
-                actorEmail: user.username || email,
+                actor: user.username || username,
                 ip,
                 userAgent,
                 targetId: String(user._id),
@@ -111,7 +107,7 @@ export async function POST(req: NextRequest) {
 
             if (notificationEmail) {
                 const { sendLoginNotification } = await import("@/lib/mail");
-                sendLoginNotification(notificationEmail, "SUCCESS", ip, userAgent, `Password has been changed successfully for account: ${user.username || email}`);
+                sendLoginNotification(notificationEmail, "SUCCESS", ip, userAgent, `Password has been changed successfully for account: ${user.username || username}`);
             }
         } catch (auditErr) {
             console.error("Audit/Notification log failed:", auditErr);

@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import Image from "next/image";
 
@@ -43,7 +44,7 @@ export default function FacilitiesListPage() {
             }
         } catch (error) {
             console.error("Failed to fetch facilities", error);
-            Swal.fire(tAlert("error"), "Failed to load facilities", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             // setIsLoading(false);
         }
@@ -59,7 +60,7 @@ export default function FacilitiesListPage() {
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
-            text: "This action cannot be undone!",
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -68,10 +69,7 @@ export default function FacilitiesListPage() {
 
         if (result.isConfirmed) {
             try {
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/facilities/${encodeURIComponent(id)}`, {
                     method: 'DELETE',
@@ -87,7 +85,7 @@ export default function FacilitiesListPage() {
                     throw new Error("Failed to delete");
                 }
             } catch {
-                Swal.fire(tAlert("error"), "Failed to delete facility", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

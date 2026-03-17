@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import React, { useEffect, useState } from "react";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
@@ -47,10 +48,7 @@ export default function AwardsListPage() {
 
         if (result.isConfirmed) {
             try {
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/awards/${id}`, {
                     method: "DELETE",
@@ -65,7 +63,7 @@ export default function AwardsListPage() {
                 fetchAwards();
             } catch (error) {
                 console.error("Delete error:", error);
-                Swal.fire(tAlert("error"), "Could not delete award.", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

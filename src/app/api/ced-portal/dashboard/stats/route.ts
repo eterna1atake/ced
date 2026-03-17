@@ -6,63 +6,78 @@ import Personnel from "@/collections/Personnel";
 import Award from "@/collections/Award";
 import StudentService from "@/collections/StudentService";
 import { getRealtimeTraffic, getPageEngagement } from "@/lib/analytics";
+import { globalRateLimit as rateLimit } from '@/lib/rate-limit';
+import { auth } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
     try {
+        const rateLimitError = await rateLimit(request);
+        if (rateLimitError) return rateLimitError;
+
+        const session = await auth();
+        if (!session || session.user.role !== "superuser") {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         await dbConnect();
 
-        // 1. Fetch Counts
-        const newsCount = await News.countDocuments({ status: 'published' });
-        const personnelCount = await Personnel.countDocuments({});
-        const awardCount = await Award.countDocuments({});
-        const serviceCount = await StudentService.countDocuments({});
+        // 1. Fetch Counts in Parallel
+        const [newsCount, personnelCount, awardCount, serviceCount] = await Promise.all([
+            News.countDocuments({ status: 'published' }),
+            Personnel.countDocuments({}),
+            Award.countDocuments({}),
+            StudentService.countDocuments({})
+        ]);
 
-        // 2. Fetch Recent Logs (Mix of System & Login)
+        // 2. Fetch Recent Logs using MongoDB Aggregation for efficiency
         const client = await clientPromise;
         const db = client.db(process.env.MONGODB_DB_NAME);
 
-        const systemLogsCollection = db.collection("audit_system_logs");
-        const loginLogsCollection = db.collection("audit_login_logs");
+        const recentLogs = await db.collection("audit_system_logs").aggregate([
+            {
+                $project: {
+                    action: 1,
+                    actor: 1,
+                    timestamp: 1,
+                    details: 1,
+                    status: { $literal: "SUCCESS" },
+                    type: { $literal: "system" }
+                }
+            },
+            {
+                $unionWith: {
+                    coll: "audit_login_logs",
+                    pipeline: [
+                        {
+                            $project: {
+                                action: { $literal: "LOGIN" },
+                                actor: "$username",
+                                timestamp: 1,
+                                status: 1,
+                                details: {
+                                    $cond: {
+                                        if: { $eq: ["$status", "SUCCESS"] },
+                                        then: "Login Successful",
+                                        else: "Login Failed"
+                                    }
+                                },
+                                type: { $literal: "login" }
+                            }
+                        }
+                    ]
+                }
+            },
+            { $sort: { timestamp: -1 } },
+            { $limit: 10 }
+        ]).toArray();
 
-        // Fetch top 5 from both then merge (efficient enough for dashboard)
-        const systemLogs = await systemLogsCollection.find({})
-            .sort({ timestamp: -1 })
-            .limit(5)
-            .project({ action: 1, actorEmail: 1, timestamp: 1, details: 1, ip: 1 })
-            .toArray();
-
-        const loginLogs = await loginLogsCollection.find({})
-            .sort({ timestamp: -1 })
-            .limit(5)
-            .project({ email: 1, status: 1, timestamp: 1, ip: 1 })
-            .toArray();
-
-        // Normalize and Merge
-        const normalizedSystemLogs = systemLogs.map(log => ({
-            _id: log._id.toString(),
-            action: log.action,
-            actorEmail: log.actorEmail,
-            timestamp: log.timestamp,
-            status: 'SUCCESS', // System logs are usually success actions
-            details: log.details,
-            type: 'system'
-        }));
-
-        const normalizedLoginLogs = loginLogs.map(log => ({
-            _id: log._id.toString(),
-            action: 'LOGIN',
-            actorEmail: log.email,
-            timestamp: log.timestamp,
-            status: log.status,
-            details: log.status === 'SUCCESS' ? 'Login Successful' : 'Login Failed',
-            type: 'login'
-        }));
-
-        const recentLogs = [...normalizedSystemLogs, ...normalizedLoginLogs]
-            .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-            .slice(0, 5);
+        // Ensure IDs are strings and take top 5
+        const formattedLogs = recentLogs.map(log => ({
+            ...log,
+            _id: log._id.toString()
+        })).slice(0, 5);
 
         // 3. Traffic & Engagement Data (GA4 Only)
         const trafficData = await getRealtimeTraffic();
@@ -75,7 +90,7 @@ export async function GET() {
                 awards: awardCount,
                 services: serviceCount
             },
-            logs: recentLogs,
+            logs: formattedLogs,
             traffic: trafficData,
             engagement: engagementData
         });

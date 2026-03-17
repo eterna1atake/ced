@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 // Types
 type LoginLog = {
     _id: string;
-    email: string;
+    username: string; // Changed from email to username
     ip: string;
     userAgent?: string;
     status: "SUCCESS" | "FAILED" | "BLOCKED";
@@ -22,7 +22,7 @@ type LoginLog = {
 type SystemLog = {
     _id: string;
     action: string;
-    actorEmail: string;
+    actor: string; // Changed from actorEmail to actor
     details?: string;
     ip: string;
     userAgent?: string;
@@ -165,7 +165,7 @@ export default function AuditLogsPage() {
                                                     <FontAwesomeIcon icon={faShieldHalved} className="w-4 h-4" />
                                                 </div>
                                                 <div>
-                                                    <div className="font-medium text-slate-900 dark:text-slate-100">{log.email}</div>
+                                                    <div className="font-medium text-slate-900 dark:text-slate-100">{log.username}</div>
                                                     {log.reason && (
                                                         <div className="text-xs text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={log.reason}>{log.reason}</div>
                                                     )}
@@ -218,7 +218,7 @@ export default function AuditLogsPage() {
                                             </span>
                                         </td>
                                         <td className="p-4 whitespace-nowrap font-medium text-slate-900 dark:text-slate-100">
-                                            {log.actorEmail}
+                                            {log.actor}
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 max-w-xs truncate">
                                             {log.details || "-"}

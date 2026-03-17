@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -20,10 +21,7 @@ export default function EditAwardClient({ initialData }: Props) {
     const handleUpdate = async (data: Award) => {
         setIsSaving(true);
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             // Use MongoDB _id if present, otherwise fallback to id
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -45,7 +43,7 @@ export default function EditAwardClient({ initialData }: Props) {
 
             const Swal = (await import("sweetalert2")).default;
             await Swal.fire({
-                title: "Success!",
+                title: tAlert("success"),
                 text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
@@ -60,7 +58,7 @@ export default function EditAwardClient({ initialData }: Props) {
             const Swal = (await import("sweetalert2")).default;
             Swal.fire({
                 title: tAlert("error"),
-                text: error.message || "An unexpected error occurred.",
+                text: error.message || tAlert("updateFailed"),
                 icon: "error"
             });
         } finally {

@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -38,7 +39,7 @@ export default function ResourcesListPage() {
             setResources(data);
         } catch (error) {
             console.error("Error fetching resources:", error);
-            Swal.fire("Error!", "Failed to load resources.", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -51,7 +52,7 @@ export default function ResourcesListPage() {
     const handleDelete = async (id: string, title: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
-            text: `You are about to delete "${title}". This action cannot be undone.`,
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -62,10 +63,7 @@ export default function ResourcesListPage() {
         if (result.isConfirmed) {
             try {
                 // [Fix] Add CSRF Token to headers
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/online-resources/${id}`, {
                     method: "DELETE",
@@ -83,7 +81,7 @@ export default function ResourcesListPage() {
                 }
             } catch (error) {
                 console.error("Delete error:", error);
-                Swal.fire("Error!", "Failed to delete record.", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

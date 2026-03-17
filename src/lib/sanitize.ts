@@ -66,3 +66,24 @@ export function sanitizeRecursively(obj: any): any {
     }
     return obj;
 }
+
+/**
+ * Validation Helper for URLs.
+ */
+export function validateUrl(url: string, allowedDomains: string[] = []): boolean {
+    if (!url) return false;
+    try {
+        const parsed = new URL(url);
+        if (allowedDomains.length > 0) {
+            return allowedDomains.some(domain => parsed.hostname.endsWith(domain));
+        }
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Alias for sanitizeStrict to maintain compatibility.
+ */
+export const sanitizeInput = sanitizeStrict;

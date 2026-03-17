@@ -182,7 +182,7 @@ export async function PUT(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Updated Personnel: ${updatedPerson.name.en}`,
             ip,
             targetId: String(updatedPerson._id)
@@ -221,7 +221,7 @@ export async function DELETE(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "DELETE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Deleted Personnel: ${deletedPerson.name.en}`,
             ip,
             targetId: String(deletedPerson._id)

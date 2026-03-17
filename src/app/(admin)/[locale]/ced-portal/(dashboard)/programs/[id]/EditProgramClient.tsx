@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -32,10 +33,7 @@ export default function EditProgramClient({
     const handleGeneralSubmit = async (data: ProgramItem) => {
         setIsLoading(true);
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const response = await fetch(`/api/ced-portal/programs/${initialData.id}/general`, {
                 method: 'PUT',
@@ -72,10 +70,7 @@ export default function EditProgramClient({
     const handleDetailSubmit = async (data: ProgramDetailData) => {
         setIsLoading(true);
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const response = await fetch(`/api/ced-portal/programs/${initialData.id}/detail`, {
                 method: 'PUT',

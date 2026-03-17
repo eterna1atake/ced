@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
                 const { logSystemEvent } = await import("@/lib/audit");
                 await logSystemEvent({
                     action: "CHANGE_PASSWORD_FAILED",
-                    actorEmail: username,
+                    actor: username,
                     ip,
                     details: "Incorrect TOTP Attempt",
                     targetId: String(user._id)

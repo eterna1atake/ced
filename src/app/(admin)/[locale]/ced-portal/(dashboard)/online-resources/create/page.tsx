@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,10 +16,7 @@ export default function CreateResourcePage() {
         setIsLoading(true);
         try {
             // [Fix] Add CSRF Token to headers
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch("/api/ced-portal/online-resources", {
                 method: "POST",

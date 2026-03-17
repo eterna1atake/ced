@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     // Rate Limit Check
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-    const email = session.user?.email || undefined;
+    const email = session.user?.username || undefined;
 
     const limitResult = await incrementAdminWriteLimit(ip, email);
     if (!limitResult.success) {
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
         await logSystemEvent({
             action: "CREATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Created Form Request: ${newForm.en.name} (${newForm.categoryId})`,
             ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown",
             targetId: String(newForm._id)

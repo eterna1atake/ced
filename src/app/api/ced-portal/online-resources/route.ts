@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
         await logSystemEvent({
             action: "CREATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Created Online Resource: ${validatedData.en.title} (Key: ${validatedData.key})`,
             ip: req.headers.get("x-forwarded-for")?.split(",")[0] || "unknown",
             targetId: String(resource._id)

@@ -35,7 +35,9 @@ function isAdminLoginPath(pathname: string) {
   );
 }
 
-export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+import { Role } from "@/lib/auth";
+
+export default auth((req) => {
   const { pathname } = req.nextUrl;
   // [New] CSRF Token Generation
   // Ensure every client has a CSRF token cookie
@@ -77,13 +79,13 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     res.headers.set("Referrer-Policy", "origin-when-cross-origin");
 
     // [Updated] Content Security Policy with Nonce
-    // We removed 'unsafe-inline' and 'unsafe-eval' from script-src
-    // 'strict-dynamic' allows scripts loaded by trusted scripts to run (e.g. GTM/Analytics)
+    // Removed 'unsafe-inline' and 'unsafe-eval' from script-src
+    // Used 'nonce-${nonce}' to allow specific scripts
     res.headers.set(
       "Content-Security-Policy",
       `default-src 'self'; ` +
-      `script-src 'self' 'unsafe-eval' 'unsafe-inline' https://connect.facebook.net https://www.google.com https://www.gstatic.com https://www.googletagmanager.com; ` +
-      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` +
+      `script-src 'self' 'nonce-${nonce}' https://connect.facebook.net https://www.google.com https://www.gstatic.com https://www.googletagmanager.com; ` +
+      `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` + // style-src still often needs unsafe-inline for CSS-in-JS/AOS
       `img-src 'self' blob: data: https://res.cloudinary.com https://*.facebook.com https://scontent.xx.fbcdn.net https://external.xx.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' https://fonts.gstatic.com data:; ` +
       `frame-src 'self' https://www.facebook.com https://web.facebook.com https://www.google.com https://www.gstatic.com https://www.youtube.com https://recaptcha.google.com https://res.cloudinary.com; ` +
@@ -113,8 +115,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
   if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
     // Check Admin API specifically
     if (isAdminApiPath(pathname)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const role = (req.auth?.user as any)?.role as string | undefined;
+      const role = (req.auth?.user as { role?: Role })?.role;
       if (role !== "superuser") {
         return applyHeaders(NextResponse.json({ error: "forbidden" }, { status: 403 }));
       }
@@ -139,8 +140,7 @@ export default auth((req: any) => { // eslint-disable-line @typescript-eslint/no
     }
 
     if (!isAdminLoginPath(adminSubpath)) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const role = (req.auth?.user as any)?.role as string | undefined;
+      const role = (req.auth?.user as { role?: Role })?.role;
 
       if (role !== "superuser") {
         // [Security] Rewrite to 404 to not reveal the admin path exists

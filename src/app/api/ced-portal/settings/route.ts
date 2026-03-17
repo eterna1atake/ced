@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import Setting from '@/collections/Setting';
-import { rateLimit, sanitizeInput } from '@/lib/security';
+import { globalRateLimit as rateLimit } from '@/lib/rate-limit';
+import { sanitizeInput } from '@/lib/sanitize';
 
 export const GET = async (req: Request) => {
     const rateLimitError = await rateLimit(req);
@@ -31,7 +32,7 @@ export const GET = async (req: Request) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error fetching settings:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
 
@@ -73,6 +74,6 @@ export const PUT = async (req: Request) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error updating settings:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }

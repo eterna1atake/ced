@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { faSave, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -134,10 +135,7 @@ export default function TrainingPage() {
         setLoading(true);
         try {
             // Get CSRF Token from cookie
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             if (!csrfToken) {
                 throw new Error("CSRF Token not found");

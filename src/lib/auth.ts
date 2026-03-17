@@ -6,6 +6,7 @@ import clientPromise from "@/lib/mongodb";
 import { authConfig } from "@/lib/auth.config";
 import { checkRateLimit } from "@/lib/rate-limit"; // [New] Rate Limit
 import { headers } from "next/headers"; // [New] for IP
+import { logLoginAttempt } from "@/lib/audit";
 
 export type Role = "superuser" | "personnel";
 
@@ -38,15 +39,14 @@ class ForbiddenError extends CredentialsSignin {
 
 // กำหนดโครงสร้างข้อมูลผู้ใช้ที่คาดว่าจะได้จาก MongoDB
 type DbUser = {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    _id: any;
+    _id: import("mongodb").ObjectId;
     email?: string;    // optional - ใช้สำหรับแจ้งเตือน Login เท่านั้น ตั้งค่าได้ภายหลัง
     username?: string; // Primary identifier - Admin Alias ที่ใช้ Login
     passwordHash: string;
     role: Role;
     isActive?: boolean;
     name?: string;
-    personnelId?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+    personnelId?: import("mongodb").ObjectId; // eslint-disable-line @typescript-eslint/no-explicit-any
     resetOtpHash?: string;
     resetOtpExpires?: Date;
     loginOtpHash?: string;
@@ -129,8 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     const { ObjectId } = await import("mongodb");
 
                     const dbUser = await db.collection<DbUser>("users").findOne(
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        { _id: new ObjectId(token.sub) as any },
+                        { _id: new ObjectId(token.sub) },
                         { projection: { lastPasswordReset: 1 } }
                     );
 
@@ -177,11 +176,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const { username, password } = parsed.data;
 
                 // --- 2. Captcha Verification ---
-                const codeProvided = (raw as Record<string, unknown>).code as string | undefined;
-                const isTwoFactorStep = codeProvided && codeProvided !== "undefined" && codeProvided !== "";
                 const captchaToken = (raw as Record<string, unknown>).captchaToken as string | undefined;
 
-                if (!isTwoFactorStep && (process.env.NODE_ENV === "production" || process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY)) {
+                const isProd = process.env.NODE_ENV === "production";
+                // Fail-Closed: Enforce captcha in production always.
+                // In dev, only enforce if site key is configured.
+                const shouldVerifyCaptcha = isProd || !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+
+                if (shouldVerifyCaptcha) {
                     const { verifyCaptcha } = await import("@/lib/captcha");
                     const isCaptchaValid = await verifyCaptcha(captchaToken);
                     if (!isCaptchaValid) throw new InvalidCredentialsError("Captcha verification failed");
@@ -222,6 +224,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                             sendLoginNotification(notificationEmail, "BLOCKED", ip, userAgent, `Account Locked for ${username} (${diff}s remaining)`);
                         });
                     }
+                    await logLoginAttempt({
+                        username,
+                        ip,
+                        userAgent,
+                        status: "BLOCKED",
+                        reason: `Account Locked (${diff}s remaining)`
+                    });
                     throw new AccountLockedError(diff);
                 }
 
@@ -251,16 +260,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                         }
                         await db.collection("users").updateOne({ _id: user._id }, { $set: updateFields });
                     }
+                    await logLoginAttempt({
+                        username,
+                        ip,
+                        userAgent,
+                        status: "FAILED",
+                        reason: user ? "Invalid password" : "User not found"
+                    });
                     const { incrementRateLimit } = await import("@/lib/rate-limit");
                     const rateLimitResult = await incrementRateLimit(ip, username);
                     throw new InvalidCredentialsError(`InvalidCredentials:${rateLimitResult.remaining}`);
                 }
 
                 // --- 7. Authorization & Role ---
-                if (user.isActive === false) throw new InactiveAccountError();
-                if (user.role !== "superuser") throw new ForbiddenError();
+                if (user.isActive === false) {
+                    await logLoginAttempt({ username, ip, userAgent, status: "FAILED", reason: "Inactive Account" });
+                    throw new InactiveAccountError();
+                }
+                if (user.role !== "superuser") {
+                    await logLoginAttempt({ username, ip, userAgent, status: "FAILED", reason: "Forbidden Role" });
+                    throw new ForbiddenError();
+                }
                 const allowedMasterUsername = process.env.ADMIN_USERNAME?.trim().toLowerCase() || "ced_master_admin";
-                
+
                 // [Logic] Only allow the hardcoded master username OR any user with superuser role 
                 // (Note: role check already passed above, but we keep this for consistency with project policy)
                 if (user.username?.toLowerCase() !== allowedMasterUsername) {
@@ -307,6 +329,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     } else {
                         const { verifyTotp } = await import("@/lib/totp");
                         if (!verifyTotp(otpCode, user.totpSecret!)) {
+                            await logLoginAttempt({ username, ip, userAgent, status: "FAILED", reason: "Invalid OTP" });
                             const { incrementOtpVerifyLimit } = await import("@/lib/rate-limit");
                             await incrementOtpVerifyLimit(ip, username);
                             throw new InvalidCredentialsError("Invalid OTP");
@@ -346,23 +369,44 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     });
                 }
 
+                await logLoginAttempt({
+                    username: user.username || username,
+                    ip,
+                    userAgent,
+                    status: "SUCCESS"
+                });
+
                 return {
                     id: String(user._id),
-                    email: user.email,
-                    username: user.username,
+                    email: user.email || "",
+                    username: user.username || username, // Ensure it's a string
                     name: user.name ?? "Superuser",
                     role: user.role,
                     personnelId: user.personnelId ? String(user.personnelId) : null,
-                } as unknown as { id: string; email: string | undefined; username: string | undefined; name: string; role: Role; personnelId: string | null; };
+                };
             },
         }),
     ],
 });
 
-export async function getAdminSession() {
+declare module "next-auth" {
+    interface Session {
+        user: {
+            id?: string;
+            email?: string | null;
+            name?: string | null;
+            role?: Role | null;
+            personnelId?: string | null;
+            username?: string | null;
+        }
+    }
+}
+
+import { Session } from "next-auth";
+
+export async function getAdminSession(): Promise<Session | null> {
     const session = await auth();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user = session?.user as any;
+    const user = session?.user as { role?: Role } | undefined;
     if (!session || user?.role !== "superuser") {
         return null;
     }

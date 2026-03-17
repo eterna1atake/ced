@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -16,10 +17,7 @@ export default function CreateFacilityPage() {
     const handleSubmit = async (data: Facility) => {
         setIsLoading(true);
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch('/api/ced-portal/facilities', {
                 method: 'POST',

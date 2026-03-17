@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
@@ -33,10 +34,7 @@ export default function ForgotPasswordPage() {
         setLoading(true);
 
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch("/api/auth/forgot-password", {
                 method: "POST",
@@ -52,7 +50,7 @@ export default function ForgotPasswordPage() {
             if (res.ok) {
                 await Swal.fire({
                     icon: "success",
-                    title: "พบข้อมูลบัญชี",
+                    title: t("accountFound"),
                     text: t("openApp"),
                     confirmButtonColor: "#35622F",
                     timer: 1500,
@@ -64,8 +62,8 @@ export default function ForgotPasswordPage() {
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "เกิดข้อผิดพลาด",
-                    text: data.error || "ไม่พบบัญชีหรือเงื่อนไขไม่ถูกต้อง",
+                    title: t("errorOccurred"),
+                    text: data.error || t("accountNotFound"),
                     confirmButtonColor: "#d33",
                 });
             }
@@ -73,8 +71,8 @@ export default function ForgotPasswordPage() {
             console.error(error);
             Swal.fire({
                 icon: "error",
-                title: "เกิดข้อผิดพลาด",
-                text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้",
+                title: t("errorOccurred"),
+                text: t("cannotConnectServer"),
                 confirmButtonColor: "#d33",
             });
         } finally {
@@ -104,8 +102,8 @@ export default function ForgotPasswordPage() {
             if (res.ok && data.valid) {
                 await Swal.fire({
                     icon: "success",
-                    title: "รหัสถูกต้อง",
-                    text: "กรุณาตั้งรหัสผ่านใหม่",
+                    title: t("otpCorrect"),
+                    text: t("setNewPasswordText"),
                     confirmButtonColor: "#35622F",
                     timer: 1000,
                     timerProgressBar: true,
@@ -115,7 +113,7 @@ export default function ForgotPasswordPage() {
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "รหัส OTP ไม่ถูกต้อง",
+                    title: t("invalidOtp"),
                     text: data.error,
                     confirmButtonColor: "#d33",
                 });
@@ -125,8 +123,8 @@ export default function ForgotPasswordPage() {
             console.error(error);
             Swal.fire({
                 icon: "error",
-                title: "เกิดข้อผิดพลาด",
-                text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้",
+                title: t("errorOccurred"),
+                text: t("cannotConnectServer"),
                 confirmButtonColor: "#d33",
             });
         } finally {
@@ -149,8 +147,8 @@ export default function ForgotPasswordPage() {
         if (newPassword !== confirmPassword) {
             Swal.fire({
                 icon: "warning",
-                title: "รหัสผ่านไม่ตรงกัน",
-                text: "กรุณากรอกรหัสผ่านใหม่ให้ตรงกันทั้งสองช่อง",
+                title: t("passwordMismatchTitle"),
+                text: t("passwordMismatchText"),
                 confirmButtonColor: "#EF4444",
             });
             return;
@@ -159,8 +157,8 @@ export default function ForgotPasswordPage() {
         if (newPassword.length < 8) {
             Swal.fire({
                 icon: "warning",
-                title: "รหัสผ่านสั้นเกินไป",
-                text: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+                title: t("passwordTooShortTitle"),
+                text: t("passwordTooShortText"),
                 confirmButtonColor: "#EF4444",
             });
             return;
@@ -169,8 +167,8 @@ export default function ForgotPasswordPage() {
         if (!captchaToken) {
             Swal.fire({
                 icon: "warning",
-                title: "กรุณายืนยันตัวตน",
-                text: "โปรดติ๊กถูกที่ช่อง ReCAPTCHA",
+                title: t("confirmCaptchaTitle"),
+                text: t("confirmCaptchaText"),
                 confirmButtonColor: "#EF4444",
             });
             return;
@@ -179,10 +177,7 @@ export default function ForgotPasswordPage() {
         setLoading(true);
 
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             // Note: We send the OTP again because the backend needs to verify it before resetting.
             const res = await fetch("/api/auth/reset-with-otp", {
@@ -199,16 +194,16 @@ export default function ForgotPasswordPage() {
             if (res.ok) {
                 await Swal.fire({
                     icon: "success",
-                    title: "เปลี่ยนรหัสผ่านสำเร็จ",
-                    text: "คุณสามารถเข้าสู่ระบบด้วยรหัสผ่านใหม่ได้ทันที",
+                    title: t("resetSuccessTitle"),
+                    text: t("resetSuccessText"),
                     confirmButtonColor: "#35622F",
                 });
                 router.push("/ced-portal/login");
             } else {
                 Swal.fire({
                     icon: "error",
-                    title: "เกิดข้อผิดพลาด",
-                    text: data.error || "รหัส OTP หมดอายุหรือเปลี่ยนไปแล้ว กรุณาลองใหม่",
+                    title: t("errorOccurred"),
+                    text: data.error || t("resetErrorText"),
                     confirmButtonColor: "#d33",
                 });
 
@@ -221,8 +216,8 @@ export default function ForgotPasswordPage() {
             console.error(error);
             Swal.fire({
                 icon: "error",
-                title: "เกิดข้อผิดพลาด",
-                text: "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้",
+                title: t("errorOccurred"),
+                text: t("cannotConnectServer"),
                 confirmButtonColor: "#d33",
             });
         } finally {
@@ -253,9 +248,9 @@ export default function ForgotPasswordPage() {
                     />
                     <h1 className="text-2xl font-bold text-slate-800">{t("forgotPassword")}</h1>
                     <p className="text-slate-500 text-sm mt-1">
-                        {step === 1 && `ระบุ${t("aliasLabel")} เพื่อตรวจสอบสิทธิ์`}
+                        {step === 1 && t("aliasCheckSubtitle", { label: t("aliasLabel") })}
                         {step === 2 && t("otpSubtitle")}
-                        {step === 3 && "ตั้งรหัสผ่านใหม่ของคุณ"}
+                        {step === 3 && t("settingNewPassword")}
                     </p>
                 </div>
 
@@ -293,7 +288,7 @@ export default function ForgotPasswordPage() {
                             disabled={loading || !captchaToken}
                             className="w-full bg-[#35622F] text-white py-3 rounded-lg font-semibold hover:bg-[#2e5429] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex justify-center items-center gap-2"
                         >
-                            {loading ? "กำลังตรวจสอบ..." : "ถัดไป"}
+                            {loading ? t("verifying") : t("next")}
                         </button>
                         <div className="flex justify-center mt-4">
                             <Link href="/ced-portal/login" className="text-sm text-slate-500 hover:text-[#35622F] font-medium transition-colors">
@@ -356,7 +351,7 @@ export default function ForgotPasswordPage() {
                             disabled={loading || otp.length !== 6}
                             className="w-full bg-[#35622F] text-white py-3 rounded-lg font-semibold hover:bg-[#2e5429] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                         >
-                            {loading ? "กำลังตรวจสอบ..." : t("verifyOtp")}
+                            {loading ? t("verifying") : t("verifyOtp")}
                         </button>
 
                         <div className="flex justify-center mt-2">
@@ -374,14 +369,14 @@ export default function ForgotPasswordPage() {
                 {step === 3 && (
                     <form onSubmit={handleResetPassword} className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">รหัสผ่านใหม่</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">{t("newPasswordLabel")}</label>
                             <div className="relative">
                                 <input
                                     type={showNew ? "text" : "password"}
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#35622F] focus:border-transparent outline-none transition-all pr-12 bg-white text-black"
-                                    placeholder="อย่างน้อย 8 ตัวอักษร"
+                                    placeholder={t("passwordPlaceholder")}
                                     required
                                 />
                                 <button
@@ -404,14 +399,14 @@ export default function ForgotPasswordPage() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">ยืนยันรหัสผ่านใหม่</label>
+                            <label className="block text-sm font-medium text-slate-700 mb-2">{t("confirmNewPasswordLabel")}</label>
                             <div className="relative">
                                 <input
                                     type={showConfirm ? "text" : "password"}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-[#35622F] focus:border-transparent outline-none transition-all pr-12 bg-white text-black"
-                                    placeholder="ยืนยันรหัสผ่านอีกครั้ง"
+                                    placeholder={t("confirmPasswordPlaceholder")}
                                     required
                                 />
                                 <button
@@ -446,7 +441,7 @@ export default function ForgotPasswordPage() {
                             disabled={loading || !captchaToken}
                             className="w-full bg-[#35622F] text-white py-3 rounded-lg font-semibold hover:bg-[#2e5429] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                         >
-                            {loading ? "กำลังเปลี่ยนรหัสผ่าน..." : "ยืนยันและเปลี่ยนรหัสผ่าน"}
+                            {loading ? t("resettingPassword") : t("confirmAndReset")}
                         </button>
                         <div className="flex justify-center mt-2">
                             <button

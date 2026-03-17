@@ -94,7 +94,7 @@ export async function PUT(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Updated Award: ${updatedAward.title.en}`,
             ip,
             targetId: String(updatedAward._id)
@@ -106,7 +106,7 @@ export async function PUT(
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const err = error as any;
         console.error("Error updating award:", err);
-        return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
 
@@ -136,7 +136,7 @@ export async function DELETE(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "DELETE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Deleted Award: ${deletedAward.title?.en || id}`,
             ip,
             targetId: String(id)
