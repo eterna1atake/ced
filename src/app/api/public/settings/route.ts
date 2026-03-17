@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongoose';
 import Setting from '@/collections/Setting';
-import { rateLimit } from '@/lib/security';
+import { globalRateLimit as rateLimit } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic'; // [New] Ensure this is not cached
 export const revalidate = 0;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
-import { rateLimit } from '@/lib/security';
+import { globalRateLimit as rateLimit } from '@/lib/rate-limit';
 
 // Configure Cloudinary
 cloudinary.config({
@@ -17,8 +17,7 @@ export async function POST(request: NextRequest) {
     // 1. Authentication & Role Check
     const session = await auth();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user = session?.user as any;
+    const role = (session?.user as { role?: string })?.role;
 
     if (!session) {
         return NextResponse.json(
@@ -27,7 +26,7 @@ export async function POST(request: NextRequest) {
         );
     }
 
-    if (user?.role !== "superuser") {
+    if (role !== "superuser") {
         return NextResponse.json(
             { error: "Forbidden: Superuser role required" },
             { status: 403 }
@@ -145,7 +144,7 @@ export async function POST(request: NextRequest) {
         const err = error as any;
         console.error("Cloudinary upload error:", err);
         return NextResponse.json(
-            { error: `Upload failed: ${err.message || "Unknown error"}` },
+            { error: "Internal Server Error" },
             { status: 500 }
         );
     }

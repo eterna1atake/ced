@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
     // Rate Limit Check
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-    const email = session.user?.email || undefined;
+    const email = session.user?.username || undefined;
 
     const limitResult = await incrementAdminWriteLimit(ip, email);
     if (!limitResult.success) {
@@ -136,8 +136,11 @@ export async function POST(request: NextRequest) {
             phone: sanitizeStrict(data.phone),
             customLinks: data.customLinks.map(link => ({
                 title: sanitizeStrict(link.title),
-                url: link.url
+                url: sanitizeStrict(link.url)
             })),
+            scopusLink: sanitizeStrict(data.scopusLink),
+            researchProfileLink: sanitizeStrict(data.researchProfileLink),
+            googleScholarLink: sanitizeStrict(data.googleScholarLink),
             // education & courses are objects/arrays of strings, if they accept free text they should be sanitized too
             // assuming they are safe or strict validation handles it, but let's be safe for string fields
             education: data.education.map(edu => ({
@@ -172,7 +175,7 @@ export async function POST(request: NextRequest) {
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "CREATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Created Personnel: ${newPersonnel.name.en} (${newPersonnel.position.en})`,
             ip,
             targetId: String(newPersonnel._id)
@@ -187,6 +190,6 @@ export async function POST(request: NextRequest) {
         if (err.code === 11000) {
             return NextResponse.json({ error: "Email already exists" }, { status: 409 });
         }
-        return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

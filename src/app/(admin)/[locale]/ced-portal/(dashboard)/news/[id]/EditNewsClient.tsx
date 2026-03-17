@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useRouter } from "next/navigation";
 import NewsForm from "@/components/admin/news/NewsForm";
@@ -25,10 +26,7 @@ export default function EditNewsClient({ initialData }: Props) {
         try {
             const targetId = data.id || initialData.id;
 
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch(`/api/ced-portal/news/${targetId}`, {
                 method: "PUT",
@@ -55,7 +53,7 @@ export default function EditNewsClient({ initialData }: Props) {
             }
 
             await Swal.fire({
-                title: "Success!",
+                title: tAlert("success"),
                 text: tAlert("updatedText"),
                 icon: "success",
                 timer: 1500,
@@ -65,7 +63,7 @@ export default function EditNewsClient({ initialData }: Props) {
             router.push("/ced-portal/news");
         } catch (error: unknown) {
             console.error("Update error:", error);
-            const msg = error instanceof Error ? error.message : "Unknown error occurred";
+            const msg = error instanceof Error ? error.message : tAlert("updateFailed");
             Swal.fire(tAlert("error"), msg, "error");
         } finally {
             setIsSubmitting(false);

@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     // Rate Limit Check
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-    const email = session.user?.email || undefined;
+    const email = session.user?.username || undefined;
 
     const limitResult = await incrementAdminWriteLimit(ip, email);
     if (!limitResult.success) {
@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "CREATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Created Facility: ${newFacility.id} (${newFacility.name.en})`,
             ip,
             targetId: String(newFacility._id)
@@ -130,6 +130,6 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const err = error as any;
         console.error("Error creating facility:", err);
-        return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

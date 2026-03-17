@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
@@ -38,7 +39,7 @@ export default function ServicesListPage() {
             setServices(data);
         } catch (error) {
             console.error(error);
-            Swal.fire(tAlert("error"), "Failed to load services", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -63,10 +64,7 @@ export default function ServicesListPage() {
         if (result.isConfirmed) {
             try {
                 // [Fix] Add CSRF Token to headers
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/services/${id}`, {
                     method: "DELETE",
@@ -84,7 +82,7 @@ export default function ServicesListPage() {
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire(tAlert("error"), "Failed to delete service", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

@@ -1,54 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import News from "@/collections/News";
-import { auth } from "@/lib/auth";
-import { z } from "zod";
+import { getAdminSession } from "@/lib/auth";
+import { NewsSchema } from "@/lib/validations/news";
 import { logSystemEvent } from "@/lib/audit";
 import { headers } from "next/headers";
+import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-
-// Validation Schema
-const LocalizedStringSchema = z.object({
-    th: z.string().default(""),
-    en: z.string().default(""),
-});
-
-const NewsSchema = z.object({
-    slug: z.string().trim().min(1, "Slug is required").regex(/^[a-z0-9-]+$/, "Slug must contain only lowercase letters, numbers, and hyphens"),
-    title: z.object({
-        th: z.string().trim().min(1, "Thai title is required"),
-        en: z.string().trim().min(1, "English title is required"),
-    }),
-
-    content: LocalizedStringSchema,
-    imageSrc: z.string().optional().default(""),
-    imageAlt: z.string().optional().default(""),
-    galleryImages: z.array(z.string()).optional().default([]),
-    category: z.string().trim().min(1, "Category is required"),
-    date: z.string().or(z.date()).transform((val) => new Date(val)),
-    author: LocalizedStringSchema,
-    status: z.enum(['published', 'draft', 'archived']).default('draft'),
-    tags: z.array(z.string()).optional().default([]),
-    isPinned: z.boolean().optional().default(false),
-    pinnedAt: z.string().or(z.date()).optional().nullable().transform((val) => val ? new Date(val) : null),
-});
-
-import { sanitizeStrict, sanitizeContent } from "@/lib/sanitize";
-
-// sanitizeObject removed as it was unused and contained explicit any.
-
-
-async function getAdminSession() {
-    const session = await auth();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const user = session?.user as any;
-    if (!session || user?.role !== "superuser") {
-        return null;
-    }
-    return session;
-}
 
 export async function GET() {
     const session = await getAdminSession();
@@ -92,7 +52,7 @@ export async function POST(request: NextRequest) {
     // Rate Limit Check
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-    const email = session.user?.email || undefined;
+    const username = (session.user as { username?: string }).username;
 
     // Check and Consume in one step (increment calls handleLimit with 'consume')
     // Or prefer 'check' then 'consume' pattern? 
@@ -102,7 +62,7 @@ export async function POST(request: NextRequest) {
     // Looking at search: it does check then increment.
 
     // Actually, to be strict and fail fast:
-    const limitResult = await incrementAdminWriteLimit(ip, email);
+    const limitResult = await incrementAdminWriteLimit(ip, username);
     if (!limitResult.success) {
         return NextResponse.json(
             { error: 'Too many requests', retryAfter: Math.ceil(limitResult.msBeforeNext / 1000) },
@@ -150,7 +110,7 @@ export async function POST(request: NextRequest) {
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "CREATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: (session.user as { username?: string }).username || "unknown",
             details: `Created News: ${newNews.title.en} (${newNews.status})`,
             ip,
             targetId: String(newNews._id)
@@ -162,6 +122,6 @@ export async function POST(request: NextRequest) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const err = error as any;
         console.error("Error creating news:", err);
-        return NextResponse.json({ error: `Internal Server Error: ${err.message || "Unknown error"}` }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

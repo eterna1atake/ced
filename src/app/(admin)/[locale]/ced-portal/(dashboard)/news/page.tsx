@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
@@ -59,7 +60,7 @@ export default function NewsListPage() {
             setNews(sortAndSeparate(mappedData as any, sortOrder));
         } catch (error) {
             console.error("Error fetching news:", error);
-            Swal.fire(tAlert("error"), "Failed to load news items", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -93,11 +94,22 @@ export default function NewsListPage() {
             return;
         }
 
+        // Confirm before pinning/unpinning
+        const confirmResult = await Swal.fire({
+            title: item.isPinned ? tAlert("unpinConfirmTitle") : tAlert("pinConfirmTitle"),
+            text: item.isPinned ? tAlert("unpinConfirmText") : tAlert("pinConfirmText"),
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonColor: "#f59e0b",
+            cancelButtonColor: "#94a3b8",
+            confirmButtonText: tAlert("confirm"),
+            cancelButtonText: tAlert("cancel"),
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             console.log(`[DEBUG] handleTogglePin for item: ${item.id}, current isPinned: ${item.isPinned}`);
             const res = await fetch(`/api/ced-portal/news/${item.id}/pin`, {
@@ -141,7 +153,7 @@ export default function NewsListPage() {
 
         } catch (error) {
             console.error("Pin error:", error);
-            Swal.fire(tAlert("error"), "Failed to toggle pin", "error");
+            Swal.fire(tAlert("error"), tAlert("updateFailed"), "error");
         }
     };
 
@@ -159,10 +171,7 @@ export default function NewsListPage() {
 
         if (result.isConfirmed) {
             try {
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/news/${id}`, {
                     method: "DELETE",
@@ -176,23 +185,33 @@ export default function NewsListPage() {
                 fetchNews();
             } catch (error) {
                 console.error("Delete error:", error);
-                Swal.fire(tAlert("error"), "Failed to delete item", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };
 
     const handleToggleArchive = async (item: NewsSeedItem) => {
-
         const targetStatus = item.status === 'archived' ? 'published' : 'archived';
+
+        // Confirm before archiving/unarchiving
+        const confirmResult = await Swal.fire({
+            title: targetStatus === 'archived' ? tAlert("archiveConfirmTitle") : tAlert("unarchiveConfirmTitle"),
+            text: targetStatus === 'archived' ? tAlert("archiveConfirmText") : tAlert("unarchiveConfirmText"),
+            icon: targetStatus === 'archived' ? "warning" : "question",
+            showCancelButton: true,
+            confirmButtonColor: targetStatus === 'archived' ? "#94a3b8" : "#22c55e",
+            cancelButtonColor: "#e2e8f0",
+            confirmButtonText: tAlert("confirm"),
+            cancelButtonText: tAlert("cancel"),
+        });
+
+        if (!confirmResult.isConfirmed) return;
 
         try {
 
             const updatedItem = { ...item, status: targetStatus };
 
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const res = await fetch(`/api/ced-portal/news/${item.id}`, {
                 method: "PUT",
@@ -216,12 +235,12 @@ export default function NewsListPage() {
             });
             toast.fire({
                 icon: 'success',
-                title: `Status updated to ${targetStatus}`
+                title: tAlert("updated"),
             });
 
         } catch (error) {
             console.error("Archive error:", error);
-            Swal.fire(tAlert("error"), "Failed to update status", "error");
+            Swal.fire(tAlert("error"), tAlert("updateFailed"), "error");
         }
     };
 
@@ -324,9 +343,9 @@ export default function NewsListPage() {
                                                         <span>{t("pin")}</span>
                                                     </span>
                                                 )}
-                                                <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.en}</div>
+                                                <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-1">{item.title.th}</div>
                                             </div>
-                                            <div className="text-xs text-slate-400 line-clamp-1">{item.content.en}</div>
+                                            <div className="text-xs text-slate-400 line-clamp-1">{item.content.th}</div>
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 dark:text-slate-300 whitespace-nowrap">
                                             <span className="px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">

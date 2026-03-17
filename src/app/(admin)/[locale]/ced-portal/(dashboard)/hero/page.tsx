@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -32,7 +33,7 @@ export default function HeroListPage() {
             setHeroes(data);
         } catch (error) {
             console.error(error);
-            Swal.fire(tAlert("error"), "Failed to load hero images", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -57,10 +58,7 @@ export default function HeroListPage() {
         if (result.isConfirmed) {
             try {
                 // [Fix] Add CSRF Token to headers
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/hero/${id}`, {
                     method: "DELETE",
@@ -78,7 +76,7 @@ export default function HeroListPage() {
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire(tAlert("error"), "Failed to delete image", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

@@ -3,7 +3,7 @@ import clientPromise from "@/lib/mongodb";
 export type LoginAuditStatus = "SUCCESS" | "FAILED" | "BLOCKED";
 
 export type AuditLogEntry = {
-    email: string;
+    username: string; // Changed from email to username
     ip: string;
     userAgent?: string;
     status: LoginAuditStatus;
@@ -43,7 +43,7 @@ export type SystemEventType =
 
 export type SystemAuditEntry = {
     action: SystemEventType;
-    actorEmail: string;
+    actor: string;
     details?: string;
     ip: string;
     userAgent?: string;
@@ -63,7 +63,7 @@ export async function logSystemEvent(entry: SystemAuditEntry) {
             timestamp: new Date(),
         });
 
-        console.log(`[Audit:System] ${entry.action} by ${entry.actorEmail}`);
+        console.log(`[Audit:System] ${entry.action} by ${entry.actor}`);
     } catch (error) {
         console.error("[Audit] Failed to write system log:", error);
     }

@@ -1,4 +1,5 @@
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
@@ -32,19 +33,31 @@ export default function PersonnelListPage() {
             // Helper to determine position weight (lower is higher priority)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const getWeight = (p: any) => {
-                const th = (p.position?.th || "").trim();
-                const en = (p.position?.en || "").toLowerCase();
+                const thPos = (p.position?.th || "").trim();
+                const enPos = (p.position?.en || "").toLowerCase();
+                const thTitle = (p.academicTitle?.th || "").trim();
 
-                // 1. Check Strict Head (Must start with 'หัวหน้าภาค' or be 'head' without deputy terms)
-                // Note: "รองหัวหน้า" starts with "รอง", so it won't match "startsWith('หัวหน้าภาค')"
-                const isHead = th.startsWith("หัวหน้าภาค") || (en.includes("head") && !en.includes("associate") && !en.includes("deputy") && !en.includes("vice"));
-                if (isHead) return 1;
+                // 1. Head of Department (หัวหน้าภาค)
+                if (thPos.startsWith("หัวหน้าภาค") || (enPos.includes("head") && !enPos.includes("associate") && !enPos.includes("deputy") && !enPos.includes("vice"))) {
+                    return 1;
+                }
 
-                // 2. Check Deputy / Associate (Starts with 'รอง' or contains deputy terms)
-                const isDeputy = th.startsWith("รอง") || en.includes("associate") || en.includes("deputy") || en.includes("vice");
-                if (isDeputy) return 2;
+                // 2. Deputy Head (รองหัวหน้า)
+                if (thPos.startsWith("รองหัวหน้า") || thPos.startsWith("รอง") || enPos.includes("associate") || enPos.includes("deputy") || enPos.includes("vice")) {
+                    return 2;
+                }
 
-                return 3; // Others
+                // 3. Lecturer (อาจารย์) - Check position or presence of academic title (Prof, Assoc Prof, etc.)
+                if (thPos.includes("อาจารย์") || thTitle.length > 0) {
+                    return 3;
+                }
+
+                // 4. Staff (เจ้าหน้าที่)
+                if (thPos.includes("เจ้าหน้าที่") || thPos.includes("นักวิชาการ") || thPos.includes("บรรณารักษ์")) {
+                    return 4;
+                }
+
+                return 5; // Others
             };
 
             // Sort: Priority Weight -> Alphabetical (TH Name)
@@ -61,7 +74,7 @@ export default function PersonnelListPage() {
             setPersonnel(sortedData);
         } catch (error) {
             console.error(error);
-            Swal.fire(tAlert("error"), "Failed to load personnel data", "error");
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
@@ -86,10 +99,7 @@ export default function PersonnelListPage() {
         if (result.isConfirmed) {
             try {
                 // [Fix] Add CSRF Token to headers
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/personnel/${id}`, {
                     method: "DELETE",
@@ -105,7 +115,7 @@ export default function PersonnelListPage() {
                 router.refresh();
             } catch (error) {
                 console.error(error);
-                Swal.fire(tAlert("error"), "Failed to delete personnel", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

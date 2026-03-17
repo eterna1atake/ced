@@ -381,3 +381,33 @@ export async function checkAdminWriteLimit(ip: string, email?: string) {
 export async function incrementAdminWriteLimit(ip: string, email?: string) {
     return handleLimit(ADMIN_WRITE_TIERS, adminWriteLimiters, ip, email, "consume");
 }
+
+// --- Global API Rate Limiting ---
+
+let globalRateLimiter: RateLimiterMongo | null = null;
+
+async function getGlobalRateLimiter() {
+    if (globalRateLimiter) return globalRateLimiter;
+    const client = await clientPromise;
+    globalRateLimiter = new RateLimiterMongo({
+        storeClient: client,
+        dbName: process.env.MONGODB_DB_NAME,
+        points: 60, // 60 requests
+        duration: 60, // Per 60 seconds
+        keyPrefix: 'api_global_limit',
+    });
+    return globalRateLimiter;
+}
+
+import { NextResponse } from 'next/server';
+
+export async function globalRateLimit(req: Request) {
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+    try {
+        const limiter = await getGlobalRateLimiter();
+        await limiter.consume(ip);
+    } catch {
+        return NextResponse.json({ error: 'Too Many Requests' }, { status: 429 });
+    }
+    return null;
+}

@@ -90,7 +90,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 title: tAlert("sessionExpiredTitle"),
                 text: tAlert("sessionExpiredText"),
                 confirmButtonColor: '#35622F',
-                confirmButtonText: 'ตกลง'
+                confirmButtonText: tAlert("ok")
             });
         }
     }, [searchParams, tAlert]);
@@ -183,6 +183,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                     title: tAlert("error"),
                     text: errorMessage,
                     confirmButtonColor: "#EF4444",
+                    confirmButtonText: tAlert("ok")
                 });
                 setLoading(false);
                 return;
@@ -218,19 +219,22 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                     setBlockedSeconds(status.seconds);
                     const timeStr = formatTime(status.seconds);
 
-                    let title = "ถูกระงับการใช้งาน";
-                    let msg = `คุณทำรายการผิดพลาดเกินกำหนด ระบบระงับการใช้งานเป็นเวลา ${timeStr}`;
+                    let title = "";
+                    let msg = "";
 
                     if (status.reason === "AccountLocked") {
-                        title = "บัญชีถูกระงับชั่วคราว";
-                        msg = `บัญชีนี้ถูกระงับชั่วคราวเนื่องจากพยายามเข้าระบบผิดหลายครั้ง กรุณารอ ${timeStr}`;
+                        title = tAlert("accountLockedTitle");
+                        msg = tAlert("accountLockedText", { time: timeStr });
                     } else if (status.reason === "UnauthorizedIdentity") {
-                        title = "ไม่มีสิทธิ์เข้าถึง";
-                        msg = "ข้อมูลประจำตัวนี้ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแล (Unauthorized Identity)";
+                        title = tAlert("accessDeniedTitle");
+                        msg = tAlert("accessDeniedText");
+                    } else {
+                        title = tAlert("rateLimitTitle");
+                        msg = tAlert("rateLimitText", { time: timeStr });
                     }
 
                     setError(msg);
-                    Swal.fire({ icon: "error", title: title, text: msg, confirmButtonColor: "#EF4444" });
+                    Swal.fire({ icon: "error", title: title, text: msg, confirmButtonColor: "#EF4444", confirmButtonText: tAlert("ok") });
                     setLoading(false);
                     return;
                 }
@@ -274,21 +278,21 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                     const seconds = parseInt(result.error.split(":")[2] || "60");
                     setBlockedSeconds(seconds);
                     const timeStr = formatTime(seconds);
-                    const msg = `คุณทำรายการผิดพลาดเกินกำหนด ระบบระงับการใช้งานเป็นเวลา ${timeStr}`;
+                    const msg = tAlert("rateLimitText", { time: timeStr });
                     setError(msg);
-                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonColor: "#35622F" });
+                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonColor: "#35622F", confirmButtonText: tAlert("ok") });
                 } else if (result.error.startsWith("AccountLocked:")) {
                     const seconds = parseInt(result.error.split(":")[1] || "0");
                     setBlockedSeconds(seconds);
                     const timeStr = formatTime(seconds);
-                    const msg = `บัญชีถูกระงับชั่วคราวเนื่องจากพยายามเข้าระบบผิดหลายครั้ง กรุณารอ ${timeStr}`;
+                    const msg = tAlert("accountLockedText", { time: timeStr });
                     setError(msg);
-                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonColor: "#35622F" });
+                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonColor: "#35622F", confirmButtonText: tAlert("ok") });
                 } else if (errCode === "OTP Expired" || errCode === "Invalid OTP" || errCode.startsWith("Invalid OTP")) {
                     const isExpired = errCode === "OTP Expired";
-                    const msg = isExpired ? "รหัส OTP หมดอายุ" : "รหัส OTP ไม่ถูกต้อง";
+                    const msg = isExpired ? tAlert("otpExpired") : tAlert("otpInvalid");
                     setError(msg);
-                    Swal.fire({ icon: "error", title: msg, text: "กรุณาตรวจสอบรหัสแล้วลองใหม่อีกครั้ง", confirmButtonColor: "#d33" }).then(() => {
+                    Swal.fire({ icon: "error", title: msg, text: tAlert("otpErrorText"), confirmButtonColor: "#d33", confirmButtonText: tAlert("ok") }).then(() => {
                         setOtp(new Array(6).fill(""));
                         setBackupCodeInput("");
                         setLoading(false);
@@ -301,30 +305,30 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                         const remaining = parseInt(parts[1]);
                         if (!isNaN(remaining)) remainingMsg = ` (เหลือโอกาสอีก ${remaining} ครั้ง)`;
                     }
-                    const msg = isTwoFactor ? "รหัส OTP ไม่ถูกต้อง" : `ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง${remainingMsg}`;
+                    const msg = isTwoFactor ? tAlert("otpInvalid") : `${tAlert("loginFailed")}${remainingMsg}`;
                     setError(msg);
-                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonText: "ตกลง" }).then(() => {
+                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonText: tAlert("ok") }).then(() => {
                         if (isTwoFactor) { setOtp(new Array(6).fill("")); setBackupCodeInput(""); }
                     });
-                } else if (result.error.includes("Access Denied") || result.error.includes("Forbidden") || result.error === "Forbidden") {
-                    const msg = "ข้อมูลประจำตัวนี้ไม่มีสิทธิ์เข้าถึงระบบผู้ดูแล (Unauthorized Identity)";
+                } else if (errCode === "Forbidden" || result.error.includes("Access Denied") || result.error.includes("Forbidden")) {
+                    const msg = tAlert("accessDeniedText");
                     setError(msg);
-                    Swal.fire({ icon: "error", title: tAlert("error"), text: msg, confirmButtonColor: "#d33" });
+                    Swal.fire({ icon: "error", title: tAlert("accessDeniedTitle"), text: msg, confirmButtonColor: "#d33", confirmButtonText: tAlert("ok") });
                 } else if (result.error === "InactiveAccount") {
-                    const msg = "บัญชีนี้ถูกปิดใช้งาน (Inactive Account)";
+                    const msg = tAlert("inactiveAccountText") || "Account Inactive";
                     setError(msg);
-                    Swal.fire({ icon: "warning", title: tAlert("error"), text: "กรุณาติดต่อผู้ดูแลระบบเพื่อเปิดใช้งานบัญชี", confirmButtonColor: "#d33" });
+                    Swal.fire({ icon: "warning", title: tAlert("error"), text: msg, confirmButtonColor: "#d33", confirmButtonText: tAlert("ok") });
                 } else {
-                    const msg = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+                    const msg = tAlert("unknownError") || "An error occurred";
                     setError(msg);
-                    Swal.fire({ icon: "warning", title: tAlert("error"), text: `${msg} (${result?.error})`, confirmButtonColor: "#d33" });
+                    Swal.fire({ icon: "warning", title: tAlert("error"), text: `${msg} (${result?.error})`, confirmButtonColor: "#d33", confirmButtonText: tAlert("ok") });
                 }
                 setLoading(false);
             } else {
                 Swal.fire({
                     icon: "success",
                     title: tAlert("loginSuccess"),
-                    text: "กำลังเข้าสู่หน้าผู้ดูแลระบบ...",
+                    text: tAlert("loginSuccessText"),
                     showConfirmButton: false,
                     timer: 1500,
                     timerProgressBar: true

@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     // Rate Limit Check
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-    const email = session.user?.email || undefined;
+    const email = session.user?.username || undefined;
 
     const limitResult = await incrementAdminWriteLimit(ip, email);
     if (!limitResult.success) {

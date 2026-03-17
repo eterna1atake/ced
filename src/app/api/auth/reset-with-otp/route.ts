@@ -14,13 +14,6 @@ const ResetSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        // 0. CSRF Protection (Double Submit Cookie)
-        const csrfCookie = req.cookies.get("ced_csrf_token")?.value;
-        const csrfHeader = req.headers.get("x-csrf-token");
-
-        if (!csrfCookie || !csrfHeader || csrfCookie !== csrfHeader) {
-            return NextResponse.json({ error: "CSRF Error: Invalid Token" }, { status: 403 });
-        }
 
         const body = await req.json();
         const validation = await ResetSchema.safeParseAsync(body);
@@ -104,7 +97,7 @@ export async function POST(req: NextRequest) {
 
             await logSystemEvent({
                 action: "CHANGE_PASSWORD",
-                actorEmail: username,
+                actor: username,
                 ip,
                 userAgent,
                 details: "Reset password via TOTP (Google Authenticator)",

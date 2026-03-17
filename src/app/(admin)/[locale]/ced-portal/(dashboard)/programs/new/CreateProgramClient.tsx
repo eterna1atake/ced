@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -17,10 +18,7 @@ export default function CreateProgramClient() {
     const handleSubmit = async (data: ProgramItem) => {
         setIsLoading(true);
         try {
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
+            const csrfToken = getCsrfToken();
 
             const response = await fetch('/api/ced-portal/programs', {
                 method: 'POST',

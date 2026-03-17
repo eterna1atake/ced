@@ -5,8 +5,8 @@ import { faSave, faGlobe, faEnvelope, faPhone, faLocationDot, faPalette, faLock,
 import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-
 import { useRouter } from "next/navigation";
+import { getCsrfToken } from "@/utils/cookie";
 
 export default function SettingsPage() {
     const t = useTranslations("Admin.pages.settings");
@@ -90,12 +90,7 @@ export default function SettingsPage() {
 
         setLoading(true);
         try {
-            // Get CSRF Token from cookie
-            const csrfToken = document.cookie
-                .split("; ")
-                .find((row) => row.startsWith("ced_csrf_token="))
-                ?.split("=")[1];
-
+            const csrfToken = getCsrfToken();
             if (!csrfToken) {
                 throw new Error("CSRF Token not found");
             }
@@ -118,8 +113,8 @@ export default function SettingsPage() {
 
             await Swal.fire({
                 icon: 'success',
-                title: 'Saved!',
-                text: 'Settings saved successfully!',
+                title: tCommon('successTitle'),
+                text: tCommon('saveChanges'),
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -129,8 +124,8 @@ export default function SettingsPage() {
             console.error("Failed to save settings:", error);
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: `Error saving settings: ${error.message}`,
+                title: tCommon('errorTitle'),
+                text: `${tCommon('connectionError')}: ${error.message}`,
                 confirmButtonColor: '#d33'
             });
         } finally {
@@ -297,73 +292,78 @@ export default function SettingsPage() {
                                 />
                                 {errors.contactDepartmentEn && <p className="mt-1 text-xs text-red-500">{errors.contactDepartmentEn}</p>}
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    Contact Email <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faEnvelope} /></span>
-                                    <input
-                                        type="email"
-                                        disabled={!contactEditMode}
-                                        value={settings.contactEmail}
-                                        onChange={(e) => handleChange('contactEmail', e.target.value)}
-                                        onFocus={() => handleClearError('contactEmail')}
-                                        className={inputWithIconCls(!contactEditMode, !!errors.contactEmail)}
-                                    />
+                            <div className="col-span-2">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                        Contact Email <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faEnvelope} /></span>
+                                        <input
+                                            type="email"
+                                            disabled={!contactEditMode}
+                                            value={settings.contactEmail}
+                                            onChange={(e) => handleChange('contactEmail', e.target.value)}
+                                            onFocus={() => handleClearError('contactEmail')}
+                                            className={inputWithIconCls(!contactEditMode, !!errors.contactEmail)}
+                                        />
+                                    </div>
+                                    {errors.contactEmail && <p className="mt-1 text-xs text-red-500">{errors.contactEmail}</p>}
                                 </div>
-                                {errors.contactEmail && <p className="mt-1 text-xs text-red-500">{errors.contactEmail}</p>}
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mt-4 mb-1">
+                                        Phone Number <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faPhone} /></span>
+                                        <input
+                                            type="tel"
+                                            disabled={!contactEditMode}
+                                            value={settings.phoneNumber}
+                                            onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                                            onFocus={() => handleClearError('phoneNumber')}
+                                            className={inputWithIconCls(!contactEditMode, !!errors.phoneNumber)}
+                                        />
+                                    </div>
+                                    {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>}
+                                </div>
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    Phone Number <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-2.5 text-slate-400"><FontAwesomeIcon icon={faPhone} /></span>
-                                    <input
-                                        type="tel"
-                                        disabled={!contactEditMode}
-                                        value={settings.phoneNumber}
-                                        onChange={(e) => handleChange('phoneNumber', e.target.value)}
-                                        onFocus={() => handleClearError('phoneNumber')}
-                                        className={inputWithIconCls(!contactEditMode, !!errors.phoneNumber)}
-                                    />
+
+                            <div className="col-span-2">
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                        Address (TH) <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
+                                        <textarea
+                                            rows={2}
+                                            disabled={!contactEditMode}
+                                            value={settings.addressTh}
+                                            onChange={(e) => handleChange('addressTh', e.target.value)}
+                                            onFocus={() => handleClearError('addressTh')}
+                                            className={`${inputWithIconCls(!contactEditMode, !!errors.addressTh)} ${!contactEditMode ? 'resize-none' : ''}`}
+                                        ></textarea>
+                                    </div>
+                                    {errors.addressTh && <p className="mt-1 text-xs text-red-500">{errors.addressTh}</p>}
                                 </div>
-                                {errors.phoneNumber && <p className="mt-1 text-xs text-red-500">{errors.phoneNumber}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    Address (TH) <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
-                                    <textarea
-                                        rows={3}
-                                        disabled={!contactEditMode}
-                                        value={settings.addressTh}
-                                        onChange={(e) => handleChange('addressTh', e.target.value)}
-                                        onFocus={() => handleClearError('addressTh')}
-                                        className={`${inputWithIconCls(!contactEditMode, !!errors.addressTh)} ${!contactEditMode ? 'resize-none' : ''}`}
-                                    ></textarea>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                        Address (EN) <span className="text-red-500">*</span>
+                                    </label>
+                                    <div className="relative">
+                                        <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
+                                        <textarea
+                                            rows={2}
+                                            disabled={!contactEditMode}
+                                            value={settings.addressEn}
+                                            onChange={(e) => handleChange('addressEn', e.target.value)}
+                                            onFocus={() => handleClearError('addressEn')}
+                                            className={`${inputWithIconCls(!contactEditMode, !!errors.addressEn)} ${!contactEditMode ? 'resize-none' : ''}`}
+                                        ></textarea>
+                                    </div>
+                                    {errors.addressEn && <p className="mt-1 text-xs text-red-500">{errors.addressEn}</p>}
                                 </div>
-                                {errors.addressTh && <p className="mt-1 text-xs text-red-500">{errors.addressTh}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                                    Address (EN) <span className="text-red-500">*</span>
-                                </label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-3 text-slate-400"><FontAwesomeIcon icon={faLocationDot} /></span>
-                                    <textarea
-                                        rows={3}
-                                        disabled={!contactEditMode}
-                                        value={settings.addressEn}
-                                        onChange={(e) => handleChange('addressEn', e.target.value)}
-                                        onFocus={() => handleClearError('addressEn')}
-                                        className={`${inputWithIconCls(!contactEditMode, !!errors.addressEn)} ${!contactEditMode ? 'resize-none' : ''}`}
-                                    ></textarea>
-                                </div>
-                                {errors.addressEn && <p className="mt-1 text-xs text-red-500">{errors.addressEn}</p>}
                             </div>
                         </div>
                     </section>

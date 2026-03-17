@@ -46,7 +46,7 @@ export async function PUT(
         const ip = headersList.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
         await logSystemEvent({
             action: "UPDATE_CONTENT",
-            actorEmail: session.user?.email || "unknown",
+            actor: session.user?.username || "unknown",
             details: `Updated Program Detailed Content: ${id}`,
             ip,
             targetId: String(updatedProgram._id)

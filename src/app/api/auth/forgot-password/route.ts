@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
             const { logSystemEvent } = await import("@/lib/audit");
             await logSystemEvent({
                 action: "REQUEST_RESET",
-                actorEmail: username,
+                actor: username,
                 ip,
                 details: "Requested Password Reset (TOTP Flow)",
                 targetId: String(user._id)

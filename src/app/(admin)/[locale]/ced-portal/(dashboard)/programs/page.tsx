@@ -1,5 +1,6 @@
 
 "use client";
+import { getCsrfToken } from "@/utils/cookie";
 
 import { useState, useEffect } from "react";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
@@ -57,7 +58,7 @@ export default function ProgramsListPage() {
     const handleDelete = async (id: string, name: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
-            text: `You are about to delete "${name}". This action cannot be undone!`,
+            text: tAlert("deleteConfirmText"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -67,10 +68,7 @@ export default function ProgramsListPage() {
 
         if (result.isConfirmed) {
             try {
-                const csrfToken = document.cookie
-                    .split("; ")
-                    .find((row) => row.startsWith("ced_csrf_token="))
-                    ?.split("=")[1];
+                const csrfToken = getCsrfToken();
 
                 const res = await fetch(`/api/ced-portal/programs/${id}/general`, {
                     method: "DELETE",
@@ -88,7 +86,7 @@ export default function ProgramsListPage() {
                 }
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                Swal.fire(tAlert("error"), error.message || "Failed to delete program", "error");
+                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
             }
         }
     };

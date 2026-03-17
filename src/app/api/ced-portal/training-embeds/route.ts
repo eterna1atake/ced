@@ -3,7 +3,8 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongoose';
 import Setting from '@/collections/Setting';
-import { rateLimit, sanitizeInput } from '@/lib/security';
+import { globalRateLimit as rateLimit } from '@/lib/rate-limit';
+import { sanitizeInput } from '@/lib/sanitize';
 
 export const GET = async (req: Request) => {
     // Rate limit GET as well
