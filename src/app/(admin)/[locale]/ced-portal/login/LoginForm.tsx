@@ -171,77 +171,43 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
         setLoading(true);
         setError(null);
 
-        // ... existing handleSubmit logic (Validate, Pre-check, Encrypt, SignIn, Error Handling) ...
-        if (!isTwoFactor) {
-            const validation = loginSchema.safeParse({ username, password });
-            if (!validation.success) {
-                const fieldErrors = validation.error.flatten().fieldErrors;
-                const errorMessage = Object.values(fieldErrors).flat()[0] || "ข้อมูลไม่ถูกต้อง";
-                setError(errorMessage);
-                Swal.fire({
-                    icon: "warning",
-                    title: tAlert("error"),
-                    text: errorMessage,
-                    confirmButtonColor: "#EF4444",
-                    confirmButtonText: tAlert("ok")
-                });
-                setLoading(false);
-                return;
-            }
-        } else {
-            // 2FA Validation
-            if (isBackupCode) {
-                if (!backupCodeInput || backupCodeInput.length < 8) {
-                    setError("กรุณากรอกรหัส Backup Code ให้ถูกต้อง");
+            // ... existing handleSubmit logic (Validate, Pre-check, Encrypt, SignIn, Error Handling) ...
+            if (!isTwoFactor) {
+                const validation = loginSchema.safeParse({ username, password });
+                if (!validation.success) {
+                    const fieldErrors = validation.error.flatten().fieldErrors;
+                    const errorMessage = Object.values(fieldErrors).flat()[0] || "ข้อมูลไม่ถูกต้อง";
+                    setError(errorMessage);
+                    Swal.fire({
+                        icon: "warning",
+                        title: tAlert("error"),
+                        text: errorMessage,
+                        confirmButtonColor: "#EF4444",
+                        confirmButtonText: tAlert("ok")
+                    });
                     setLoading(false);
                     return;
                 }
             } else {
-                if (otp.join("").length !== 6) {
-                    setError("กรุณากรอกรหัส OTP ให้ครบ 6 หลัก");
-                    setLoading(false);
-                    return;
-                }
-            }
-        }
-
-        try {
-            // 1. Pre-check Rate Limit via API (Only for initial login)
-            if (!isTwoFactor) {
-                const checkRes = await fetch("/api/auth/check-rate-limit", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ username }),
-                });
-                const status = await checkRes.json();
-
-                if (status.blocked) {
-                    setBlockedSeconds(status.seconds);
-                    const timeStr = formatTime(status.seconds);
-
-                    let title = "";
-                    let msg = "";
-
-                    if (status.reason === "AccountLocked") {
-                        title = tAlert("accountLockedTitle");
-                        msg = tAlert("accountLockedText", { time: timeStr });
-                    } else if (status.reason === "UnauthorizedIdentity") {
-                        title = tAlert("accessDeniedTitle");
-                        msg = tAlert("accessDeniedText");
-                    } else {
-                        title = tAlert("rateLimitTitle");
-                        msg = tAlert("rateLimitText", { time: timeStr });
+                // 2FA Validation
+                if (isBackupCode) {
+                    if (!backupCodeInput || backupCodeInput.length < 8) {
+                        setError("กรุณากรอกรหัส Backup Code ให้ถูกต้อง");
+                        setLoading(false);
+                        return;
                     }
-
-                    setError(msg);
-                    Swal.fire({ icon: "error", title: title, text: msg, confirmButtonColor: "#EF4444", confirmButtonText: tAlert("ok") });
-                    setLoading(false);
-                    return;
+                } else {
+                    if (otp.join("").length !== 6) {
+                        setError("กรุณากรอกรหัส OTP ให้ครบ 6 หลัก");
+                        setLoading(false);
+                        return;
+                    }
                 }
             }
 
-            // 2. Proceed to Login
-            const codeToSend = isTwoFactor ? (isBackupCode ? backupCodeInput : otp.join("")) : "";
+            try {
+                // 1. Proceed to Login (Simplified: No redundant pre-check)
+                const codeToSend = isTwoFactor ? (isBackupCode ? backupCodeInput : otp.join("")) : "";
             let passwordToSend = password;
 
             if (publicKey) {

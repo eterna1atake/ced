@@ -8,6 +8,10 @@ import { checkRateLimit } from "@/lib/rate-limit"; // [New] Rate Limit
 import { headers } from "next/headers"; // [New] for IP
 import { logLoginAttempt } from "@/lib/audit";
 
+// [Senior Optimization] In-memory cache for session invalidation check to reduce DB load
+const SESSION_VERIFICATION_CACHE = new Map<string, { lastReset: number; timestamp: number }>();
+const CACHE_TTL = 60 * 1000; // 1 minute cache duration
+
 export type Role = "superuser" | "personnel";
 
 class RateLimitError extends CredentialsSignin {
@@ -98,13 +102,36 @@ const LoginSchema = z.object({
 async function findUserByUsername(username: string): Promise<DbUser | null> {
     const client = await clientPromise;
     const db = client.db(process.env.MONGODB_DB_NAME);
-    // Find by either username or legacy email (for transition)
-    return db.collection<DbUser>("users").findOne({
-        $or: [
-            { username: username.toLowerCase() },
-            { email: username.toLowerCase() }
-        ]
-    });
+    // [Senior Optimization] Use projection to only fetch necessary fields
+    return db.collection<DbUser>("users").findOne(
+        {
+            $or: [
+                { username: username.toLowerCase() },
+                { email: username.toLowerCase() }
+            ]
+        },
+        {
+            projection: {
+                _id: 1,
+                username: 1,
+                email: 1,
+                passwordHash: 1,
+                role: 1,
+                isActive: 1,
+                name: 1,
+                personnelId: 1,
+                failedLoginAttempts: 1,
+                lockoutUntil: 1,
+                notificationEmail: 1,
+                notificationEnabled: 1,
+                trustedDevices: 1,
+                totpEnabled: 1,
+                totpSecret: 1,
+                backupCodes: 1,
+                lastPasswordReset: 1
+            }
+        }
+    );
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -121,28 +148,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 if (res) Object.assign(token, res);
             }
 
-            // 2. Session Invalidation Logic
+            // 2. [Senior Optimization] Session Invalidation Logic with Caching
             if (token?.sub) {
-                try {
-                    const client = await clientPromise;
-                    const db = client.db(process.env.MONGODB_DB_NAME);
-                    const { ObjectId } = await import("mongodb");
+                const now = Date.now();
+                const cached = SESSION_VERIFICATION_CACHE.get(token.sub);
 
-                    const dbUser = await db.collection<DbUser>("users").findOne(
-                        { _id: new ObjectId(token.sub) },
-                        { projection: { lastPasswordReset: 1 } }
-                    );
+                let lastReset: number | null = null;
+                if (cached && (now - cached.timestamp < CACHE_TTL)) {
+                    lastReset = cached.lastReset;
+                } else {
+                    try {
+                        const client = await clientPromise;
+                        const db = client.db(process.env.MONGODB_DB_NAME);
+                        const { ObjectId } = await import("mongodb");
 
-                    if (dbUser?.lastPasswordReset) {
-                        const lastReset = new Date(dbUser.lastPasswordReset).getTime();
-                        const tokenIssued = (token.iat as number) * 1000;
-                        // If token issued BEFORE last reset (with 1s buffer) -> Invalid
-                        if (tokenIssued < lastReset - 1000) {
-                            return null; // Invalidates token
+                        const dbUser = await db.collection<DbUser>("users").findOne(
+                            { _id: new ObjectId(token.sub) },
+                            { projection: { lastPasswordReset: 1 } }
+                        );
+
+                        if (dbUser) {
+                            lastReset = dbUser.lastPasswordReset ? new Date(dbUser.lastPasswordReset).getTime() : 0;
+                            SESSION_VERIFICATION_CACHE.set(token.sub, { lastReset, timestamp: now });
                         }
+                    } catch (e) {
+                        console.error("Session verification failed", e);
                     }
-                } catch (e) {
-                    console.error("Session verification failed", e);
+                }
+
+                if (lastReset !== null && lastReset > 0) {
+                    const tokenIssued = (token.iat as number) * 1000;
+                    if (tokenIssued < lastReset - 1000) {
+                        return null; // Invalidates token
+                    }
                 }
             }
             return token;
@@ -175,46 +213,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 const { username, password } = parsed.data;
 
-                // --- 2. Captcha Verification ---
+                // --- 2. [Senior Optimization] Parallel Auth Checks (Captcha, Rate Limit, User Lookup) ---
+                const isProd = process.env.NODE_ENV === "production";
+                const shouldVerifyCaptcha = isProd || !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
                 const captchaToken = (raw as Record<string, unknown>).captchaToken as string | undefined;
 
-                const isProd = process.env.NODE_ENV === "production";
-                // Fail-Closed: Enforce captcha in production always.
-                // In dev, only enforce if site key is configured.
-                const shouldVerifyCaptcha = isProd || !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-
-                if (shouldVerifyCaptcha) {
-                    const { verifyCaptcha } = await import("@/lib/captcha");
-                    const isCaptchaValid = await verifyCaptcha(captchaToken);
-                    if (!isCaptchaValid) throw new InvalidCredentialsError("Captcha verification failed");
-                }
-
-                // --- 3. Rate Limiting ---
                 const { getClientIp } = await import("@/lib/ip");
                 const ip = await getClientIp();
+
+                const [captchaValid, rateLimitRes, user] = await Promise.all([
+                    shouldVerifyCaptcha ? (import("@/lib/captcha").then(m => m.verifyCaptcha(captchaToken))) : Promise.resolve(true),
+                    checkRateLimit(ip, username),
+                    findUserByUsername(username)
+                ]);
+
+                if (!captchaValid) throw new InvalidCredentialsError("Captcha verification failed");
+
+                if (!rateLimitRes.success) {
+                    const blockedSeconds = Math.ceil(rateLimitRes.msBeforeNext / 1000);
+                    throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
+                }
+
+                const client = await clientPromise;
+                const db = client.db(process.env.MONGODB_DB_NAME);
+                const notificationEmail = user?.notificationEmail as string | undefined;
+                const isNotificationEnabled = user?.notificationEnabled === true;
+
                 let userAgent: string | undefined;
                 try {
                     const headersList = await (headers() as unknown as Headers);
                     userAgent = headersList.get("user-agent") || undefined;
                 } catch { /* ignore */ }
-
-                try {
-                    const { success, msBeforeNext } = await checkRateLimit(ip, username);
-                    if (!success) {
-                        const blockedSeconds = Math.ceil(msBeforeNext / 1000);
-                        throw new RateLimitError(`RateLimit:Block:${blockedSeconds}`);
-                    }
-                } catch (err: unknown) {
-                    if (err instanceof RateLimitError) throw err;
-                }
-
-                // --- 4. Database Lookup & Notifications ---
-                const user = await findUserByUsername(username);
-                const client = await clientPromise;
-                const db = client.db(process.env.MONGODB_DB_NAME);
-                // Notification settings are stored per-user (not in global settings)
-                const notificationEmail = user?.notificationEmail as string | undefined;
-                const isNotificationEnabled = user?.notificationEnabled === true;
 
                 // --- 5. Account Lockout Check ---
                 if (user?.lockoutUntil && new Date() < new Date(user.lockoutUntil)) {
