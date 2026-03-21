@@ -10,6 +10,7 @@ import type { IPersonnel } from "@/collections/Personnel";
 import Loading from "../loading";
 import { useTranslations } from "next-intl";
 import { formatPersonnelName } from "@/utils/personnel";
+import Pagination from "@/components/common/Pagination";
 
 // Fallback interface to match what's used in the component if the model import is tricky or we want to be explicit here
 // But actually we should use the type from the model we created if possible, or define a local one matching the API response.
@@ -23,6 +24,8 @@ export default function PersonnelListPage() {
     const router = useRouter();
     const [personnel, setPersonnel] = useState<IPersonnel[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     const fetchPersonnel = async () => {
         setIsLoading(true);
@@ -84,7 +87,6 @@ export default function PersonnelListPage() {
         fetchPersonnel();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
@@ -98,9 +100,7 @@ export default function PersonnelListPage() {
 
         if (result.isConfirmed) {
             try {
-                // [Fix] Add CSRF Token to headers
                 const csrfToken = getCsrfToken();
-
                 const res = await fetch(`/api/ced-portal/personnel/${id}`, {
                     method: "DELETE",
                     headers: {
@@ -111,7 +111,7 @@ export default function PersonnelListPage() {
                 if (!res.ok) throw new Error("Failed to delete");
 
                 Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                fetchPersonnel(); // Refresh list
+                fetchPersonnel();
                 router.refresh();
             } catch (error) {
                 console.error(error);
@@ -119,6 +119,12 @@ export default function PersonnelListPage() {
             }
         }
     };
+
+    const totalPages = Math.ceil(personnel.length / ITEMS_PER_PAGE);
+    const paginatedPersonnel = personnel.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     if (isLoading) {
         return <div className="flex h-[50vh] items-center justify-center">
@@ -160,7 +166,7 @@ export default function PersonnelListPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                personnel.map((person) => (
+                                paginatedPersonnel.map((person) => (
                                     <tr key={person._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td className="p-4 w-16">
                                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
@@ -192,6 +198,16 @@ export default function PersonnelListPage() {
                     </table>
                 </div>
             </div>
+
+            {totalPages > 1 && (
+                <div className="mt-6">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
         </div>
     );
 }

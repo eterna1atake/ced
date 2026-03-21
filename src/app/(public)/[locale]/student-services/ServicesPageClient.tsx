@@ -11,6 +11,7 @@ import { LocalizedString } from "@/types/common";
 import FloatingBackButton from "@/components/common/FloatingBackButton";
 
 import { Service, ServiceCategory } from "@/types/service";
+import Loading from "@/components/common/Loading";
 
 const categoryLabels: Record<"all" | ServiceCategory, LocalizedString> = {
     all: { th: "ทั้งหมด", en: "All" },
@@ -116,7 +117,7 @@ export default function ServicesPageClient({ initialServices = [] }: { initialSe
             <section className="mx-auto w-full max-w-7xl px-6 py-6 lg:px-10 min-h-[400px]">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-20">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-main"></div>
+                        <Loading />
                     </div>
                 ) : filteredServices.length === 0 ? (
                     <div className="text-center py-20 text-slate-500">

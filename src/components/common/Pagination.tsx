@@ -34,7 +34,7 @@ export default function Pagination({
             className={`flex flex-col items-center gap-3 sm:flex-row sm:justify-between ${className}`}
             aria-label={t("paginationLabel")}
         >
-            <p className="text-sm font-medium text-slate-500">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                 {t("pageInfo", { current: currentPage, total: totalPages })}
             </p>
 
@@ -43,7 +43,7 @@ export default function Pagination({
                     type="button"
                     onClick={handlePrevious}
                     disabled={currentPage === 1}
-                    className="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors duration-200 hover:border-primary-main hover:text-primary-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none transition-colors duration-200 hover:border-primary-main dark:hover:border-primary-main hover:text-primary-main dark:hover:text-primary-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {t("previous")}
                 </button>
@@ -54,9 +54,9 @@ export default function Pagination({
                         type="button"
                         onClick={() => onPageChange(page)}
                         aria-current={page === currentPage ? "page" : undefined}
-                        className={`inline-flex min-w-[2.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 ${page === currentPage
-                                ? "border border-primary-main bg-primary-main text-white shadow"
-                                : "border border-slate-200 text-slate-700 hover:border-primary-main hover:text-primary-main"
+                        className={`inline-flex min-w-[2.5rem] items-center justify-center rounded-lg px-3 py-2 text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 shadow-sm dark:shadow-none ${page === currentPage
+                                ? "border border-primary-main bg-primary-main text-white"
+                                : "border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-primary-main hover:text-primary-main"
                             }`}
                     >
                         {page}
@@ -67,7 +67,7 @@ export default function Pagination({
                     type="button"
                     onClick={handleNext}
                     disabled={currentPage === totalPages}
-                    className="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors duration-200 hover:border-primary-main hover:text-primary-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex items-center rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none transition-colors duration-200 hover:border-primary-main dark:hover:border-primary-main hover:text-primary-main dark:hover:text-primary-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-main/40 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                     {t("next")}
                 </button>

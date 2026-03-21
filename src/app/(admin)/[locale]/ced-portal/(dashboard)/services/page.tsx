@@ -2,11 +2,12 @@
 import { getCsrfToken } from "@/utils/cookie";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
+import Pagination from "@/components/common/Pagination";
 import Swal from "sweetalert2";
 import Loading from "@/components/common/Loading";
 import { useTranslations } from "next-intl";
@@ -30,25 +31,29 @@ export default function ServicesListPage() {
     const router = useRouter();
     const [services, setServices] = useState<Service[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-
-    const fetchServices = async () => {
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
+    
+    const fetchServices = useCallback(async (page: number) => {
+        setIsLoading(true);
         try {
-            const res = await fetch("/api/ced-portal/services");
+            const res = await fetch(`/api/ced-portal/services?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
-            setServices(data);
+            setServices(data.services);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.error(error);
             Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [limit, tAlert]);
 
     useEffect(() => {
-        fetchServices();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        fetchServices(currentPage);
+    }, [currentPage, fetchServices]);
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
@@ -75,7 +80,7 @@ export default function ServicesListPage() {
 
                 if (res.ok) {
                     Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                    fetchServices();
+                    fetchServices(currentPage);
                     router.refresh();
                 } else {
                     throw new Error("Failed to delete");
@@ -87,11 +92,6 @@ export default function ServicesListPage() {
         }
     };
 
-    if (isLoading) return (
-        <div className="flex h-[50vh] items-center justify-center">
-            <Loading />
-        </div>
-    );
 
 
 
@@ -122,7 +122,13 @@ export default function ServicesListPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {services.length === 0 ? (
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={5} className="p-10 text-center">
+                                        <Loading />
+                                    </td>
+                                </tr>
+                            ) : services.length === 0 ? (
                                 <tr>
                                     <td colSpan={5} className="p-10 text-center text-slate-400">No services found.</td>
                                 </tr>
@@ -167,6 +173,14 @@ export default function ServicesListPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div className="mt-6">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

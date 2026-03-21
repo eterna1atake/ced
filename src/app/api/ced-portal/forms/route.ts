@@ -18,16 +18,32 @@ const formSchema = z.object({
     }),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await dbConnect();
-        const forms = await FormRequest.find({}).sort({ categoryId: 1, createdAt: -1 });
-        return NextResponse.json(forms);
+
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const skip = (page - 1) * limit;
+
+        const totalForms = await FormRequest.countDocuments({});
+        const forms = await FormRequest.find({})
+            .sort({ categoryId: 1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return NextResponse.json({
+            forms,
+            total: totalForms,
+            page,
+            totalPages: Math.ceil(totalForms / limit)
+        });
     } catch (error) {
-        console.error("Error fetching form requests:", error);
+        console.error("Error fetching forms:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

@@ -22,14 +22,30 @@ const resourceSchema = z.object({
     }),
 });
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await dbConnect();
-        const resources = await OnlineResource.find({}).sort({ categoryKey: 1, createdAt: -1 });
-        return NextResponse.json(resources);
+
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const skip = (page - 1) * limit;
+
+        const totalResources = await OnlineResource.countDocuments({});
+        const resources = await OnlineResource.find({})
+            .sort({ categoryKey: 1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return NextResponse.json({
+            resources,
+            total: totalResources,
+            page,
+            totalPages: Math.ceil(totalResources / limit)
+        });
     } catch (error) {
         console.error("Error fetching online resources:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

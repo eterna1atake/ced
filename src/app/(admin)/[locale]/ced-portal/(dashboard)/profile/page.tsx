@@ -47,16 +47,6 @@ export default async function ProfilePage() {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("email")}</label>
-                        <div className="text-base text-slate-900 dark:text-slate-100 font-medium">
-                            {user.email || (
-                                <span className="text-slate-400 italic text-sm">
-                                    {t("emailNotSet")}
-                                </span>
-                            )}
-                        </div>
-                    </div>
-                    <div>
                         <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("role")}</label>
                         <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 uppercase">
                             {user.role}

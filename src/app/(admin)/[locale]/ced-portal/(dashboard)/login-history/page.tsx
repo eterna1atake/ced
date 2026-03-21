@@ -30,7 +30,7 @@ type SystemLog = {
     timestamp: string;
 };
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 20;
 
 export default function AuditLogsPage() {
     const [activeTab, setActiveTab] = useState<"login" | "system">("login");
@@ -156,7 +156,7 @@ export default function AuditLogsPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {loading && loginLogs.length === 0 ? (
-                                    <tr><td colSpan={5} className="p-8 text-center text-slate-400">Loading logs...</td></tr>
+                                    <tr><td colSpan={5} className="p-8 text-center text-slate-400"><Loading /></td></tr>
                                 ) : paginatedLoginLogs.map((log) => (
                                     <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td className="p-4 whitespace-nowrap">
@@ -208,7 +208,7 @@ export default function AuditLogsPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                                 {loading && systemLogs.length === 0 ? (
-                                    <tr><td colSpan={5} className="p-8 text-center text-slate-400">Loading logs...</td></tr>
+                                    <tr><td colSpan={5} className="p-8 text-center text-slate-400"><Loading /></td></tr>
                                 ) : paginatedSystemLogs.map((log) => (
                                     <tr key={log._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                         <td className="p-4 whitespace-nowrap">
@@ -242,7 +242,7 @@ export default function AuditLogsPage() {
                         </table>
                     )}
                 </div>
-            
+
                 {totalPages > 1 && (
                     <div className="p-4 border-t dark:border-slate-800">
                         <Pagination

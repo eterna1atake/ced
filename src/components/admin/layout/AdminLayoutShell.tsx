@@ -5,10 +5,14 @@ import { useState } from "react";
 import AdminSidebar from "@/components/admin/layout/AdminSidebar";
 import AdminHeader from "@/components/admin/layout/AdminHeader";
 import { UnsavedChangesProvider } from "@/contexts/UnsavedChangesContext";
+import { useLocale, useTranslations } from "next-intl";
+import Link from "next/link";
 
 export default function AdminLayoutShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const locale = useLocale();
+    const t = useTranslations("Admin.footer");
 
     return (
         <UnsavedChangesProvider>
@@ -28,7 +32,6 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
                 >
                     <AdminHeader
                         onMenuClick={() => setIsSidebarOpen(true)}
-
                     />
 
                     <div className="p-4 md:p-8 flex flex-col min-h-screen">
@@ -39,12 +42,21 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
                         <footer className="mt-8 pt-8 pb-4 border-t border-slate-200 dark:border-slate-800">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                                 <p>
-                                    © {new Date().getFullYear()}, <span className="font-semibold text-slate-700 dark:text-slate-200">Computer Education Department (CED)</span>. All Rights Reserved.
+                                    {t.rich("rights", {
+                                        year: new Date().getFullYear(),
+                                        dept: (chunks) => <span className="font-semibold text-slate-700 dark:text-slate-200">{chunks}</span>
+                                    })}
                                 </p>
                                 <div className="flex gap-6">
-                                    <a href="#" className="hover:text-slate-800 transition-colors">Privacy</a>
-                                    <a href="#" className="hover:text-slate-800 transition-colors">Terms</a>
-                                    <a href="#" className="hover:text-slate-800 transition-colors">Contact</a>
+                                    <Link href="/ced-portal/guide" className="hover:text-slate-800 transition-colors">
+                                        {t("guide")}
+                                    </Link>
+                                    <Link href={`/${locale}/ced-portal/privacy`} className="hover:text-slate-800 transition-colors">
+                                        {t("privacy")}
+                                    </Link>
+                                    <Link href={`/${locale}/ced-portal/contact`} className="hover:text-slate-800 transition-colors">
+                                        {t("contact")}
+                                    </Link>
                                 </div>
                             </div>
                         </footer>

@@ -11,8 +11,9 @@ import Swal from "sweetalert2";
 import type { Facility } from "@/types/facility";
 
 import { useTranslations } from "next-intl";
-
 import { useLocale } from "next-intl";
+import Pagination from "@/components/common/Pagination";
+import Loading from "@/components/common/Loading";
 
 export default function FacilitiesListPage() {
     const tAlert = useTranslations("Admin.alerts");
@@ -27,8 +28,10 @@ export default function FacilitiesListPage() {
     };
 
     const [facilities, setFacilities] = useState<Facility[]>([]);
-    // const [_isLoading, setIsLoading] = useState(true); // Removed unused
+    const [isLoading, setIsLoading] = useState(true);
     const [activeFilter, setActiveFilter] = useState<'all' | '44' | '52'>('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 10;
 
     useEffect(() => {
         fetchFacilities();
@@ -46,7 +49,7 @@ export default function FacilitiesListPage() {
             console.error("Failed to fetch facilities", error);
             Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
-            // setIsLoading(false);
+            setIsLoading(false);
         }
     };
 
@@ -56,6 +59,12 @@ export default function FacilitiesListPage() {
         const building = room.id.split('-')[0];
         return building === activeFilter;
     });
+
+    const totalPages = Math.ceil(filteredFacilities.length / ITEMS_PER_PAGE);
+    const paginatedFacilities = filteredFacilities.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
 
     const handleDelete = async (id: string) => {
         const result = await Swal.fire({
@@ -134,44 +143,68 @@ export default function FacilitiesListPage() {
             </div>
 
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border dark:border-slate-800 overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                    <thead>
-                        <tr className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 text-slate-600 dark:text-slate-200 text-sm uppercase tracking-wider">
-                            <th className="p-4 font-semibold">Room Info</th>
-                            <th className="p-4 font-semibold">Building</th>
-                            <th className="p-4 font-semibold">Capacity</th>
-                            <th className="p-4 font-semibold text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                        {filteredFacilities.map((item) => (
-                            <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                <td className="p-4 flex gap-3 items-center">
-                                    <div className="w-16 h-10 relative bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
-                                        <Image src={item.image} alt={getLocalized(item.name)} fill className="object-cover" />
-                                    </div>
-                                    <div>
-                                        <div className="font-medium text-slate-900 dark:text-slate-100">{getLocalized(item.name)}</div>
-                                        <div className="text-xs text-slate-500 dark:text-slate-400">{item.id}</div>
-                                    </div>
-                                </td>
-                                <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                                    Building {item.building}
-                                </td>
-                                <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
-                                    {getLocalized(item.capacity)}
-                                </td>
-                                <td className="p-4 text-right">
-                                    <ActionButtons
-                                        editUrl={`/ced-portal/facilities/${encodeURIComponent(item.id)}`}
-                                        onDelete={() => handleDelete(item.id)}
-                                    />
-                                </td>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className="bg-slate-50 dark:bg-slate-800 border-b dark:border-slate-700 text-slate-600 dark:text-slate-200 text-sm uppercase tracking-wider">
+                                <th className="p-4 font-semibold whitespace-nowrap">Room Info</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Building</th>
+                                <th className="p-4 font-semibold whitespace-nowrap">Capacity</th>
+                                <th className="p-4 font-semibold text-right whitespace-nowrap">Actions</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={4} className="p-10 text-center">
+                                        <div className="flex justify-center items-center gap-2 text-slate-500">
+                                            <Loading />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : filteredFacilities.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="p-10 text-center text-slate-400">No facilities found.</td>
+                                </tr>
+                            ) : paginatedFacilities.map((item) => (
+                                <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                                    <td className="p-4 flex gap-3 items-center">
+                                        <div className="w-16 h-10 relative bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
+                                            <Image src={item.image} alt={getLocalized(item.name)} fill className="object-cover" />
+                                        </div>
+                                        <div>
+                                            <div className="font-medium text-slate-900 dark:text-slate-100">{getLocalized(item.name)}</div>
+                                            <div className="text-xs text-slate-500 dark:text-slate-400">{item.id}</div>
+                                        </div>
+                                    </td>
+                                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
+                                        Building {item.building}
+                                    </td>
+                                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
+                                        {getLocalized(item.capacity)}
+                                    </td>
+                                    <td className="p-4 text-right">
+                                        <ActionButtons
+                                            editUrl={`/ced-portal/facilities/${encodeURIComponent(item.id)}`}
+                                            onDelete={() => handleDelete(item.id)}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            {totalPages > 1 && (
+                <div className="mt-6">
+                    <Pagination
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={setCurrentPage}
+                    />
+                </div>
+            )}
         </div>
     );
 }

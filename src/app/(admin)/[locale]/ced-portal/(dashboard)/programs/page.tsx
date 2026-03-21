@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import Swal from "sweetalert2";
 import type { ProgramItem } from "@/types/program";
+import Loading from "@/components/common/Loading";
 
 export default function ProgramsListPage() {
     const tAlert = useTranslations("Admin.alerts");
@@ -55,7 +56,7 @@ export default function ProgramsListPage() {
         fetchPrograms();
     }, []);
 
-    const handleDelete = async (id: string, name: string) => {
+    const handleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
             text: tAlert("deleteConfirmText"),
@@ -84,10 +85,9 @@ export default function ProgramsListPage() {
                     const data = await res.json();
                     throw new Error(data.message || "Failed to delete");
                 }
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } catch (error: any) {
-                Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
-            }
+                } catch {
+                    Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
+                }
         }
     };
 
@@ -118,7 +118,7 @@ export default function ProgramsListPage() {
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                             {isLoading ? (
                                 <tr>
-                                    <td colSpan={4} className="p-8 text-center text-slate-500">Loading programs...</td>
+                                    <td colSpan={4} className="p-8 text-center text-slate-500"> <Loading /></td>
                                 </tr>
                             ) : programs.length === 0 ? (
                                 <tr>
@@ -145,7 +145,7 @@ export default function ProgramsListPage() {
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
                                                 editUrl={`/ced-portal/programs/${item.id}`}
-                                                onDelete={() => handleDelete(item.id, item.en?.title || item.id)}
+                                                onDelete={() => handleDelete(item.id)}
                                             />
                                         </td>
                                     </tr>

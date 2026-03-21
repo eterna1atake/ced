@@ -35,14 +35,30 @@ async function getAdminSession() {
     return session;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await dbConnect();
-        const awards = await Award.find({}).sort({ year: -1, createdAt: -1 });
-        return NextResponse.json(awards);
+
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const skip = (page - 1) * limit;
+
+        const totalAwards = await Award.countDocuments({});
+        const awards = await Award.find({})
+            .sort({ year: -1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return NextResponse.json({
+            awards,
+            total: totalAwards,
+            page,
+            totalPages: Math.ceil(totalAwards / limit)
+        });
     } catch (error) {
         console.error("Error fetching awards:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
