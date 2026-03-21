@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ProgramDetailTemplate from "@/components/programs/ProgramDetailTemplate";
 import { useTranslations } from "next-intl";
 import { notFound } from "next/navigation";
+import Loading from "@/components/common/Loading";
 
 export default function CEDProgramPageClient() {
     const breadcrumb = useTranslations("Breadcrumbs");
@@ -24,7 +25,7 @@ export default function CEDProgramPageClient() {
             });
     }, []);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loading /></div>;
 
     if (!programData) {
         notFound();

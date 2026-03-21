@@ -2,11 +2,12 @@
 "use client";
 import { getCsrfToken } from "@/utils/cookie";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
+import Pagination from "@/components/common/Pagination";
 import Swal from "sweetalert2";
 import Loading from "@/components/common/Loading";
 import { useTranslations } from "next-intl";
@@ -29,26 +30,32 @@ export default function FormRequestsListPage() {
     const router = useRouter();
     const [forms, setForms] = useState<FormRequestItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
-    const fetchForms = async () => {
+    const fetchForms = useCallback(async (page: number) => {
+        setIsLoading(true);
         try {
-            const res = await fetch("/api/ced-portal/forms");
+            const res = await fetch(`/api/ced-portal/forms?page=${page}&limit=${limit}`);
             if (res.ok) {
                 const data = await res.json();
-                setForms(data);
+                setForms(data.forms);
+                setTotalPages(data.totalPages);
             }
         } catch (error) {
             console.error("Failed to fetch forms", error);
+            Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [limit, tAlert]);
 
     useEffect(() => {
-        fetchForms();
-    }, []);
+        fetchForms(currentPage);
+    }, [currentPage, fetchForms]);
 
-    const handleDelete = async (id: string, name: string) => {
+    const handleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
             text: tAlert("deleteConfirmText"),
@@ -73,7 +80,7 @@ export default function FormRequestsListPage() {
                 });
                 if (res.ok) {
                     Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                    fetchForms();
+                    fetchForms(currentPage);
                     router.refresh();
                 } else {
                     throw new Error("Failed to delete");
@@ -84,11 +91,6 @@ export default function FormRequestsListPage() {
         }
     };
 
-    if (isLoading) return (
-        <div className="flex h-[50vh] items-center justify-center">
-            <Loading />
-        </div>
-    );
 
 
 
@@ -117,7 +119,13 @@ export default function FormRequestsListPage() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                            {forms.length === 0 ? (
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={4} className="p-10 text-center">
+                                        <Loading />
+                                    </td>
+                                </tr>
+                            ) : forms.length === 0 ? (
                                 <tr>
                                     <td colSpan={4} className="p-8 text-center text-slate-400">No documents found.</td>
                                 </tr>
@@ -148,7 +156,7 @@ export default function FormRequestsListPage() {
                                         <td className="p-4 text-right whitespace-nowrap">
                                             <ActionButtons
                                                 editUrl={`/ced-portal/forms/${item._id}`}
-                                                onDelete={() => handleDelete(item._id, item.en.name)}
+                                                onDelete={() => handleDelete(item._id)}
                                             />
                                         </td>
                                     </tr>
@@ -157,6 +165,14 @@ export default function FormRequestsListPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div className="mt-6">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

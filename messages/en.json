@@ -540,6 +540,12 @@
     "complaintButton": "File a Complaint"
   },
   "Admin": {
+    "footer": {
+      "rights": "© {year}, <dept>Computer Education Department (CED)</dept>. All Rights Reserved.",
+      "guide": "Guide",
+      "privacy": "Privacy",
+      "contact": "Contact"
+    },
     "sidebar": {
       "content": "Content",
       "dashboard": "Dashboard",
@@ -585,6 +591,9 @@
       "loginHistory": "Login History",
       "settings": "Settings",
       "profile": "My Profile",
+      "guide": "Admin Guide",
+      "privacy": "Privacy Policy",
+      "contact": "Contact Support",
       "create": "Create",
       "edit": "Edit",
       "createItem": "Create {item}",
@@ -686,6 +695,63 @@
       "settingNewPassword": "Set your new password"
     },
     "pages": {
+      "privacy": {
+        "title": "Privacy Policy",
+        "subtitle": "Guidelines for data management and security in the CMS",
+        "sections": {
+          "dataCollection": {
+            "title": "1. Data Collection",
+            "content": "The system collects user activity logs including Alias, IP Address, Browser type, and actions (Create/Edit/Delete) for security auditing."
+          },
+          "logRetention": {
+            "title": "2. Data Retention",
+            "content": "In compliance with computer crime laws, traffic logs are retained for at least 90 days and up to 180 days. MongoDB TTL Indexes automatically purge expired logs."
+          },
+          "dataSecurity": {
+            "title": "3. Security Measures",
+            "content": "Passwords are hashed using Argon2id, and all communications are encrypted via HTTPS (SSL/TLS)."
+          },
+          "cloudStorage": {
+            "title": "4. Media Storage",
+            "content": "Images are stored on Cloudinary, providing high availability and redundant backups."
+          }
+        }
+      },
+      "contact": {
+        "title": "Support & Contact",
+        "subtitle": "How to get help with the admin system",
+        "sections": {
+          "support": {
+            "title": "Technical Support",
+            "desc": "For bugs, errors, or technical help, please contact the department's technical staff."
+          },
+          "info": {
+            "title": "Contact Information",
+            "dept": "Computer Education (CED)",
+            "faculty": "Faculty of Technical Education, KMUTNB",
+            "location": "Building 52, 2nd Floor",
+            "email": "ced@fte.kmutnb.ac.th",
+            "phone": "+66 2 555 2000 ext. 3234"
+          },
+          "developer": {
+            "title": "System Developers",
+            "dev1": {
+              "name": "Mr. Kittitat Mukdasanit (CED12)",
+              "id": "6602041620025",
+              "email": "boss.kittitat2005@gmail.com",
+              "phone": "096-138-6703",
+              "alias": "KM"
+            },
+            "dev2": {
+              "name": "Mr. Worachat Sriburin (CED12)",
+              "id": "6602041610011",
+              "email": "worrachat531@gmail.com",
+              "phone": "097-348-5488",
+              "alias": "WS"
+            }
+          }
+        }
+      },
       "dashboard": {
         "title": "Dashboard Overview",
         "description": "Welcome back, Admin. Here's what's happening today.",
@@ -703,7 +769,10 @@
         },
         "traffic": {
           "title": "Website Traffic (Last 24 Hours)",
-          "subtitle": "Visitors and Page Views trend"
+          "subtitle": "Visitors and Page Views trend",
+          "viewAnalytics": "View Analytics",
+          "visitors": "Visitors",
+          "pageViews": "Page Views"
         },
         "health": {
           "title": "System Health",
@@ -712,11 +781,15 @@
           "memory": "Memory",
           "connected": "Connected",
           "disconnected": "Disconnected",
-          "used": "Used"
+          "used": "Used",
+          "mongodb": "Manage Database on MongoDB Atlas",
+          "cloudinary": "Manage Storage on Cloudinary",
+          "storageNote": "Note: Deleting images/files from the website will not automatically delete them from Cloudinary to prevent accidental data loss."
         },
         "logs": {
           "title": "Recent Activity Logs",
-          "noActivity": "No recent activity"
+          "noActivity": "No recent activity",
+          "viewAll": "View All"
         },
         "engagement": {
           "title": "Engagement by Category"
@@ -865,6 +938,21 @@
             "bilingual": "Bilingual Support: Full Thai & English support via next-intl.",
             "security": "Security: Rate limiting, brute-force protection, and audit logging.",
             "performance": "Performance: Server-side rendering and image optimization."
+          }
+        },
+        "technicalOps": {
+          "title": "Technical Operations & Maintenance",
+          "db": {
+            "title": "Database (MongoDB Management)",
+            "desc": "The system uses MongoDB to store content and logs. Activity logs are automatically deleted after 180 days via TTL Index to maintain database health and comply with regulations."
+          },
+          "storage": {
+            "title": "Image Storage (Cloudinary)",
+            "desc": "All uploaded images are stored on Cloudinary. Important: Deleting content from this admin panel 'does not' automatically delete the physical file from Cloudinary. Periodic manual cleanup in the Cloudinary Dashboard is recommended."
+          },
+          "config": {
+            "title": "System Configurations",
+            "desc": "Critical settings like MONGODB_URI and CLOUDINARY_API_KEY are stored in the server's .env file. The system includes rate limiting and brute-force protection (5 failed attempts lock the account temporarily)."
           }
         },
         "gettingStarted": {

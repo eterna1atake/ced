@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import ProgramDetailTemplate from "@/components/programs/ProgramDetailTemplate";
 import { notFound } from "next/navigation";
 import { useTranslations } from "next-intl";
+import Loading from "@/components/common/Loading";
 
 export default function MTCTProgramPageClient() {
     const t = useTranslations("Breadcrumbs");
@@ -24,7 +25,7 @@ export default function MTCTProgramPageClient() {
             });
     }, []);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loading /></div>;
 
     if (!programData) {
         notFound();

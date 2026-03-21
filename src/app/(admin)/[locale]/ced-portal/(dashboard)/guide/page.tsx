@@ -10,7 +10,9 @@ import {
     faShieldHalved,
     faLanguage,
     faServer,
-    faCode
+    faCode,
+    faDatabase,
+    faCloud
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function AdminGuidePage() {
@@ -146,6 +148,45 @@ export default function AdminGuidePage() {
                         <p className="text-slate-600 dark:text-slate-400 text-sm">
                             {t("systemSecurity.settings.desc")}
                         </p>
+                    </div>
+                </div>
+            </section>
+
+            {/* Section 5: Technical Operations */}
+            <section className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border dark:border-slate-800 p-6">
+                <h2 className="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-2">
+                    <FontAwesomeIcon icon={faDatabase} className="text-pink-500" />
+                    {t("technicalOps.title")}
+                </h2>
+                <div className="space-y-6">
+                    <div className="flex gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-pink-50 dark:bg-pink-900/20 flex items-center justify-center text-pink-600 dark:text-pink-400">
+                            <FontAwesomeIcon icon={faDatabase} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 dark:text-slate-200">{t("technicalOps.db.title")}</h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{t("technicalOps.db.desc")}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4 border-t dark:border-slate-800 pt-6">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                            <FontAwesomeIcon icon={faCloud} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 dark:text-slate-200">{t("technicalOps.storage.title")}</h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{t("technicalOps.storage.desc")}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex gap-4 border-t dark:border-slate-800 pt-6">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-400">
+                            <FontAwesomeIcon icon={faGear} />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 dark:text-slate-200">{t("technicalOps.config.title")}</h3>
+                            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">{t("technicalOps.config.desc")}</p>
+                        </div>
                     </div>
                 </div>
             </section>

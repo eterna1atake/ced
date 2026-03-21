@@ -46,7 +46,7 @@ type DbUser = {
     role: Role;
     isActive?: boolean;
     name?: string;
-    personnelId?: import("mongodb").ObjectId; // eslint-disable-line @typescript-eslint/no-explicit-any
+    personnelId?: import("mongodb").ObjectId;
     resetOtpHash?: string;
     resetOtpExpires?: Date;
     loginOtpHash?: string;

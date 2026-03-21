@@ -9,6 +9,7 @@ import { signOut } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import LanguageSwitch from "@/components/common/LanguageSwitch";
 import Swal from "sweetalert2";
+import router from "next/router";
 
 export default function AdminHeader({
     onMenuClick,
@@ -51,7 +52,10 @@ export default function AdminHeader({
             'forms': 'forms',
             'login-history': 'loginHistory',
             'settings': 'settings',
-            'profile': 'profile'
+            'profile': 'profile',
+            'guide': 'guide',
+            'privacy': 'privacy',
+            'contact': 'contact'
         };
 
         let accumulatePath = `/${locale}`;
@@ -172,22 +176,15 @@ export default function AdminHeader({
                         )}
                     </button>
 
-                    {/* Notifications */}
-                    <button className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors relative">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                            <path fillRule="evenodd" d="M5.25 9a6.75 6.75 0 0113.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 01-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 11-7.48 0 24.585 24.585 0 01-4.831-1.244.75.75 0 01-.298-1.205A8.217 8.217 0 005.25 9.75V9zm4.502 8.9a2.25 2.25 0 104.496 0 25.057 25.057 0 01-4.496 0z" clipRule="evenodd" />
-                        </svg>
-                        <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-900"></span>
-                    </button>
-
                     {/* Profile Dropdown */}
                     <div className="relative">
+
                         <button
                             onClick={() => setIsProfileOpen(!isProfileOpen)}
                             className="flex items-center gap-3 focus:outline-none group pl-2"
                         >
                             <div className="hidden md:flex flex-col items-end mr-1 text-right">
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-none group-hover:text-indigo-700 dark:group-hover:text-indigo-400 transition-colors uppercase tracking-tight">{t("adminUser")}</span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-none group-hover:text-primary-main dark:group-hover:text-primary transition-colors uppercase tracking-tight">{t("adminUser")}</span>
                                 <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest font-bold">{t("superAdmin")}</span>
                             </div>
                             <div className="w-9 h-9 bg-slate-500 rounded-full flex items-center justify-center text-white shadow-md ring-2 ring-transparent group-hover:ring-slate-200 dark:group-hover:ring-slate-700 transition-all">
@@ -209,6 +206,24 @@ export default function AdminHeader({
                                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{t("adminUser")}</p>
                                         <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{t("superAdmin")}</p>
                                     </div>
+                                    {/* Click to Link a Profile Page*/}
+                                    <button
+                                        onClick={
+                                            () => router.push(`/${locale}/ced-portal/profile`)
+                                        }
+                                        className="w-full text-left px-4 py-2 text-sm text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900/20 hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-2"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                                            {/* ส่วนหัว (Head) */}
+                                            <circle cx="12" cy="7" r="4" />
+
+                                            {/* ส่วนลำตัวและช่วงไหล่ (Body/Shoulders) */}
+                                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                        </svg>
+                                        {t("profile")}
+                                    </button>
+
+                                    {/* Click to Link a Log out*/}
                                     <button
                                         onClick={async () => {
                                             const result = await Swal.fire({
@@ -235,6 +250,8 @@ export default function AdminHeader({
                                         </svg>
                                         {t("logout")}
                                     </button>
+
+
                                 </div>
                             </>
                         )}

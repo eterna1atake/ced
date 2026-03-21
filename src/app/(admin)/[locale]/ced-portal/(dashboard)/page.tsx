@@ -11,11 +11,12 @@ import {
     BarChart,
     List,
     ListItem,
-    Badge
+    Badge,
 } from "@tremor/react";
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faRotate, faServer } from "@fortawesome/free-solid-svg-icons";
+import { faRotate, faServer, faExternalLink } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 // Types matching API response
 interface DashboardStats {
@@ -50,11 +51,13 @@ interface HealthData {
         latency: string;
     };
     system: {
-        memoryUsage: string;
-        memoryUsagePercent: number;
         storageUsage: string;
         storageUsagePercent: number;
         uptime: number;
+    };
+    cloudinary?: {
+        storage: string;
+        percent: number;
     };
 }
 
@@ -161,13 +164,24 @@ export default function AdminDashboardPage() {
             <div className="mt-6 space-y-6">
                 {/* Traffic Section */}
                 <Card>
-                    <Title>{t("traffic.title")}</Title>
-                    <Text>{t("traffic.subtitle")}</Text>
+                    <div className="flex justify-between">
+                        <div>
+                            <Title>{t("traffic.title")}</Title>
+                            <Text>{t("traffic.subtitle")}</Text>
+                        </div>
+                        <Link href={"https://analytics.google.com"} target="_blank" rel="noopener noreferrer">
+                            <Text className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">{t("traffic.viewAnalytics")}</Text>
+                        </Link>
+                    </div>
                     <AreaChart
                         className="h-72 mt-4"
-                        data={data?.traffic || []}
+                        data={(data?.traffic || []).map((item) => ({
+                            ...item,
+                            [t("traffic.visitors")]: item["Visitors"],
+                            [t("traffic.pageViews")]: item["Page Views"]
+                        }))}
                         index="time"
-                        categories={["Visitors", "Page Views"]}
+                        categories={[t("traffic.visitors"), t("traffic.pageViews")]}
                         colors={["indigo", "cyan"]}
                         valueFormatter={(number) => Intl.NumberFormat("us").format(number).toString()}
                         showAnimation={true}
@@ -198,7 +212,12 @@ export default function AdminDashboardPage() {
                                 <div className="flex items-center gap-3">
                                     <FontAwesomeIcon icon={faServer} className="text-slate-400" />
                                     <div className="flex flex-col">
-                                        <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.storage")}</Text>
+                                        <div className="flex items-center gap-2">
+                                            <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.mongodb")}</Text>
+                                            <Link href="https://cloud.mongodb.com" target="_blank" rel="noopener noreferrer">
+                                                <FontAwesomeIcon icon={faExternalLink} className="text-[10px] text-green-600" />
+                                            </Link>
+                                        </div>
                                         <Text className="text-xs">{healthData?.system.storageUsage}</Text>
                                     </div>
                                 </div>
@@ -211,13 +230,25 @@ export default function AdminDashboardPage() {
                                 <div className="flex items-center gap-3">
                                     <FontAwesomeIcon icon={faServer} className="text-slate-400" />
                                     <div className="flex flex-col">
-                                        <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.memory")}</Text>
-                                        <Text className="text-xs">{healthData?.system.memoryUsage}</Text>
+                                        <div className="flex items-center gap-2">
+                                            <Text className="font-medium text-slate-900 dark:text-slate-200">{t("health.cloudinary")}</Text>
+                                            <Link href="https://console.cloudinary.com/app" target="_blank" rel="noopener noreferrer">
+                                                <FontAwesomeIcon icon={faExternalLink} className="text-[10px] text-blue-500" />
+                                            </Link>
+                                        </div>
+                                        <Text className="text-xs">{healthData?.cloudinary?.storage}</Text>
                                     </div>
                                 </div>
-                                <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-                                    <div className={`h-2.5 rounded-full ${healthData && healthData.system.memoryUsagePercent > 80 ? 'bg-red-500' : 'bg-purple-500'}`} style={{ width: `${healthData?.system.memoryUsagePercent || 0}%` }}></div>
+                                <div className="w-24 bg-slate-200 dark:bg-slate-700 rounded-full h-2.5 relative overflow-hidden">
+                                    <div
+                                        className={`h-2.5 rounded-full transition-all duration-500 ${healthData?.cloudinary && healthData.cloudinary.percent > 80 ? 'bg-red-500' : 'bg-cyan-500'}`}
+                                        style={{ width: `${Math.min(100, healthData?.cloudinary?.percent || 0)}%` }}
+                                    ></div>
                                 </div>
+                            </div>
+                            {/* Cloudinary deletion note */}
+                            <div className="mt-2 text-[11.5px] text-yellow-800 dark:text-yellow-500 leading-relaxed italic dark:bg-blue-900/10 border-blue-100/50 dark:border-blue-800/20">
+                                {t("health.storageNote")}
                             </div>
                         </div>
                     </Card>
@@ -237,7 +268,12 @@ export default function AdminDashboardPage() {
 
                 {/* System Logs Section */}
                 <Card>
-                    <Title>{t("logs.title")}</Title>
+                    <div className="flex justify-between">
+                        <Title>{t("logs.title")}</Title>
+                        <Link href="/ced-portal/login-history" >
+                            <Text className="text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-500">{t("logs.viewAll")}</Text>
+                        </Link>
+                    </div>
                     <List className="mt-4">
                         {data?.logs.map((log) => (
                             <ListItem key={log._id}>

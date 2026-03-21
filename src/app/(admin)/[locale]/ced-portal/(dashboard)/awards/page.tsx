@@ -1,38 +1,42 @@
 "use client";
 import { getCsrfToken } from "@/utils/cookie";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
+import Pagination from "@/components/common/Pagination";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { Award } from "@/types/award";
+import Loading from "../loading";
 
 export default function AwardsListPage() {
     const tAlert = useTranslations("Admin.alerts");
     const t = useTranslations("Admin.pages.awards");
     const [awards, setAwards] = useState<Award[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
-    const fetchAwards = async () => {
+    const fetchAwards = useCallback(async (page: number) => {
+        setIsLoading(true);
         try {
-            const res = await fetch("/api/ced-portal/awards");
+            const res = await fetch(`/api/ced-portal/awards?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch awards");
             const data = await res.json();
-            // Sort by year descending (latest year first)
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const sortedData = data.sort((a: any, b: any) => parseInt(b.year) - parseInt(a.year));
-            setAwards(sortedData);
+            setAwards(data.awards);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.error("Fetch error:", error);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [limit]);
 
     useEffect(() => {
-        fetchAwards();
-    }, []);
+        fetchAwards(currentPage);
+    }, [currentPage, fetchAwards]);
 
     const handleDelete = async (id: string) => {
         const Swal = (await import("sweetalert2")).default;
@@ -60,7 +64,7 @@ export default function AwardsListPage() {
                 if (!res.ok) throw new Error("Delete failed");
 
                 await Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                fetchAwards();
+                fetchAwards(currentPage);
             } catch (error) {
                 console.error("Delete error:", error);
                 Swal.fire(tAlert("error"), tAlert("deleteFailed"), "error");
@@ -98,7 +102,9 @@ export default function AwardsListPage() {
                     <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                         {isLoading ? (
                             <tr>
-                                <td colSpan={5} className="p-8 text-center text-slate-500">Loading awards...</td>
+                                <td colSpan={5} className="p-8 text-center text-slate-500">
+                                    <Loading />
+                                </td>
                             </tr>
                         ) : awards.length === 0 ? (
                             <tr>
@@ -141,6 +147,14 @@ export default function AwardsListPage() {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="mt-6">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

@@ -1,11 +1,12 @@
 "use client";
 import { getCsrfToken } from "@/utils/cookie";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faExternalLinkAlt } from "@fortawesome/free-solid-svg-icons";
 import { ActionButtons } from "@/components/admin/common/ActionButtons";
 import { AddButton } from "@/components/admin/common/AddButton";
+import Pagination from "@/components/common/Pagination";
 import Swal from "sweetalert2";
 import Loading from "@/components/common/Loading";
 import { useTranslations } from "next-intl";
@@ -30,26 +31,31 @@ export default function ResourcesListPage() {
     const router = useRouter();
     const [resources, setResources] = useState<OnlineResourceItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const limit = 10;
 
-    const fetchResources = async () => {
+    const fetchResources = useCallback(async (page: number) => {
+        setIsLoading(true);
         try {
-            const res = await fetch("/api/ced-portal/online-resources");
+            const res = await fetch(`/api/ced-portal/online-resources?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
-            setResources(data);
+            setResources(data.resources);
+            setTotalPages(data.totalPages);
         } catch (error) {
             console.error("Error fetching resources:", error);
             Swal.fire(tAlert("error"), tAlert("failedToLoad"), "error");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [limit, tAlert]);
 
     useEffect(() => {
-        fetchResources();
-    }, []);
+        fetchResources(currentPage);
+    }, [currentPage, fetchResources]);
 
-    const handleDelete = async (id: string, title: string) => {
+    const handleDelete = async (id: string) => {
         const result = await Swal.fire({
             title: tAlert("deleteConfirmTitle"),
             text: tAlert("deleteConfirmText"),
@@ -74,7 +80,7 @@ export default function ResourcesListPage() {
 
                 if (res.ok) {
                     Swal.fire({ title: tAlert("deleted"), text: tAlert("deletedText"), icon: "success" });
-                    setResources(prev => prev.filter(item => item._id !== id));
+                    fetchResources(currentPage);
                     router.refresh();
                 } else {
                     throw new Error("Failed to delete");
@@ -152,7 +158,7 @@ export default function ResourcesListPage() {
                                     <td className="p-4 text-right whitespace-nowrap">
                                         <ActionButtons
                                             editUrl={`/ced-portal/online-resources/${item._id}`}
-                                            onDelete={() => handleDelete(item._id, item.en.title)}
+                                            onDelete={() => handleDelete(item._id)}
                                         />
                                     </td>
                                 </tr>
@@ -160,6 +166,14 @@ export default function ResourcesListPage() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
+            <div className="mt-6">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );

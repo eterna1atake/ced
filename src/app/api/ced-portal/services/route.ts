@@ -29,14 +29,30 @@ async function getAdminSession() {
     return session;
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
     const session = await getAdminSession();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await dbConnect();
-        const services = await StudentService.find({}).sort({ category: 1, createdAt: -1 });
-        return NextResponse.json(services);
+
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get("page") || "1");
+        const limit = parseInt(searchParams.get("limit") || "10");
+        const skip = (page - 1) * limit;
+
+        const totalServices = await StudentService.countDocuments({});
+        const services = await StudentService.find({})
+            .sort({ category: 1, createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        return NextResponse.json({
+            services,
+            total: totalServices,
+            page,
+            totalPages: Math.ceil(totalServices / limit)
+        });
     } catch (error) {
         console.error("Error fetching services:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
