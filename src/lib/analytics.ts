@@ -30,12 +30,12 @@ export async function getRealtimeTraffic(): Promise<TrafficData[]> {
             },
         });
 
-        // Fetch last 7 days metrics
+        // Fetch last 30 days metrics
         const [response] = await analyticsDataClient.runReport({
             property: `properties/${PROPERTY_ID}`,
             dateRanges: [
                 {
-                    startDate: '7daysAgo',
+                    startDate: '30daysAgo',
                     endDate: 'today',
                 },
             ],

@@ -3,7 +3,6 @@
 import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faShieldHalved,
     faDatabase,
     faClock,
     faLock,

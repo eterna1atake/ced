@@ -3,6 +3,6 @@ import {defineRouting} from "next-intl/routing";
 
 export const routing = defineRouting({
   locales: ["th", "en"],
-  defaultLocale: "en",      // ปรับได้ตามต้องการ
+  defaultLocale: "th",      // ปรับได้ตามต้องการ
   localePrefix: "always"
 });

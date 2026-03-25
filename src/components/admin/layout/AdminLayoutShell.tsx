@@ -5,6 +5,7 @@ import { useState } from "react";
 import AdminSidebar from "@/components/admin/layout/AdminSidebar";
 import AdminHeader from "@/components/admin/layout/AdminHeader";
 import { UnsavedChangesProvider } from "@/contexts/UnsavedChangesContext";
+import { AdminDataProvider } from "@/contexts/AdminDataContext";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 
@@ -16,7 +17,8 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
 
     return (
         <UnsavedChangesProvider>
-            <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
+            <AdminDataProvider>
+                <div className="flex bg-slate-50 dark:bg-slate-950 min-h-screen">
                 {/* Sidebar Component handles its own visibility/responsive logic */}
                 <AdminSidebar
                     isOpen={isSidebarOpen}
@@ -63,6 +65,7 @@ export default function AdminLayoutShell({ children }: { children: React.ReactNo
                     </div>
                 </div>
             </div>
+            </AdminDataProvider>
         </UnsavedChangesProvider>
     );
 }

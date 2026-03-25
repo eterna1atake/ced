@@ -768,7 +768,7 @@
           }
         },
         "traffic": {
-          "title": "Website Traffic (Last 24 Hours)",
+          "title": "Website Traffic (Last 30 Days)",
           "subtitle": "Visitors and Page Views trend",
           "viewAnalytics": "View Analytics",
           "visitors": "Visitors",
