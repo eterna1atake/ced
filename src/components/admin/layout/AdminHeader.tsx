@@ -1,15 +1,14 @@
 
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { Fragment, useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useLocale, useTranslations } from "next-intl";
 import LanguageSwitch from "@/components/common/LanguageSwitch";
 import Swal from "sweetalert2";
-import router from "next/router";
 
 export default function AdminHeader({
     onMenuClick,
@@ -17,6 +16,7 @@ export default function AdminHeader({
     onMenuClick: () => void;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const locale = useLocale();
     const t = useTranslations("Admin.header");
     const tAlert = useTranslations("Admin.alerts");
@@ -105,6 +105,7 @@ export default function AdminHeader({
     const breadcrumbs = generateBreadcrumbs();
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const { data: session } = useSession();
 
     return (
         <header
@@ -184,8 +185,12 @@ export default function AdminHeader({
                             className="flex items-center gap-3 focus:outline-none group pl-2"
                         >
                             <div className="hidden md:flex flex-col items-end mr-1 text-right">
-                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-none group-hover:text-primary-main dark:group-hover:text-primary transition-colors uppercase tracking-tight">{t("adminUser")}</span>
-                                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest font-bold">{t("superAdmin")}</span>
+                                <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-none group-hover:text-primary-main dark:group-hover:text-primary transition-colors uppercase tracking-tight">
+                                    {session?.user?.name || t("adminUser")}
+                                </span>
+                                <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-widest font-bold">
+                                    {session?.user?.role === 'superuser' ? t("superAdmin") : t("adminUser")}
+                                </span>
                             </div>
                             <div className="w-9 h-9 bg-slate-500 rounded-full flex items-center justify-center text-white shadow-md ring-2 ring-transparent group-hover:ring-slate-200 dark:group-hover:ring-slate-700 transition-all">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">

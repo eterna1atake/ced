@@ -2,16 +2,14 @@ import createMiddleware from "next-intl/middleware";
 import NextAuth from "next-auth";
 import { authConfig } from "@/lib/auth.config";
 import { NextResponse } from "next/server";
+import { routing } from "@/i18n/routing";
 
 
 const { auth } = NextAuth(authConfig);
 
-const locales = ["en", "th"] as const;
-
 const intlMiddleware = createMiddleware({
-  locales: [...locales],
-  defaultLocale: "th",
-  localePrefix: "always", // ใช้เฉพาะ public
+  ...routing,
+  localeDetection: false,
 });
 
 // function isAuthApiPath(pathname: string) {
@@ -127,7 +125,7 @@ export default auth((req) => {
   const response = intlMiddleware(req);
 
   // 3. Handle Admin Authentication for both /ced-portal and /:locale/ced-portal
-  const isLocalizedAdmin = locales.some(l => pathname.startsWith(`/${l}/ced-portal`));
+  const isLocalizedAdmin = routing.locales.some((l: string) => pathname.startsWith(`/${l}/ced-portal`));
   const isPlainAdmin = pathname.startsWith("/ced-portal");
 
   if (isLocalizedAdmin || isPlainAdmin) {
@@ -144,7 +142,7 @@ export default auth((req) => {
 
       if (role !== "superuser") {
         // [Security] Rewrite to 404 to not reveal the admin path exists
-        const locale = locales.find(l => pathname.startsWith(`/${l}`)) || "th";
+        const locale = routing.locales.find((l: string) => pathname.startsWith(`/${l}`)) || "th";
         const url = req.nextUrl.clone();
         url.pathname = `/${locale}/404-not-found`;
         return applyHeaders(NextResponse.rewrite(url));

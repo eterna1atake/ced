@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
     Grid,
     Card,
@@ -17,91 +16,12 @@ import { useTranslations } from "next-intl";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRotate, faServer, faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
-
-// Types matching API response
-interface DashboardStats {
-    stats: {
-        news: number;
-        personnel: number;
-        awards: number;
-        services: number;
-    };
-    logs: {
-        _id: string;
-        action: string;
-        actor: string;
-        timestamp: string;
-        status?: string;
-        details?: string;
-    }[];
-    traffic: {
-        time: string;
-        "Visitors": number;
-        "Page Views": number;
-    }[];
-    engagement: {
-        topic: string;
-        "Views": number;
-    }[];
-}
-
-interface HealthData {
-    database: {
-        status: string;
-        latency: string;
-    };
-    system: {
-        storageUsage: string;
-        storageUsagePercent: number;
-        uptime: number;
-    };
-    cloudinary?: {
-        storage: string;
-        percent: number;
-    };
-}
+import { useAdminData } from "@/contexts/AdminDataContext";
 
 export default function AdminDashboardPage() {
     const t = useTranslations("Admin.pages.dashboard");
-    const [data, setData] = useState<DashboardStats | null>(null);
-    const [healthData, setHealthData] = useState<HealthData | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const [, setIsRefreshing] = useState(false);
-    const [lastUpdated, setLastUpdated] = useState("");
-
-    const fetchStats = async () => {
-        try {
-            setIsRefreshing(true);
-            const res = await fetch('/api/ced-portal/dashboard/stats');
-            if (res.ok) {
-                const jsonData = await res.json();
-                setData(jsonData);
-                setLastUpdated(new Date().toLocaleTimeString());
-            }
-
-            // Fetch health data
-            const healthRes = await fetch('/api/ced-portal/dashboard/health');
-            if (healthRes.ok) {
-                const healthJson = await healthRes.json();
-                setHealthData(healthJson);
-            }
-
-        } catch (error) {
-            console.error("Failed to fetch dashboard stats", error);
-        } finally {
-            setIsLoading(false);
-            setIsRefreshing(false);
-        }
-    };
-
-    // Initialize data
-    useEffect(() => {
-        fetchStats();
-    }, []);
-
-    const refreshData = () => {
-        fetchStats();
-    };
+    const { stats, health: healthData, isLoading, lastUpdated, refresh: refreshData } = useAdminData();
+    const data = stats;
 
     const categories = [
         {

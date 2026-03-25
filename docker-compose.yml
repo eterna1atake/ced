@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  ced-webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ced-webapp
+    restart: always
+    ports:
+      - "${DOCKER_APP_PORT}:${DOCKER_APP_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - mongodb
+    networks:
+      - ced-network
+
+  # Local MongoDB Container
+  mongodb:
+    image: mongo:latest
+    container_name: ced-mongodb
+    restart: always
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${DB_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${DB_ROOT_PASS}
+    ports:
+      - "127.0.0.1:${DB_HOST_PORT}:27017" # Exposed locally for Compass access
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - ced-network
+
+  # Database Admin Panel (Optional but helpful)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: ced-mongo-admin
+    restart: always
+    ports:
+      - "127.0.0.1:${DB_ADMIN_PORT}:8081" # Bound to localhost for security
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${DB_ROOT_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${DB_ROOT_PASS}
+      - ME_CONFIG_BASICAUTH_USERNAME=${MONGO_EXPRESS_USER}
+      - ME_CONFIG_BASICAUTH_PASSWORD=${MONGO_EXPRESS_PASS}
+    depends_on:
+      - mongodb
+    networks:
+      - ced-network
+
+networks:
+  ced-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
