@@ -21,6 +21,10 @@ RUN \
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+
+ENV NEXT_MAX_WORKERS=1
+ENV NEXT_TELEMETRY_DISABLED=1
+
 COPY . .
 
 # Next.js collects completely anonymous telemetry data about general usage.
