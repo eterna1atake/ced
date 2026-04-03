@@ -82,7 +82,7 @@ export default auth((req) => {
     res.headers.set(
       "Content-Security-Policy",
       `default-src 'self'; ` +
-      `script-src 'self' 'nonce-${nonce}' https://connect.facebook.net https://www.google.com https://www.gstatic.com https://www.googletagmanager.com; ` +
+      `script-src 'self' 'nonce-${nonce}' 'unsafe-eval' 'sha256-TiyWB4YB4NUrUHDJSqaW0w0OtUb7i0Tddwwo6j0O07c=' https://connect.facebook.net https://www.google.com https://www.gstatic.com https://www.googletagmanager.com; ` +
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; ` + // style-src still often needs unsafe-inline for CSS-in-JS/AOS
       `img-src 'self' blob: data: https://res.cloudinary.com https://*.facebook.com https://scontent.xx.fbcdn.net https://external.xx.fbcdn.net https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net; ` +
       `font-src 'self' https://fonts.gstatic.com data:; ` +
