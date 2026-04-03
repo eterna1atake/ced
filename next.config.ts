@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+    basePath: '/cedweb',
+    assetPrefix: '/cedweb',
     output: 'standalone',
     poweredByHeader: false,
     compress: true,
