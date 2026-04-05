@@ -1,8 +1,8 @@
 
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { Link } from "@/i18n/navigation";
 import { useTheme } from "next-themes";
 import { Fragment, useEffect, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -214,7 +214,7 @@ export default function AdminHeader({
                                     {/* Click to Link a Profile Page*/}
                                     <button
                                         onClick={
-                                            () => router.push(`/${locale}/ced-portal/profile`)
+                                            () => router.push(`/ced-portal/profile`)
                                         }
                                         className="w-full text-left px-4 py-2 text-sm text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900/20 hover:text-slate-700 dark:hover:text-slate-400 transition-colors flex items-center gap-2"
                                     >
@@ -244,7 +244,7 @@ export default function AdminHeader({
 
                                             if (result.isConfirmed) {
                                                 await signOut({
-                                                    callbackUrl: `/${locale}/ced-portal/login`,
+                                                    callbackUrl: `/ced-portal/login`,
                                                 });
                                             }
                                         }}

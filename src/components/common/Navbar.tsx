@@ -18,8 +18,7 @@ import {
   faGlobe
 } from "@fortawesome/free-solid-svg-icons";
 
-import Link from 'next/link'
-
+import { Link, useRouter } from '@/i18n/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 
 import LanguageSwitch from "./LanguageSwitch";
@@ -29,6 +28,7 @@ import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 export default function Navbar() {
   const t = useTranslations('Navbar');
   const locale = useLocale();
+  const router = useRouter();
   const { settings } = useGlobalSettings();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function Navbar() {
       if (searchQuery.length >= 2) {
         setIsSearching(true);
         try {
-          const res = await fetch(`/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
+          const res = await fetch(`/cedweb/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
             signal: controller.signal
           });
           if (res.ok) {
@@ -109,26 +109,20 @@ export default function Navbar() {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuItems = [
-    { label: t("menuItem1") ?? "Menu item 1", href: `/${locale}` },
-    { label: t("menuItem2") ?? "Menu item 2", href: `/${locale}/personnel` },
-    { label: t("menuItem4") ?? "Menu item 4", href: `/${locale}/research` },
-    { label: t("menuItem5") ?? "Menu item 5", href: `/${locale}/newsandevents` },
-    { label: t("menuItem6") ?? "Menu item 6", href: `/${locale}/about` },
-    { label: t("menuItem7") ?? "Menu item 7", href: `/${locale}/contact-us` },
+    { label: t("menuItem1") ?? "Menu item 1", href: `/` },
+    { label: t("menuItem2") ?? "Menu item 2", href: `/personnel` },
+    { label: t("menuItem4") ?? "Menu item 4", href: `/research` },
+    { label: t("menuItem5") ?? "Menu item 5", href: `/newsandevents` },
+    { label: t("menuItem6") ?? "Menu item 6", href: `/about` },
+    { label: t("menuItem7") ?? "Menu item 7", href: `/contact-us` },
   ];
 
   const getLocalizedPath = (path: string) => {
-    if (!path) return `/${locale}`;
+    if (!path) return `/`;
     if (path.startsWith("http://") || path.startsWith("https://")) {
       return path;
     }
-    if (path.startsWith(`/${locale}`)) {
-      return path;
-    }
-    if (path === "/") {
-      return `/${locale}`;
-    }
-    return `/${locale}${path.startsWith("/") ? path : `/${path}`}`;
+    return path.startsWith("/") ? path : `/${path}`;
   };
 
   const toggleMenu = () => {
@@ -147,11 +141,10 @@ export default function Navbar() {
         return;
       }
 
-      if (typeof window !== "undefined") {
-        window.location.assign(href);
-      }
+      // ใช้ router จาก @/i18n/navigation ที่ผมแต่งไว้ให้แอบเติม /cedweb
+      router.push(href);
     },
-    [closeMenu]
+    [closeMenu, router]
   );
 
   useEffect(() => {
@@ -328,8 +321,8 @@ export default function Navbar() {
                   <span className="font-medium whitespace-nowrap">{t("quickLinks")}</span>
                   <div className="flex flex-wrap gap-2">
                     {[
-                      { label: t("menuItem2") || "Personel", href: `/${locale}/personnel` },
-                      { label: t("menuItem5") || "News", href: `/${locale}/newsandevents` }
+                      { label: t("menuItem2") || "Personel", href: `/personnel` },
+                      { label: t("menuItem5") || "News", href: `/newsandevents` }
                     ].map((link, idx) => (
                       <Link
                         key={idx}

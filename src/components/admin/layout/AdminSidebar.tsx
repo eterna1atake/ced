@@ -1,8 +1,7 @@
 
 "use client";
 
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { useEffect } from "react";
 import Image from "next/image";
 import { useTranslations, useLocale } from "next-intl";
@@ -63,40 +62,40 @@ export default function AdminSidebar({
         {
             title: t("content"),
             items: [
-                { label: t("dashboard"), href: `/${locale}/ced-portal`, icon: Icons.Dashboard },
-                { label: t("hero"), href: `/${locale}/ced-portal/hero`, icon: Icons.Content },
-                { label: t("news"), href: `/${locale}/ced-portal/news`, icon: Icons.News },
-                { label: t("awards"), href: `/${locale}/ced-portal/awards`, icon: Icons.Award },
-                { label: t("training"), href: `/${locale}/ced-portal/training`, icon: Icons.Training },
+                { label: t("dashboard"), href: `/ced-portal`, icon: Icons.Dashboard },
+                { label: t("hero"), href: `/ced-portal/hero`, icon: Icons.Content },
+                { label: t("news"), href: `/ced-portal/news`, icon: Icons.News },
+                { label: t("awards"), href: `/ced-portal/awards`, icon: Icons.Award },
+                { label: t("training"), href: `/ced-portal/training`, icon: Icons.Training },
             ]
         },
         {
             title: t("people"),
             items: [
-                { label: t("personnel"), href: `/${locale}/ced-portal/personnel`, icon: Icons.Person },
+                { label: t("personnel"), href: `/ced-portal/personnel`, icon: Icons.Person },
             ]
         },
         {
             title: t("academic"),
             items: [
-                { label: t("programs"), href: `/${locale}/ced-portal/programs`, icon: Icons.Program },
-                { label: t("facilities"), href: `/${locale}/ced-portal/facilities`, icon: Icons.Room },
-                { label: t("onlineResources"), href: `/${locale}/ced-portal/online-resources`, icon: Icons.Globe },
+                { label: t("programs"), href: `/ced-portal/programs`, icon: Icons.Program },
+                { label: t("facilities"), href: `/ced-portal/facilities`, icon: Icons.Room },
+                { label: t("onlineResources"), href: `/ced-portal/online-resources`, icon: Icons.Globe },
             ]
         },
         {
             title: t("services"),
             items: [
-                { label: t("studentServices"), href: `/${locale}/ced-portal/services`, icon: Icons.Service },
-                { label: t("formRequests"), href: `/${locale}/ced-portal/forms`, icon: Icons.Form },
+                { label: t("studentServices"), href: `/ced-portal/services`, icon: Icons.Service },
+                { label: t("formRequests"), href: `/ced-portal/forms`, icon: Icons.Form },
             ]
         },
         {
             title: t("system"),
             items: [
-                { label: t("loginHistory"), href: `/${locale}/ced-portal/login-history`, icon: Icons.History },
-                { label: t("settings"), href: `/${locale}/ced-portal/settings`, icon: Icons.Settings },
-                { label: t("myProfile"), href: `/${locale}/ced-portal/profile`, icon: Icons.Person },
+                { label: t("loginHistory"), href: `/ced-portal/login-history`, icon: Icons.History },
+                { label: t("settings"), href: `/ced-portal/settings`, icon: Icons.Settings },
+                { label: t("myProfile"), href: `/ced-portal/profile`, icon: Icons.Person },
             ]
         }
     ];
@@ -202,7 +201,7 @@ export default function AdminSidebar({
 
                             <div className="space-y-1">
                                 {group.items.map((item) => {
-                                    const isActive = item.href === `/${locale}/ced-portal`
+                                    const isActive = item.href === `/ced-portal`
                                         ? pathname === item.href
                                         : pathname.startsWith(item.href) && (pathname.length === item.href.length || pathname[item.href.length] === '/');
                                     const Icon = item.icon;

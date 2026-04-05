@@ -9,7 +9,7 @@ import {
     faTiktok,
     faGooglePlusG
 } from "@fortawesome/free-brands-svg-icons";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useGlobalSettings } from "@/hooks/useGlobalSettings";
 
@@ -36,12 +36,8 @@ export default function Footer() {
         { key: "scholarships", path: "https://sa.op.kmutnb.ac.th/scholarship/" },
     ];
 
-    const getLocalizedPath = (path: string) => {
-        if (path === "/") {
-            return `/${locale}`;
-        }
-        return `/${locale}${path}`;
-    };
+    // ลบ getLocalizedPath ออกเพราะ Link ตัวใหม่จัดการให้แล้ว
+
 
     const renderLinkItem = (link: { key: string, path: string }) => {
         if (link.path.startsWith("http")) {
@@ -58,7 +54,7 @@ export default function Footer() {
         }
         return (
             <Link
-                href={getLocalizedPath(link.path)}
+                href={link.path}
                 className="text-gray-400 text-base hover:text-white hover:underline transition-colors duration-300"
             >
                 {t(`links.${link.key}`)}
@@ -178,9 +174,9 @@ export default function Footer() {
 
                     <div className="flex flex-col items-center justify-center gap-2">
                         <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-                            {t("rights", { year: new Date().getFullYear() })}
+                            {t.has("rights") ? t("rights", { year: new Date().getFullYear() }) : `© ${new Date().getFullYear()} CED. All rights reserved.`}
                         </p>
-                        <Link href={getLocalizedPath("/site-map")} className="text-gray-500 text-sm hover:text-white hover:underline transition-colors duration-300">
+                        <Link href="/site-map" className="text-gray-500 text-sm hover:text-white hover:underline transition-colors duration-300">
                             {locale === 'th' ? "แผนผังเว็บไซต์ (Sitemap)" : "Sitemap"}
                         </Link>
                     </div>

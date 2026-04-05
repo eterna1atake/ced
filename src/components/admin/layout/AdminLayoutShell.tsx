@@ -7,7 +7,7 @@ import AdminHeader from "@/components/admin/layout/AdminHeader";
 import { UnsavedChangesProvider } from "@/contexts/UnsavedChangesContext";
 import { AdminDataProvider } from "@/contexts/AdminDataContext";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 
 export default function AdminLayoutShell({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);

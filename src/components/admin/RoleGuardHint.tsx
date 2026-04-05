@@ -1,5 +1,5 @@
 // กล่องแจ้งเตือนให้เพิ่มระบบยืนยันตัวตนก่อนอนุญาตให้แก้ไขสิทธิ์
-import Link from 'next/link';
+import { Link } from '@/i18n/navigation';
 
 export default function RoleGuardHint() {
   return (
