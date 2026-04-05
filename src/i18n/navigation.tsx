@@ -77,4 +77,4 @@ export const useRouter = () => {
 export const getPathname = nextIntlGetPathname;
 
 // ส่งต่อ hooks มาตรฐานจาก next/navigation เพื่อความสะดวกในการใช้งาน
-export { useSearchParams, useParams } from "next/navigation";
+export { useSearchParams, useParams, notFound } from "next/navigation";

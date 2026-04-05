@@ -16,7 +16,7 @@ const nextConfig: NextConfig = {
     assetPrefix: '/cedweb',
     output: 'standalone',
     poweredByHeader: false,
-    compress: true,
+    compress: false, // Disabled to avoid Node.js stream errors; Nginx handles this.
     serverExternalPackages: ['argon2', 'mongodb'],
     compiler: {
         removeConsole: process.env.NODE_ENV === "production",

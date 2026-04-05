@@ -38,7 +38,7 @@ export default async function ProfilePage() {
                 <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("name")}</label>
-                        <div className="text-base text-slate-900 dark:text-slate-100 font-medium">{user.name || session.user.name || "-"}</div>
+                        <div className="text-base text-slate-900 dark:text-slate-100 font-medium">{user.name || session?.user?.name || "-"}</div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("username")}</label>

@@ -1,34 +1,48 @@
-version: '3.8'
-
 services:
-  # --- Nginx Gateway (Port 80) ---
-  ced-nginx:
-    image: nginx:alpine
-    container_name: ced-nginx
-    restart: always
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - ced-webapp
-    networks:
-      - ced-network
-
-  # --- CED Web Application ---
+  # Main Application (Next.js Standalone)
   ced-webapp:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ced-webapp
     restart: always
-    # We don't expose 3006 to the public anymore, Nginx handles it
-    expose:
-      - "3006"
+    # The application runs on 3006 internally (defined in Dockerfile)
+    # We do NOT expose it directly to the host for better security
     env_file:
       - .env.local
     networks:
       - ced-network
+    # Wait for other services if needed (e.g. mongodb)
+    # depends_on:
+    #   - mongodb
+
+  # Nginx Reverse Proxy (Gateway)
+  ced-nginx:
+    image: nginx:stable-alpine
+    container_name: ced-nginx
+    restart: always
+    ports:
+      # Map the public port (DOCKER_APP_PORT from .env, e.g., 80) 
+      # to Nginx's internal port (80)
+      - "${DOCKER_APP_PORT:-80}:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - ced-webapp
+    networks:
+      - ced-network
+
+  # (Optional) MongoDB Service - Uncomment if you want a local DB
+  # mongodb:
+  #   image: mongodb/mongodb-community-server:latest
+  #   container_name: ced-mongodb
+  #   restart: always
+  #   volumes:
+  #     - ./mongo-data:/data/db
+  #   ports:
+  #     - "27017:27017"
+  #   networks:
+  #     - ced-network
 
 networks:
   ced-network:
