@@ -31,7 +31,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 .find((row) => row.startsWith("ced_csrf_token="))
                 ?.split("=")[1];
 
-            const res = await fetch("/cedweb/api/auth/mfa/setup", {
+            const res = await fetch("/api/auth/mfa/setup", {
                 method: "POST",
                 headers: {
                     "x-csrf-token": csrfToken || "",
@@ -63,7 +63,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                 .find((row) => row.startsWith("ced_csrf_token="))
                 ?.split("=")[1];
 
-            const res = await fetch("/cedweb/api/auth/mfa/enable", {
+            const res = await fetch("/api/auth/mfa/enable", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -115,7 +115,7 @@ export default function TwoFactorSetup({ isEnabled: initialEnabled }: TwoFactorS
                     .find((row) => row.startsWith("ced_csrf_token="))
                     ?.split("=")[1];
 
-                const res = await fetch("/cedweb/api/auth/mfa/disable", {
+                const res = await fetch("/api/auth/mfa/disable", {
                     method: "POST",
                     headers: {
                         "x-csrf-token": csrfToken || "",

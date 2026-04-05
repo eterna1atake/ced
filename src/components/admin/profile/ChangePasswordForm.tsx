@@ -68,7 +68,7 @@ export default function ChangePasswordForm() {
                 .find((row) => row.startsWith("ced_csrf_token="))
                 ?.split("=")[1];
 
-            const res = await fetch("/cedweb/api/auth/change-password", {
+            const res = await fetch("/api/auth/change-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

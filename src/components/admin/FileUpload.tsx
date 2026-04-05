@@ -78,7 +78,7 @@ export default function FileUpload({
             ?.split("=")[1];
 
         try {
-            const res = await fetch("/cedweb/api/upload", {
+            const res = await fetch("/api/upload", {
                 method: "POST",
                 headers: {
                     "x-csrf-token": csrfToken || "",

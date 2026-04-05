@@ -68,7 +68,7 @@ export default function Navbar() {
       if (searchQuery.length >= 2) {
         setIsSearching(true);
         try {
-          const res = await fetch(`/cedweb/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
+          const res = await fetch(`/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
             signal: controller.signal
           });
           if (res.ok) {
@@ -141,7 +141,7 @@ export default function Navbar() {
         return;
       }
 
-      // ใช้ router จาก @/i18n/navigation ที่ผมแต่งไว้ให้แอบเติม /cedweb
+      // ใช้ router จาก @/i18n/navigation ที่ผมแต่งไว้ให้แอบเติม 
       router.push(href);
     },
     [closeMenu, router]

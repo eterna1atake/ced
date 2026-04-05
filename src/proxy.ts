@@ -18,15 +18,15 @@ const intlMiddleware = createMiddleware({
 
 function isAdminApiPath(pathname: string) {
   return pathname === "/api/ced-portal" || pathname.startsWith("/api/ced-portal/") ||
-         pathname === "/cedweb/api/ced-portal" || pathname.startsWith("/cedweb/api/ced-portal/");
+         pathname === "/api/ced-portal" || pathname.startsWith("/api/ced-portal/");
 }
 
 function isAdminLoginPath(pathname: string) {
   return (
-    pathname === "/cedweb/ced-portal/login" ||
-    pathname.startsWith("/cedweb/ced-portal/login/") ||
-    pathname === "/cedweb/ced-portal/forgot-password" ||
-    pathname.startsWith("/cedweb/ced-portal/forgot-password/")
+    pathname === "/ced-portal/login" ||
+    pathname.startsWith("/ced-portal/login/") ||
+    pathname === "/ced-portal/forgot-password" ||
+    pathname.startsWith("/ced-portal/forgot-password/")
   );
 }
 
@@ -46,10 +46,10 @@ export default auth((req) => {
 
   // [New] Global CSRF Validation (Double Submit Cookie)
   // Protect all API mutations except NextAuth internals (which handle their own)
-  const isApiMutation = (pathname.startsWith("/api/") || pathname.startsWith("/cedweb/api/")) && !["GET", "HEAD", "OPTIONS"].includes(req.method);
+  const isApiMutation = (pathname.startsWith("/api/") || pathname.startsWith("/api/")) && !["GET", "HEAD", "OPTIONS"].includes(req.method);
   // Explicitly protect our custom auth routes, but exclude NextAuth's default routes (signin, callback, etc.)
-  const isCustomAuthRoute = ["/api/auth/change-password", "/api/auth/reset-with-otp", "/api/auth/forgot-password", "/cedweb/api/auth/change-password", "/cedweb/api/auth/reset-with-otp", "/cedweb/api/auth/forgot-password"].some(r => pathname.startsWith(r));
-  const isNextAuthInternal = (pathname.startsWith("/api/auth/") || pathname.startsWith("/cedweb/api/auth/")) && !isCustomAuthRoute;
+  const isCustomAuthRoute = ["/api/auth/change-password", "/api/auth/reset-with-otp", "/api/auth/forgot-password", "/api/auth/change-password", "/api/auth/reset-with-otp", "/api/auth/forgot-password"].some(r => pathname.startsWith(r));
+  const isNextAuthInternal = (pathname.startsWith("/api/auth/") || pathname.startsWith("/api/auth/")) && !isCustomAuthRoute;
 
   if (isApiMutation && !isNextAuthInternal) {
     const headerToken = req.headers.get("x-csrf-token");
@@ -106,25 +106,6 @@ export default auth((req) => {
     return res;
   };
 
-  // [New] API Rewrite: Map /cedweb/api/... to /api/...
-  if (pathname.startsWith("/cedweb/api/")) {
-    const url = req.nextUrl.clone();
-    url.pathname = pathname.replace("/cedweb/api/", "/api/");
-    
-    // Apply headers to the rewrite response
-    const rewriteRes = NextResponse.rewrite(url);
-    
-    // Specifically for API auth, we might need more headers, but generally applyHeaders is fine
-    return applyHeaders(rewriteRes);
-  }
-
-  // [New] Enforce /cedweb prefix for all page requests
-  if (!pathname.startsWith("/cedweb") && !pathname.startsWith("/api") && !pathname.startsWith("/_next") && !pathname.startsWith("/favicon.ico")) {
-    const url = req.nextUrl.clone();
-    url.pathname = `/cedweb${pathname === "/" ? "" : pathname}`;
-    return applyHeaders(NextResponse.redirect(url));
-  }
-
   // 1. Skip next-intl for API routes and _next
   if (pathname.startsWith("/_next") || pathname.startsWith("/api")) {
     // Check Admin API specifically
@@ -140,8 +121,8 @@ export default auth((req) => {
   // 2. Handle Localization for all pages (including Admin)
   const response = intlMiddleware(req);
 
-  // 3. Handle Admin Authentication for /cedweb/ced-portal
-  if (pathname.startsWith("/cedweb/ced-portal")) {
+  // 3. Handle Admin Authentication for /ced-portal
+  if (pathname.startsWith("/ced-portal")) {
     if (!isAdminLoginPath(pathname)) {
       const role = (req.auth?.user as { role?: Role })?.role;
 
@@ -163,6 +144,6 @@ export const config = {
     // ครอบทุกหน้า ยกเว้นไฟล์ static
     "/((?!_next|.*\\..*).*)",
     "/api/ced-portal/:path*",
-    "/cedweb/api/ced-portal/:path*",
+    "/api/ced-portal/:path*",
   ],
 };

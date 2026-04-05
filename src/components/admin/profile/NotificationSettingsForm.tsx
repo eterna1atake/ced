@@ -34,7 +34,7 @@ export default function NotificationSettingsForm({
         setLoading(true);
         try {
             const csrfToken = document.cookie.split("; ").find(r => r.startsWith("ced_csrf_token="))?.split("=")[1];
-            const res = await fetch("/cedweb/api/ced-portal/profile/notification", {
+            const res = await fetch("/api/ced-portal/profile/notification", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

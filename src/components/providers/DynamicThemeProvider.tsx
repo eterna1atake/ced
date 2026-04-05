@@ -20,7 +20,7 @@ export default function DynamicThemeProvider({ children }: DynamicThemeProviderP
 
         const fetchTheme = async () => {
             try {
-                const res = await fetch('/cedweb/api/public/settings', { cache: 'no-store' });
+                const res = await fetch('/api/public/settings', { cache: 'no-store' });
                 if (res.ok) {
                     const data = await res.json();
                     setTheme(data.theme);

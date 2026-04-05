@@ -12,8 +12,6 @@ const nextConfig: NextConfig = {
             },
         ],
     },
-    basePath: '/cedweb',
-    assetPrefix: '/cedweb',
     output: 'standalone',
     poweredByHeader: false,
     compress: false, // Disabled to avoid Node.js stream errors; Nginx handles this.

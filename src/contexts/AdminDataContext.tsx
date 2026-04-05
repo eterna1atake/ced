@@ -67,8 +67,8 @@ export function AdminDataProvider({ children }: { children: ReactNode }) {
         if (!isSilent) setIsLoading(true);
         try {
             const [statsRes, healthRes] = await Promise.all([
-                fetch('/cedweb/api/ced-portal/dashboard/stats'),
-                fetch('/cedweb/api/ced-portal/dashboard/health')
+                fetch('/api/ced-portal/dashboard/stats'),
+                fetch('/api/ced-portal/dashboard/health')
             ]);
 
             if (statsRes.ok) {
