@@ -4,7 +4,6 @@ import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const nextConfig: NextConfig = {
     basePath: '/cedweb',
-    assetPrefix: '/cedweb',
     images: {
         remotePatterns: [
             {
