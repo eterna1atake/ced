@@ -133,7 +133,7 @@ export default function HeroCarouselManager() {
             name="src"
             value={formState.src}
             onChange={handleSrcChange}
-            placeholder="/images/hero/new-image.jpg"
+            placeholder="/cedweb/images/hero/new-image.jpg"
             required
           />
 

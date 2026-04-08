@@ -692,7 +692,8 @@
       "passwordPlaceholder": "อย่างน้อย 8 ตัวอักษร",
       "confirmPasswordPlaceholder": "ยืนยันรหัสผ่านอีกครั้ง",
       "confirmAndReset": "ยืนยันและเปลี่ยนรหัสผ่าน",
-      "settingNewPassword": "ตั้งรหัสผ่านใหม่ของคุณ"
+      "settingNewPassword": "ตั้งรหัสผ่านใหม่ของคุณ",
+      "next": "ถัดไป"
     },
     "pages": {
       "privacy": {

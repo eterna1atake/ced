@@ -170,7 +170,14 @@ export default function FacilitiesListPage() {
                                 <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                                     <td className="p-4 flex gap-3 items-center">
                                         <div className="w-16 h-10 relative bg-slate-100 dark:bg-slate-800 rounded overflow-hidden flex-shrink-0">
-                                            <Image src={item.image} alt={getLocalized(item.name)} fill className="object-cover" />
+                                            {item.image && (
+                                                <Image 
+                                                    src={item.image.startsWith('http') || item.image.startsWith('/cedweb') ? item.image : `/cedweb${item.image}`} 
+                                                    alt={getLocalized(item.name)} 
+                                                    fill 
+                                                    className="object-cover" 
+                                                />
+                                            )}
                                         </div>
                                         <div>
                                             <div className="font-medium text-slate-900 dark:text-slate-100">{getLocalized(item.name)}</div>

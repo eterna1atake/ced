@@ -21,7 +21,7 @@ const StudentServiceSchema = new Schema<IStudentService>(
         },
         icon: {
             type: String,
-            default: '/images/service/default-service-icon.png',
+            default: '/cedweb/images/service/default-service-icon.png',
         },
         link: {
             type: String,

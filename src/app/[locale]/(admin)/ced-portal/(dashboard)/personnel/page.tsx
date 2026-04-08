@@ -171,7 +171,7 @@ export default function PersonnelListPage() {
                                         <td className="p-4 w-16">
                                             <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden relative">
                                                 {person.imageSrc ? (
-                                                    <Image src={person.imageSrc} alt={formatPersonnelName(person, 'th')} fill className="object-cover" />
+                                                    <Image src={person.imageSrc.startsWith('http') || person.imageSrc.startsWith('/cedweb') ? person.imageSrc : `/cedweb${person.imageSrc}`} alt={formatPersonnelName(person, 'th')} fill className="object-cover" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">?</div>
                                                 )}

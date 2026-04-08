@@ -69,7 +69,7 @@ export default function Footer() {
                     {/* Column 1: Logo and Address */}
                     <div className="flex flex-col items-center md:items-start space-y-4">
                         <Image
-                            src="/images/logo/logo_1.png"
+                            src="/cedweb/images/logo/logo_1.png"
                             alt="CED Logo"
                             width={180}
                             height={70}

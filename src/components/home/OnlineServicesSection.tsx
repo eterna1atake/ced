@@ -12,27 +12,27 @@ export default function OnlineServicesSection() {
     const services = [
         {
             name: t("icitAccount"),
-            img: "/images/logo/logo_icit_with_kmutnb_200.png",
+            img: "/cedweb/images/logo/logo_icit_with_kmutnb_200.png",
             link: "https://icit.kmutnb.ac.th/",
         },
         {
             name: t("centralLibrary"),
-            img: "/images/logo/kmunb_central_library_logo.png",
+            img: "/cedweb/images/logo/kmunb_central_library_logo.png",
             link: "https://library.kmutnb.ac.th/",
         },
         {
             name: t("studentAffairs"),
-            img: "/images/logo/sa_op.png",
+            img: "/cedweb/images/logo/sa_op.png",
             link: "https://sa.op.kmutnb.ac.th/",
         },
         {
             name: t("mooc"),
-            img: "/images/logo/logo-mooc.png",
+            img: "/cedweb/images/logo/logo-mooc.png",
             link: "https://mooc.kmutnb.ac.th/",
         },
         {
             name: t("formRequests"),
-            img: "/images/logo/document_logo.png",
+            img: "/cedweb/images/logo/document_logo.png",
             link: `/${locale}/form-requests`,
         },
     ];

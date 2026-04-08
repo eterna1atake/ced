@@ -124,14 +124,14 @@ export default function AdminSidebar({
                         <div className="flex items-center gap-2 px-2">
                             <div className="overflow-hidden">
                                 <Image
-                                    src="/images/logo/logo_1.png"
+                                    src="/cedweb/images/logo/logo_1.png"
                                     alt="CED Logo"
                                     width={140}
                                     height={35}
                                     className="object-contain block dark:hidden"
                                 />
                                 <Image
-                                    src="/images/logo/logo_1.png"
+                                    src="/cedweb/images/logo/logo_1.png"
                                     alt="CED Logo"
                                     width={140}
                                     height={35}
@@ -143,13 +143,13 @@ export default function AdminSidebar({
                     {isCollapsed && (
                         <div className="relative w-[50px] h-[35px]">
                             <Image
-                                src="/images/logo/logo_2.png"
+                                src="/cedweb/images/logo/logo_2.png"
                                 alt="CED Logo"
                                 fill
                                 className="object-contain block dark:hidden"
                             />
                             <Image
-                                src="/images/logo/logo_2.png"
+                                src="/cedweb/images/logo/logo_2.png"
                                 alt="CED Logo"
                                 fill
                                 className="object-contain hidden dark:block brightness-0 invert"

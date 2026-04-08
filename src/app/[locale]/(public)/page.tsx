@@ -172,7 +172,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           <div className="grid grid-cols-2 md:grid-cols-4">
             <div className="relative w-full overflow-hidden [aspect-ratio:16/9]">
               <Image
-                src="/images/asset/497676733_1274546954676704_6633121732924987748_n.jpg"
+                src="/cedweb/images/asset/497676733_1274546954676704_6633121732924987748_n.jpg"
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
@@ -182,7 +182,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="relative w-full overflow-hidden [aspect-ratio:16/9]">
               <Image
-                src="/images/asset/499148888_1274746041323462_2720566343854152454_n.jpg"
+                src="/cedweb/images/asset/499148888_1274746041323462_2720566343854152454_n.jpg"
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
@@ -191,7 +191,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="relative hidden w-full overflow-hidden [aspect-ratio:16/9] md:block">
               <Image
-                src="/images/asset/496269302_1270188171779249_2285773000223975626_n.jpg"
+                src="/cedweb/images/asset/496269302_1270188171779249_2285773000223975626_n.jpg"
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
@@ -200,7 +200,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             </div>
             <div className="relative hidden w-full overflow-hidden [aspect-ratio:16/9] md:block">
               <Image
-                src="/images/asset/496941514_1274616998003033_6495109133619884695_n.jpg"
+                src="/cedweb/images/asset/496941514_1274616998003033_6495109133619884695_n.jpg"
                 alt=""
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"

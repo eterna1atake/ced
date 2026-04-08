@@ -70,10 +70,10 @@ export default function AboutPageClient() {
   }, [historyT]);
 
   const galleryItems = [
-    { id: 1, src: "/images/asset/ced_img.jpg", alt: "History Image 1", span: 2 }, // ใช้ 2 คอลัมน์
-    { id: 2, src: "/images/asset/history_1.jpg", alt: "History Image 2", span: 1 },
-    { id: 3, src: "/images/asset/history_2.jpg", alt: "History Image 3", span: 1 },
-    { id: 4, src: "/images/asset/history_3.jpg", alt: "History Image 4", span: 2 }, // ใช้ 2 คอลัมน์
+    { id: 1, src: "/cedweb/images/asset/ced_img.jpg", alt: "History Image 1", span: 2 }, // ใช้ 2 คอลัมน์
+    { id: 2, src: "/cedweb/images/asset/history_1.jpg", alt: "History Image 2", span: 1 },
+    { id: 3, src: "/cedweb/images/asset/history_2.jpg", alt: "History Image 3", span: 1 },
+    { id: 4, src: "/cedweb/images/asset/history_3.jpg", alt: "History Image 4", span: 2 }, // ใช้ 2 คอลัมน์
   ];
 
   const philosophySections = useMemo(
@@ -275,7 +275,7 @@ export default function AboutPageClient() {
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
                   <div className="md:col-span-5 flex flex-col items-center">
                     <div className="relative w-full max-w-sm aspect-square mb-0 md:mb-8">
-                      <Image src="/images/logo/logo_1.png" alt={symbolT("title")} layout="fill" objectFit="contain" className="drop-shadow-lg" />
+                      <Image src="/cedweb/images/logo/logo_1.png" alt={symbolT("title")} layout="fill" objectFit="contain" className="drop-shadow-lg" />
                     </div>
 
                     {/* CED Colors */}
@@ -331,7 +331,7 @@ export default function AboutPageClient() {
                       </ul>
                     </div>
 
-                    <a href="/images/logo/logo_1.png" download="CED_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-primary-main px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-primary-main hover:border-primary-main transition-all hover:-translate-y-0.5 mt-4">
+                    <a href="/cedweb/images/logo/logo_1.png" download="CED_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-primary-main px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-primary-main hover:border-primary-main transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
                       <span>{symbolT("download")}</span>
                     </a>
@@ -344,7 +344,7 @@ export default function AboutPageClient() {
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
                   <div className="md:col-span-5 flex flex-col items-center md:order-last">
                     <div className="relative w-64 h-64 mb-8">
-                      <Image src="/images/logo/fte.png" alt="FTE Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
+                      <Image src="/cedweb/images/logo/fte.png" alt="FTE Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
                     </div>
 
                     {/* FTE Colors */}
@@ -383,7 +383,7 @@ export default function AboutPageClient() {
                       </p>
                     </div>
 
-                    <a href="/images/logo/fte.png" download="FTE_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#128312] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#128312] hover:border-[#128312] transition-all hover:-translate-y-0.5 mt-4">
+                    <a href="/cedweb/images/logo/fte.png" download="FTE_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#128312] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#128312] hover:border-[#128312] transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
                       <span>{symbolT("downloadFte")}</span>
                     </a>
@@ -396,7 +396,7 @@ export default function AboutPageClient() {
                 <section className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-20 items-center">
                   <div className="md:col-span-5 flex flex-col items-center">
                     <div className="relative w-64 h-64 mb-8">
-                      <Image src="/images/logo/kmutnb.png" alt="KMUTNB Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
+                      <Image src="/cedweb/images/logo/kmutnb.png" alt="KMUTNB Logo" layout="fill" objectFit="contain" className="drop-shadow-md" />
 
                     </div>
 
@@ -428,7 +428,7 @@ export default function AboutPageClient() {
                       </p>
                     </div>
 
-                    <a href="/images/logo/kmutnb.png" download="KMUTNB_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#A81E23] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#A81E23] hover:border-[#A81E23] transition-all hover:-translate-y-0.5 mt-4">
+                    <a href="/cedweb/images/logo/kmutnb.png" download="KMUTNB_Logo.png" className="inline-flex items-center gap-2 rounded-lg bg-[#A81E23] px-6 py-2.5 text-sm font-semibold text-white shadow-sm border-2 border-transparent hover:bg-transparent hover:text-[#A81E23] hover:border-[#A81E23] transition-all hover:-translate-y-0.5 mt-4">
                       <FontAwesomeIcon icon={faDownload} />
                       <span>{symbolT("downloadKmutnb")}</span>
                     </a>

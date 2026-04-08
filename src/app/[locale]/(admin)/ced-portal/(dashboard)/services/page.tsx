@@ -137,7 +137,7 @@ export default function ServicesListPage() {
                                     <td className="p-4 w-16">
                                         <div className="w-10 h-10 relative bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center overflow-hidden border dark:border-slate-700">
                                             {item.icon ? (
-                                                <Image src={item.icon} alt={item.title.th} fill className="object-contain p-1" />
+                                                <Image src={item.icon.startsWith('http') || item.icon.startsWith('/cedweb') ? item.icon : `/cedweb${item.icon}`} alt={item.title.th} fill className="object-contain p-1" />
                                             ) : (
                                                 <div className="text-xs text-slate-400">?</div>
                                             )}

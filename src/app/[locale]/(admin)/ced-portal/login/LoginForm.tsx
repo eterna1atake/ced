@@ -234,8 +234,15 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
             if (result?.error) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const errCode = (result as any)?.code || result?.error || "";
+                console.log("DEBUG: Login Result Object:", result);
 
-                if (errCode.startsWith("2FA_REQUIRED")) {
+                // [Enhanced Detection] Check both errCode and URL for 2FA requirement
+                const is2FA = errCode.includes("2FA_REQUIRED") || 
+                              errCode.includes("2fa-required") ||
+                              result?.url?.includes("2FA_REQUIRED") ||
+                              result?.url?.includes("2fa-required");
+
+                if (is2FA) {
                     setIsTwoFactor(true);
                     setLoading(false);
                     return;
@@ -288,7 +295,13 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 } else {
                     const msg = tAlert("unknownError") || "An error occurred";
                     setError(msg);
-                    Swal.fire({ icon: "warning", title: tAlert("error"), text: `${msg} (${result?.error})`, confirmButtonColor: "#d33", confirmButtonText: tAlert("ok") });
+                    Swal.fire({ 
+                        icon: "warning", 
+                        title: tAlert("error"), 
+                        text: `${msg} | Error: ${result?.error} | Details: ${JSON.stringify(result)}`, 
+                        confirmButtonColor: "#d33", 
+                        confirmButtonText: tAlert("ok") 
+                    });
                 }
                 setLoading(false);
             } else {
@@ -343,7 +356,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-24 h-24 mb-4">
                         <Image
-                            src="/images/logo/logo_2.png"
+                            src="/cedweb/images/logo/logo_2.png"
                             alt="CED Logo"
                             width={100}
                             height={100}

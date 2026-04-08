@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
             },
         ],
     },
-    output: 'standalone',
     poweredByHeader: false,
     compress: false, // Disabled to avoid Node.js stream errors; Nginx handles this.
     serverExternalPackages: ['argon2', 'mongodb'],

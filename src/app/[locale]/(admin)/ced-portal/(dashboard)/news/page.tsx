@@ -333,7 +333,7 @@ export default function NewsListPage() {
                                         <div className="w-16 h-10 relative rounded overflow-hidden bg-slate-100 dark:bg-slate-800">
                                             {item.imageSrc ? (
                                                 <Image
-                                                    src={item.imageSrc}
+                                                    src={item.imageSrc.startsWith('http') || item.imageSrc.startsWith('/cedweb') ? item.imageSrc : `/cedweb${item.imageSrc}`}
                                                     alt={item.title.en}
                                                     fill
                                                     className="object-contain"

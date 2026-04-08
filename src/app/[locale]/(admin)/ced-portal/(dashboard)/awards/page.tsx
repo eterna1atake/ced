@@ -119,7 +119,7 @@ export default function AwardsListPage() {
                                         <td className="p-4 w-24">
                                             <div className="w-16 h-10 relative rounded overflow-hidden bg-slate-100 dark:bg-slate-700">
                                                 {item.image ? (
-                                                    <Image src={item.image} alt={item.title.th} fill className="object-cover" />
+                                                    <Image src={item.image.startsWith('http') || item.image.startsWith('/cedweb') ? item.image : `/cedweb${item.image}`} alt={item.title.th} fill className="object-cover" />
                                                 ) : (
                                                     <div className="h-full flex items-center justify-center text-xs text-slate-400">No Img</div>
                                                 )}

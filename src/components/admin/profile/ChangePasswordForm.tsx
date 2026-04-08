@@ -8,6 +8,7 @@ import SaveButton from '../common/SaveButton';
 import { FormInput } from "@/components/admin/common/FormInputs";
 import { useTranslations } from "next-intl";
 import { useUnsavedChanges } from "@/contexts/UnsavedChangesContext";
+import { validatePassword } from "@/lib/password";
 
 
 export default function ChangePasswordForm() {
@@ -36,6 +37,14 @@ export default function ChangePasswordForm() {
         path: ["newPassword"],
     });
 
+    const passwordChecks = {
+        length: newPassword.length >= 8,
+        upper: /[A-Z]/.test(newPassword),
+        lower: /[a-z]/.test(newPassword),
+        number: /[0-9]/.test(newPassword),
+        special: /[\W_]/.test(newPassword),
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
@@ -53,8 +62,20 @@ export default function ChangePasswordForm() {
             Swal.fire({
                 icon: "error",
                 title: t("common.invalidInfoTitle"),
-                text: Object.values(fieldErrors)[0] || t("common.invalidInfoText"),
+                text: validation.error.issues[0]?.message || t("common.invalidInfoText"),
                 confirmButtonColor: "#f43f5e",
+            });
+            return;
+        }
+
+        // Additional Strong Password Policy Check
+        const policyCheck = validatePassword(newPassword);
+        if (!policyCheck.success) {
+            Swal.fire({
+                icon: "warning",
+                title: "รหัสผ่านไม่ปลอดภัย",
+                text: policyCheck.error,
+                confirmButtonColor: "#EF4444",
             });
             return;
         }
@@ -157,21 +178,57 @@ export default function ChangePasswordForm() {
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <FormInput
-                        label={t("changePassword.newPassword")}
-                        name="newPassword"
-                        type={showNew ? "text" : "password"}
-                        value={newPassword}
-                        onChange={(e) => {
-                            setIsDirty(true);
-                            setNewPassword(e.target.value);
-                            if (errors.newPassword) setErrors(prev => { const n = { ...prev }; delete n.newPassword; return n; });
-                        }}
-                        required
-                        error={errors.newPassword}
-                        placeholder={t("changePassword.newPasswordPlaceholder")}
-                        suffix={<ToggleButton isVisible={showNew} onClick={() => setShowNew(!showNew)} />}
-                    />
+                    <div>
+                        <FormInput
+                            label={t("changePassword.newPassword")}
+                            name="newPassword"
+                            type={showNew ? "text" : "password"}
+                            value={newPassword}
+                            onChange={(e) => {
+                                setIsDirty(true);
+                                setNewPassword(e.target.value);
+                                if (errors.newPassword) setErrors(prev => { const n = { ...prev }; delete n.newPassword; return n; });
+                            }}
+                            required
+                            error={errors.newPassword}
+                            placeholder={t("changePassword.newPasswordPlaceholder")}
+                            suffix={<ToggleButton isVisible={showNew} onClick={() => setShowNew(!showNew)} />}
+                        />
+
+                        {/* Password Checklist UI */}
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-md border border-slate-100 dark:border-slate-800">
+                            <div className={`flex items-center gap-2 text-[11px] transition-colors ${passwordChecks.length ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}>
+                                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full border ${passwordChecks.length ? "bg-green-500 border-green-500 text-white" : "border-slate-300"}`}>
+                                    {passwordChecks.length && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                ยาวอย่างน้อย 8 ตัว
+                            </div>
+                            <div className={`flex items-center gap-2 text-[11px] transition-colors ${passwordChecks.upper ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}>
+                                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full border ${passwordChecks.upper ? "bg-green-500 border-green-500 text-white" : "border-slate-300"}`}>
+                                    {passwordChecks.upper && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                มีตัวพิมพ์ใหญ่ (A-Z)
+                            </div>
+                            <div className={`flex items-center gap-2 text-[11px] transition-colors ${passwordChecks.lower ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}>
+                                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full border ${passwordChecks.lower ? "bg-green-500 border-green-500 text-white" : "border-slate-300"}`}>
+                                    {passwordChecks.lower && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                มีตัวพิมพ์เล็ก (a-z)
+                            </div>
+                            <div className={`flex items-center gap-2 text-[11px] transition-colors ${passwordChecks.number ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}>
+                                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full border ${passwordChecks.number ? "bg-green-500 border-green-500 text-white" : "border-slate-300"}`}>
+                                    {passwordChecks.number && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                มีตัวเลข (0-9)
+                            </div>
+                            <div className={`flex items-center gap-2 text-[11px] transition-colors ${passwordChecks.special ? "text-green-600 dark:text-green-400" : "text-slate-400"}`}>
+                                <div className={`w-3.5 h-3.5 flex items-center justify-center rounded-full border ${passwordChecks.special ? "bg-green-500 border-green-500 text-white" : "border-slate-300"}`}>
+                                    {passwordChecks.special && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>}
+                                </div>
+                                อักขระพิเศษ (!@#)
+                            </div>
+                        </div>
+                    </div>
                     <FormInput
                         label={t("changePassword.confirmPassword")}
                         name="confirmPassword"

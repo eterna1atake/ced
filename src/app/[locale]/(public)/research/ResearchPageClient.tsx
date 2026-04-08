@@ -56,7 +56,7 @@ export default function ResearchPageClient() {
 
                         <div className="relative h-[300px] md:h-[400px] overflow-hidden shadow-2xl">
                             <Image
-                                src="/images/asset/research.jpg"
+                                src="/cedweb/images/asset/research.jpg"
                                 alt="Computer Education Research"
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-105"

@@ -88,7 +88,7 @@ export default function FacilityPageClient() {
     }
     // Fallback if no gallery image at index, use main image or placeholder
     const image = activeFacility?.image;
-    return image || "/images/placeholder.jpg";
+    return image || "/cedweb/images/placeholder.jpg";
   };
 
   // Helper to safely get localized string

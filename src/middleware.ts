@@ -122,15 +122,24 @@ export default auth((req) => {
   // 2. Handle Localization for all pages (including Admin)
   const response = intlMiddleware(req);
 
-  // 3. Handle Admin Authentication for /ced-portal
-  if (pathname.startsWith("/ced-portal")) {
-    if (!isAdminLoginPath(pathname)) {
+  // 3. Handle Admin Authentication for /ced-portal (Locale-aware)
+  const isAdminPath = pathname.match(/^\/([a-z]{2}\/)?ced-portal/);
+  
+  if (isAdminPath) {
+    // Normalize path for login check (remove locale if present)
+    const normalizedPath = pathname.replace(/^\/[a-z]{2}(\/|$)/, "/");
+    
+    if (!isAdminLoginPath(normalizedPath)) {
       const role = (req.auth?.user as { role?: Role })?.role;
 
       if (role !== "superuser") {
         // [Security] Rewrite to 404 to not reveal the admin path exists
+        // Extract locale to keep next-intl happy
+        const localeMatch = pathname.match(/^\/([a-z]{2})(\/|$)/);
+        const currentLocale = localeMatch ? localeMatch[1] : "th"; // fallback to default
+
         const url = req.nextUrl.clone();
-        url.pathname = `/404-not-found`;
+        url.pathname = `/${currentLocale}/404-not-found-stealth`; 
         return applyHeaders(NextResponse.rewrite(url));
       }
     }

@@ -49,7 +49,7 @@ function OGPreviewCard({ embedUrl }: { embedUrl: string }) {
                 <a href={embedUrl} target="_blank" rel="noopener noreferrer" className="flex gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     {og.image && (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={`/api/public/og-image?url=${encodeURIComponent(og.image)}`} alt={og.title} className="h-20 w-20 shrink-0 rounded-lg object-cover bg-slate-100" />
+                        <img src={`/cedweb/api/public/og-image?url=${encodeURIComponent(og.image)}`} alt={og.title} className="h-20 w-20 shrink-0 rounded-lg object-cover bg-slate-100" />
                     )}
                     <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-[#1877F2] uppercase tracking-wide mb-1">Facebook</p>

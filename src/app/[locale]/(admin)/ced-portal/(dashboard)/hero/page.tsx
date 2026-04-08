@@ -134,7 +134,7 @@ export default function HeroListPage() {
                         <div key={item._id} className="bg-white dark:bg-slate-900 rounded-lg shadow-sm border dark:border-slate-800 overflow-hidden group">
                             <div className="relative aspect-video bg-slate-100 dark:bg-slate-800">
                                 <Image
-                                    src={item.src}
+                                    src={item.src.startsWith('http') || item.src.startsWith('/cedweb') ? item.src : `/cedweb${item.src}`}
                                     alt={getAltText(item.alt) || "Hero Image"}
                                     fill
                                     className="object-cover transition-transform group-hover:scale-105"

@@ -102,7 +102,7 @@ function FacebookPreviewCard({
         <div className="relative h-64 w-full overflow-hidden bg-slate-100">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={`/api/public/og-image?url=${encodeURIComponent(og.image)}`}
+            src={`/cedweb/api/public/og-image?url=${encodeURIComponent(og.image)}`}
             alt={og.title}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />

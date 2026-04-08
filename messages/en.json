@@ -692,7 +692,8 @@
       "passwordPlaceholder": "At least 8 characters",
       "confirmPasswordPlaceholder": "Confirm your password again",
       "confirmAndReset": "Confirm and Reset Password",
-      "settingNewPassword": "Set your new password"
+      "settingNewPassword": "Set your new password",
+      "next": "Next"
     },
     "pages": {
       "privacy": {

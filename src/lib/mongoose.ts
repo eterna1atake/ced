@@ -22,8 +22,12 @@ if (!cached) {
 
 async function dbConnect() {
     const MONGODB_URI = process.env.MONGODB_URI;
+    const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
 
+    // During build time, if MONGODB_URI is missing, just skip.
+    // Next.js will often try to pre-render pages that import this file.
     if (!MONGODB_URI) {
+        if (isBuildTime) return null;
         throw new Error(
             'Please define the MONGODB_URI environment variable inside .env.local'
         );

@@ -14,14 +14,14 @@ export default function ApplyPageClient() {
     const locale = useLocale();
 
     const campusImages = [
-        "/images/campus_life/497586809_1270188235112576_5298471838325821564_n.jpg",
-        "/images/campus_life/496110213_1270189001779166_5405669053124816187_n.jpg",
-        "/images/campus_life/497828689_1273505201447546_926467867702818451_n.jpg",
-        "/images/campus_life/519674896_1327690619362337_5062624978607031600_n.jpg",
-        "/images/campus_life/577586806_1432996295498435_5748516379346975421_n.jpg",
-        "/images/campus_life/625058775_1503247405139990_906752219406923140_n.jpg",
-        "/images/campus_life/577853776_1432998402164891_4074800774306067892_n.jpg",
-        "/images/campus_life/Backdrop-429.JPG",
+        "/cedweb/images/campus_life/497586809_1270188235112576_5298471838325821564_n.jpg",
+        "/cedweb/images/campus_life/496110213_1270189001779166_5405669053124816187_n.jpg",
+        "/cedweb/images/campus_life/497828689_1273505201447546_926467867702818451_n.jpg",
+        "/cedweb/images/campus_life/519674896_1327690619362337_5062624978607031600_n.jpg",
+        "/cedweb/images/campus_life/577586806_1432996295498435_5748516379346975421_n.jpg",
+        "/cedweb/images/campus_life/625058775_1503247405139990_906752219406923140_n.jpg",
+        "/cedweb/images/campus_life/577853776_1432998402164891_4074800774306067892_n.jpg",
+        "/cedweb/images/campus_life/Backdrop-429.JPG",
     ];
 
     const baseLength = campusImages.length;

@@ -99,7 +99,7 @@ export default function HeroCarousel({
       {slides.map((image, index) => (
         <Image
           key={image.id}
-          src={image.src}
+          src={image.src.startsWith('http') || image.src.startsWith('/cedweb') ? image.src : `/cedweb${image.src}`}
           alt={getAltText(image.alt)}
           priority={index === 0}
           fill

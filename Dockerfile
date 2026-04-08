@@ -1,75 +1,65 @@
-# Base image
-FROM node:20-alpine AS base
+# ==========================================================
+# CED Web — Production Dockerfile
+# Approach: next build + next start (mirrors local behavior)
+# ==========================================================
 
-# Install dependencies only when needed
+FROM node:22-alpine AS base
+
+# ----------------------------------------------------------
+# Stage 1: Install dependencies (cached layer)
+# ----------------------------------------------------------
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
-COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
-RUN \
-  if [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci --legacy-peer-deps; \
-  elif [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+COPY package.json package-lock.json* ./
+RUN npm ci --legacy-peer-deps
 
-
-# Rebuild the source code only when needed
+# ----------------------------------------------------------
+# Stage 2: Build the application
+# ----------------------------------------------------------
 FROM base AS builder
 WORKDIR /app
+
+# Bring in installed dependencies
 COPY --from=deps /app/node_modules ./node_modules
 
-ENV NEXT_MAX_WORKERS=1
-ENV NEXT_TELEMETRY_DISABLED=1
-
+# Copy entire source (respects .dockerignore)
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+# Dummy value so the build passes "Collecting page data" step
+# Overridden at runtime by docker-compose env_file
+ENV MONGODB_URI="mongodb://placeholder:27017/build_only"
 
-RUN \
-  if [ -f pnpm-lock.yaml ]; then corepack enable pnpm && MONGODB_URI=mongodb://localhost:27017/dummy pnpm run build; \
-  elif [ -f package-lock.json ]; then MONGODB_URI=mongodb://localhost:27017/dummy npm run build; \
-  elif [ -f yarn.lock ]; then MONGODB_URI=mongodb://localhost:27017/dummy yarn build; \
-  else echo "Lockfile not found." && exit 1; \
-  fi
+RUN npm run build
 
-# Production image, copy all the files and run next
+# ----------------------------------------------------------
+# Stage 3: Production runner — mirrors `npm run start`
+# ----------------------------------------------------------
 FROM base AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-# Uncomment the following line in case you want to disable telemetry during runtime.
-# ENV NEXT_TELEMETRY_DISABLED 1
+ENV NODE_ENV=production
+ENV PORT=3006
+ENV HOSTNAME="0.0.0.0"
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-USER nextjs
+# --- Copy everything `next start` needs ---
+# package.json  → npm run start script
+# next.config.ts → basePath, images, headers, redirects
+# node_modules  → next binary + all runtime deps
+# .next         → compiled build output
+# public        → static assets (images, robots.txt, etc.)
+# messages      → next-intl translation JSON files
+COPY --from=builder /app/package.json      ./package.json
+COPY --from=builder /app/next.config.ts    ./next.config.ts
+COPY --from=builder /app/node_modules      ./node_modules
+COPY --from=builder /app/.next             ./.next
+COPY --from=builder /app/public            ./public
+COPY --from=builder /app/messages          ./messages
+COPY --from=builder /app/src/i18n          ./src/i18n
 
 EXPOSE 3006
 
-ENV PORT 3006
-# set hostname to localhost
-ENV HOSTNAME "0.0.0.0"
-
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"]
-
-
-
-
-
+# `next start` reads PORT env and handles basePath for
+# static files automatically — no manual folder hacks needed.
+CMD ["npm", "run", "start"]

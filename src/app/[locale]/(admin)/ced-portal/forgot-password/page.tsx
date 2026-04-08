@@ -1,5 +1,6 @@
 "use client";
 import { getCsrfToken } from "@/utils/cookie";
+import { validatePassword } from "@/lib/password";
 
 import { useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
@@ -91,9 +92,13 @@ export default function ForgotPasswordPage() {
         }
 
         try {
+            const csrfToken = getCsrfToken();
             const res = await fetch("/cedweb/api/auth/verify-otp", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "x-csrf-token": csrfToken || "",
+                },
                 body: JSON.stringify({ username, otp }),
             });
 
@@ -114,7 +119,7 @@ export default function ForgotPasswordPage() {
                 Swal.fire({
                     icon: "error",
                     title: t("invalidOtp"),
-                    text: data.error,
+                    text: data.error || "รหัส OTP ไม่ถูกต้อง หรือหมดอายุ",
                     confirmButtonColor: "#d33",
                 });
                 setOtp(""); // Clear invalid OTP
@@ -140,6 +145,15 @@ export default function ForgotPasswordPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [otp, step]);
 
+    // Password Policy Checks for UI
+    const passwordChecks = {
+        length: newPassword.length >= 8,
+        upper: /[A-Z]/.test(newPassword),
+        lower: /[a-z]/.test(newPassword),
+        number: /[0-9]/.test(newPassword),
+        special: /[\W_]/.test(newPassword),
+    };
+
     // Step 3: Reset Password
     const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -154,11 +168,12 @@ export default function ForgotPasswordPage() {
             return;
         }
 
-        if (newPassword.length < 8) {
+        const passwordVal = validatePassword(newPassword);
+        if (!passwordVal.success) {
             Swal.fire({
                 icon: "warning",
-                title: t("passwordTooShortTitle"),
-                text: t("passwordTooShortText"),
+                title: "รหัสผ่านไม่ปลอดภัย",
+                text: passwordVal.error,
                 confirmButtonColor: "#EF4444",
             });
             return;
@@ -239,7 +254,7 @@ export default function ForgotPasswordPage() {
             <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100 relative z-10 transition-all">
                 <div className="text-center mb-6">
                     <Image
-                        src="/images/logo/logo_2.png"
+                        src="/cedweb/images/logo/logo_2.png"
                         alt="CED Logo"
                         width={180}
                         height={60}
@@ -395,6 +410,40 @@ export default function ForgotPasswordPage() {
                                         </svg>
                                     )}
                                 </button>
+                            </div>
+
+                            {/* Password Checklist */}
+                            <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
+                                <div className={`flex items-center gap-1.5 ${passwordChecks.length ? "text-green-600" : "text-slate-400"}`}>
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${passwordChecks.length ? "bg-green-100 border-green-500" : "border-slate-300"}`}>
+                                        {passwordChecks.length && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </div>
+                                    ยาวอย่างน้อย 8 ตัว
+                                </div>
+                                <div className={`flex items-center gap-1.5 ${passwordChecks.upper ? "text-green-600" : "text-slate-400"}`}>
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${passwordChecks.upper ? "bg-green-100 border-green-500" : "border-slate-300"}`}>
+                                        {passwordChecks.upper && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </div>
+                                    ตัวพิมพ์ใหญ่ (A-Z)
+                                </div>
+                                <div className={`flex items-center gap-1.5 ${passwordChecks.lower ? "text-green-600" : "text-slate-400"}`}>
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${passwordChecks.lower ? "bg-green-100 border-green-500" : "border-slate-300"}`}>
+                                        {passwordChecks.lower && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </div>
+                                    ตัวพิมพ์เล็ก (a-z)
+                                </div>
+                                <div className={`flex items-center gap-1.5 ${passwordChecks.number ? "text-green-600" : "text-slate-400"}`}>
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${passwordChecks.number ? "bg-green-100 border-green-500" : "border-slate-300"}`}>
+                                        {passwordChecks.number && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </div>
+                                    มีตัวเลข (0-9)
+                                </div>
+                                <div className={`flex items-center gap-1.5 ${passwordChecks.special ? "text-green-600" : "text-slate-400"}`}>
+                                    <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center border ${passwordChecks.special ? "bg-green-100 border-green-500" : "border-slate-300"}`}>
+                                        {passwordChecks.special && <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path></svg>}
+                                    </div>
+                                    อักขระพิเศษ (!@#)
+                                </div>
                             </div>
                         </div>
 

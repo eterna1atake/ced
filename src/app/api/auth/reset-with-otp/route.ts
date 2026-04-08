@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
         const validation = await ResetSchema.safeParseAsync(body);
 
         if (!validation.success) {
-            return NextResponse.json({ error: "ข้อมูลไม่ถูกต้อง" }, { status: 400 });
+            const firstError = validation.error.issues[0]?.message || "ข้อมูลไม่ถูกต้อง";
+            return NextResponse.json({ error: firstError }, { status: 400 });
         }
 
         const { username, otp, newPassword, captchaToken } = validation.data;

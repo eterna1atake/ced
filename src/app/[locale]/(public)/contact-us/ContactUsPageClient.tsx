@@ -54,7 +54,7 @@ export default function ContactUsPageClient() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="relative h-full">
                       <Image
-                        src="/images/asset/497774132_1274745884656811_7565284710272091613_n.jpg"
+                        src="/cedweb/images/asset/497774132_1274745884656811_7565284710272091613_n.jpg"
                         alt="Contact Us"
                         width={642}
                         height={424}

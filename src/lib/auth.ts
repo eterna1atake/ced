@@ -23,9 +23,9 @@ class RateLimitError extends CredentialsSignin {
 }
 
 class InvalidCredentialsError extends CredentialsSignin {
-    constructor(message?: string) {
-        super(message);
-        this.code = message || "InvalidCredentials";
+    constructor(code?: string) {
+        super();
+        this.code = code || "InvalidCredentials";
     }
 }
 
@@ -85,10 +85,9 @@ class AccountLockedError extends CredentialsSignin {
 }
 
 class TwoFactorRequiredError extends CredentialsSignin {
-    code = "2FA_REQUIRED";
     constructor(type: "TOTP" | "EMAIL" = "EMAIL") {
-        super(`2FA_REQUIRED:${type}`);
-        this.code = `2FA_REQUIRED:${type}`;
+        super();
+        this.code = `2fa-required:${type}`;
     }
 }
 
@@ -215,7 +214,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
                 // --- 2. [Senior Optimization] Parallel Auth Checks (Captcha, Rate Limit, User Lookup) ---
                 const isProd = process.env.NODE_ENV === "production";
-                const shouldVerifyCaptcha = isProd || !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+                
+                // [Fix] Bypass captcha if an OTP code is provided (second step of login)
+                // This prevents "Captcha verification failed" when submitting the 2FA code.
+                const otpCodeFromRaw = (raw as Record<string, unknown>).code as string | undefined;
+                const isOtpStep = !!(otpCodeFromRaw && otpCodeFromRaw !== "undefined" && otpCodeFromRaw !== "" && otpCodeFromRaw !== "null");
+
+                const shouldVerifyCaptcha = (isProd || !!process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) && !isOtpStep;
                 const captchaToken = (raw as Record<string, unknown>).captchaToken as string | undefined;
 
                 const { getClientIp } = await import("@/lib/ip");
