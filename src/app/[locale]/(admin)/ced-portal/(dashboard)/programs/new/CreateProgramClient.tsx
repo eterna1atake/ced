@@ -20,7 +20,7 @@ export default function CreateProgramClient() {
         try {
             const csrfToken = getCsrfToken();
 
-            const response = await fetch('/api/ced-portal/programs', {
+            const response = await fetch('/cedweb/api/ced-portal/programs', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

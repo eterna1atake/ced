@@ -20,7 +20,7 @@ export default function CreateServicePage() {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/services", {
+            const res = await fetch("/cedweb/api/ced-portal/services", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -13,7 +13,7 @@ export default function PhDProgramPageClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/public/programs/phd")
+        fetch("/cedweb/api/public/programs/phd")
             .then(res => res.json())
             .then(data => {
                 setProgramData(data.detail);

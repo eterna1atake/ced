@@ -24,7 +24,7 @@ export default function EditFacilityClient({ initialData }: Props) {
 
             const csrfToken = getCsrfToken();
 
-            const res = await fetch(`/api/ced-portal/facilities/${encodeURIComponent(data.id)}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/facilities/${encodeURIComponent(data.id)}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

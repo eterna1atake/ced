@@ -29,7 +29,7 @@ export default function CreateFormRequestPage() {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/forms", {
+            const res = await fetch("/cedweb/api/ced-portal/forms", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

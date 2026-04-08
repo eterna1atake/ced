@@ -29,7 +29,7 @@ export default function FacilityPageClient() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('/api/public/facilities', { cache: 'no-store' });
+        const res = await fetch('/cedweb/api/public/facilities', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           setFacilities(data);

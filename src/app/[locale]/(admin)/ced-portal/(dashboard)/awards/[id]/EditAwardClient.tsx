@@ -27,7 +27,7 @@ export default function EditAwardClient({ initialData }: Props) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const awardId = (initialData as any)._id || initialData.id;
 
-            const res = await fetch(`/api/ced-portal/awards/${awardId}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/awards/${awardId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

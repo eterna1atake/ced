@@ -13,7 +13,7 @@ export default function SMTCTProgramPageClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/public/programs/smtct")
+        fetch("/cedweb/api/public/programs/smtct")
             .then(res => res.json())
             .then(data => {
                 setProgramData(data.detail);

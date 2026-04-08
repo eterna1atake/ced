@@ -38,7 +38,7 @@ export default function ResourcesListPage() {
     const fetchResources = useCallback(async (page: number) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/ced-portal/online-resources?page=${page}&limit=${limit}`);
+            const res = await fetch(`/cedweb/api/ced-portal/online-resources?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
             setResources(data.resources);
@@ -71,7 +71,7 @@ export default function ResourcesListPage() {
                 // [Fix] Add CSRF Token to headers
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/online-resources/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/online-resources/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

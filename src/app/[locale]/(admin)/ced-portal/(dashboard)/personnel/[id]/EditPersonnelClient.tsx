@@ -38,7 +38,7 @@ export default function EditPersonnelClient({ initialData }: Props) {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch(`/api/ced-portal/personnel/${initialData._id}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/personnel/${initialData._id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

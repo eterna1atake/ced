@@ -43,7 +43,7 @@ export default function AuditLogsPage() {
         try {
             // Fetch based on active tab ONLY to save bandwidth, or fetch both? 
             // Let's fetch the active one.
-            const res = await fetch(`/api/ced-portal/audit-logs?type=${activeTab}`);
+            const res = await fetch(`/cedweb/api/ced-portal/audit-logs?type=${activeTab}`);
             if (res.ok) {
                 const data = await res.json();
                 if (activeTab === "login") {

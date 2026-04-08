@@ -13,7 +13,7 @@ export default function CEDProgramPageClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/public/programs/ced")
+        fetch("/cedweb/api/public/programs/ced")
             .then(res => res.json())
             .then(data => {
                 setProgramData(data.detail);

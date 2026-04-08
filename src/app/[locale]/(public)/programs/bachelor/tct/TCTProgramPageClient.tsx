@@ -13,7 +13,7 @@ export default function TCTProgramPageClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/public/programs/tct")
+        fetch("/cedweb/api/public/programs/tct")
             .then(res => res.json())
             .then(data => {
                 setProgramData(data.detail);

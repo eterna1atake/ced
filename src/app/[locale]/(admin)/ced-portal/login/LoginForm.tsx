@@ -32,7 +32,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
     // ... existing useEffects (PublicKey, RateLimit, formatTime, urlError) ...
     // Fetch Public Key on Mount
     useEffect(() => {
-        fetch("/api/auth/public-key")
+        fetch("/cedweb/api/auth/public-key")
             .then(res => res.json())
             .then(data => {
                 if (data.publicKey) {
@@ -171,43 +171,43 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
         setLoading(true);
         setError(null);
 
-            // ... existing handleSubmit logic (Validate, Pre-check, Encrypt, SignIn, Error Handling) ...
-            if (!isTwoFactor) {
-                const validation = loginSchema.safeParse({ username, password });
-                if (!validation.success) {
-                    const fieldErrors = validation.error.flatten().fieldErrors;
-                    const errorMessage = Object.values(fieldErrors).flat()[0] || "ข้อมูลไม่ถูกต้อง";
-                    setError(errorMessage);
-                    Swal.fire({
-                        icon: "warning",
-                        title: tAlert("error"),
-                        text: errorMessage,
-                        confirmButtonColor: "#EF4444",
-                        confirmButtonText: tAlert("ok")
-                    });
+        // ... existing handleSubmit logic (Validate, Pre-check, Encrypt, SignIn, Error Handling) ...
+        if (!isTwoFactor) {
+            const validation = loginSchema.safeParse({ username, password });
+            if (!validation.success) {
+                const fieldErrors = validation.error.flatten().fieldErrors;
+                const errorMessage = Object.values(fieldErrors).flat()[0] || "ข้อมูลไม่ถูกต้อง";
+                setError(errorMessage);
+                Swal.fire({
+                    icon: "warning",
+                    title: tAlert("error"),
+                    text: errorMessage,
+                    confirmButtonColor: "#EF4444",
+                    confirmButtonText: tAlert("ok")
+                });
+                setLoading(false);
+                return;
+            }
+        } else {
+            // 2FA Validation
+            if (isBackupCode) {
+                if (!backupCodeInput || backupCodeInput.length < 8) {
+                    setError("กรุณากรอกรหัส Backup Code ให้ถูกต้อง");
                     setLoading(false);
                     return;
                 }
             } else {
-                // 2FA Validation
-                if (isBackupCode) {
-                    if (!backupCodeInput || backupCodeInput.length < 8) {
-                        setError("กรุณากรอกรหัส Backup Code ให้ถูกต้อง");
-                        setLoading(false);
-                        return;
-                    }
-                } else {
-                    if (otp.join("").length !== 6) {
-                        setError("กรุณากรอกรหัส OTP ให้ครบ 6 หลัก");
-                        setLoading(false);
-                        return;
-                    }
+                if (otp.join("").length !== 6) {
+                    setError("กรุณากรอกรหัส OTP ให้ครบ 6 หลัก");
+                    setLoading(false);
+                    return;
                 }
             }
+        }
 
-            try {
-                // 1. Proceed to Login (Simplified: No redundant pre-check)
-                const codeToSend = isTwoFactor ? (isBackupCode ? backupCodeInput : otp.join("")) : "";
+        try {
+            // 1. Proceed to Login (Simplified: No redundant pre-check)
+            const codeToSend = isTwoFactor ? (isBackupCode ? backupCodeInput : otp.join("")) : "";
             let passwordToSend = password;
 
             if (publicKey) {
@@ -228,6 +228,7 @@ function AdminLoginContent({ isTrustedDevice }: { isTrustedDevice: boolean }) {
                 code: codeToSend,
                 trustDevice: String(trustDevice),
                 callbackUrl,
+                basePath: "/cedweb/api/auth",
             });
 
             if (result?.error) {

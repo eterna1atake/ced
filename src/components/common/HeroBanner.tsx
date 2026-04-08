@@ -14,7 +14,7 @@ export default function HeroBanner({
   title,
   description,
   eyebrow,
-  imageSrc = "/images/bg_ced.jpg",
+  imageSrc = "/cedweb/images/bg_ced.jpg",
   imageAlt = title,
   actions,
 }: HeroBannerProps) {

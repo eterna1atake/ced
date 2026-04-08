@@ -18,7 +18,7 @@ function OGPreviewCard({ embedUrl }: { embedUrl: string }) {
         setStatus('loading');
         setOg(null);
         const controller = new AbortController();
-        fetch(`/api/public/og-preview?url=${encodeURIComponent(embedUrl)}`, { signal: controller.signal })
+        fetch(`/cedweb/api/public/og-preview?url=${encodeURIComponent(embedUrl)}`, { signal: controller.signal })
             .then(r => r.ok ? r.json() : Promise.reject())
             .then(data => { setOg(data); setStatus('done'); })
             .catch((err) => { if (err?.name !== 'AbortError') setStatus('error'); });
@@ -78,7 +78,7 @@ export default function TrainingPage() {
     useEffect(() => {
         const fetchEmbeds = async () => {
             try {
-                const res = await fetch('/api/ced-portal/training-embeds');
+                const res = await fetch('/cedweb/api/ced-portal/training-embeds');
                 if (res.ok) {
                     const data = await res.json();
                     setEmbeds(data);
@@ -152,7 +152,7 @@ export default function TrainingPage() {
                 throw new Error("CSRF Token not found");
             }
 
-            const res = await fetch('/api/ced-portal/training-embeds', {
+            const res = await fetch('/cedweb/api/ced-portal/training-embeds', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

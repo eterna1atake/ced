@@ -37,7 +37,7 @@ export default function FormRequestsListPage() {
     const fetchForms = useCallback(async (page: number) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/ced-portal/forms?page=${page}&limit=${limit}`);
+            const res = await fetch(`/cedweb/api/ced-portal/forms?page=${page}&limit=${limit}`);
             if (res.ok) {
                 const data = await res.json();
                 setForms(data.forms);
@@ -72,7 +72,7 @@ export default function FormRequestsListPage() {
                 // [Fix] Add CSRF Token to headers
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/forms/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/forms/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

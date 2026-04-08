@@ -22,7 +22,7 @@ export default function AwardsListPage() {
     const fetchAwards = useCallback(async (page: number) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/ced-portal/awards?page=${page}&limit=${limit}`);
+            const res = await fetch(`/cedweb/api/ced-portal/awards?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch awards");
             const data = await res.json();
             setAwards(data.awards);
@@ -54,7 +54,7 @@ export default function AwardsListPage() {
             try {
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/awards/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/awards/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

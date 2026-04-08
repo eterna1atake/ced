@@ -244,7 +244,7 @@ export default function AdminHeader({
 
                                             if (result.isConfirmed) {
                                                 await signOut({
-                                                    callbackUrl: `/ced-portal/login`,
+                                                    callbackUrl: `/cedweb/ced-portal/login`,
                                                 });
                                             }
                                         }}

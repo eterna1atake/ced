@@ -24,7 +24,7 @@ export default function CreateNewsPage() {
 
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/news", {
+            const res = await fetch("/cedweb/api/ced-portal/news", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

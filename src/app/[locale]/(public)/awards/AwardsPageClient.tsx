@@ -33,7 +33,7 @@ export default function AwardsPageClient() {
     useEffect(() => {
         const fetchAwards = async () => {
             try {
-                const res = await fetch("/api/public/awards");
+                const res = await fetch("/cedweb/api/public/awards");
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.length > 0) {

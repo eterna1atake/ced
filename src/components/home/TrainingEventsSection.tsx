@@ -42,7 +42,7 @@ function FacebookPreviewCard({
     if (cachedOg) return;
 
     const controller = new AbortController();
-    fetch(`/api/public/og-preview?url=${encodeURIComponent(embedUrl)}`, {
+    fetch(`/cedweb/api/public/og-preview?url=${encodeURIComponent(embedUrl)}`, {
       signal: controller.signal,
     })
       .then((res) => (res.ok ? res.json() : Promise.reject()))

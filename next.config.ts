@@ -2,7 +2,9 @@ import { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
+
 const nextConfig: NextConfig = {
+    basePath: '/cedweb',
     images: {
         remotePatterns: [
             {
@@ -44,6 +46,16 @@ const nextConfig: NextConfig = {
         ],
     },
     reactCompiler: true,
+    async redirects() {
+        return [
+            {
+                source: '/',
+                destination: '/cedweb',
+                basePath: false,
+                permanent: false,
+            },
+        ];
+    },
     async headers() {
         return [
             {

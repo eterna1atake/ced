@@ -38,7 +38,7 @@ export default function ServicesListPage() {
     const fetchServices = useCallback(async (page: number) => {
         setIsLoading(true);
         try {
-            const res = await fetch(`/api/ced-portal/services?page=${page}&limit=${limit}`);
+            const res = await fetch(`/cedweb/api/ced-portal/services?page=${page}&limit=${limit}`);
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
             setServices(data.services);
@@ -71,7 +71,7 @@ export default function ServicesListPage() {
                 // [Fix] Add CSRF Token to headers
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/services/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/services/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

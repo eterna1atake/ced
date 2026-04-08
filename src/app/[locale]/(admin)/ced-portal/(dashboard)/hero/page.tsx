@@ -27,7 +27,7 @@ export default function HeroListPage() {
 
     const fetchHeroes = async () => {
         try {
-            const res = await fetch("/api/ced-portal/hero");
+            const res = await fetch("/cedweb/api/ced-portal/hero");
             if (!res.ok) throw new Error("Failed to fetch");
             const data = await res.json();
             setHeroes(data);
@@ -60,7 +60,7 @@ export default function HeroListPage() {
                 // [Fix] Add CSRF Token to headers
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/hero/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/hero/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

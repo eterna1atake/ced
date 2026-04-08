@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
         try {
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/auth/forgot-password", {
+            const res = await fetch("/cedweb/api/auth/forgot-password", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
         }
 
         try {
-            const res = await fetch("/api/auth/verify-otp", {
+            const res = await fetch("/cedweb/api/auth/verify-otp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, otp }),
@@ -180,7 +180,7 @@ export default function ForgotPasswordPage() {
             const csrfToken = getCsrfToken();
 
             // Note: We send the OTP again because the backend needs to verify it before resetting.
-            const res = await fetch("/api/auth/reset-with-otp", {
+            const res = await fetch("/cedweb/api/auth/reset-with-otp", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

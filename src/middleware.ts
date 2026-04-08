@@ -34,6 +34,7 @@ import { Role } from "@/lib/auth";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
+  console.log('MIDDLEWARE PATH:', pathname);
   // [New] CSRF Token Generation
   // Ensure every client has a CSRF token cookie
   const csrfToken = req.cookies.get("ced_csrf_token")?.value || crypto.randomUUID();
@@ -141,6 +142,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
+    "/",
     // ครอบทุกหน้า ยกเว้นไฟล์ static
     "/((?!_next|.*\\..*).*)",
     "/api/ced-portal/:path*",

@@ -28,7 +28,7 @@ export default function EditNewsClient({ initialData }: Props) {
 
             const csrfToken = getCsrfToken();
 
-            const res = await fetch(`/api/ced-portal/news/${targetId}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/news/${targetId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

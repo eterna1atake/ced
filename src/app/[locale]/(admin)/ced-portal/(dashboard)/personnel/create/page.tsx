@@ -24,7 +24,7 @@ export default function CreatePersonnelPage() {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/personnel", {
+            const res = await fetch("/cedweb/api/ced-portal/personnel", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

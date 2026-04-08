@@ -25,9 +25,9 @@ const kanit = Kanit({
 export const metadata: Metadata = {
     title: "CED Admin Panel",
     icons: {
-        icon: "/images/logo/logo_2.png",
-        shortcut: "/images/logo/logo_2.png",
-        apple: "/images/logo/logo_2.png",
+        icon: "/cedweb/images/logo/logo_2.png",
+        shortcut: "/cedweb/images/logo/logo_2.png",
+        apple: "/cedweb/images/logo/logo_2.png",
     },
 };
 

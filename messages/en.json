@@ -827,6 +827,7 @@
         "add": "Add Person",
         "createTitle": "Add Personnel",
         "createSubtitle": "Create a new faculty or staff profile.",
+        "backToList": "Back to List",
         "editTitle": "Edit Personnel",
         "editSubtitle": "Update personnel information and profile photo."
       },

@@ -35,7 +35,7 @@ export default function EditProgramClient({
         try {
             const csrfToken = getCsrfToken();
 
-            const response = await fetch(`/api/ced-portal/programs/${initialData.id}/general`, {
+            const response = await fetch(`/cedweb/api/ced-portal/programs/${initialData.id}/general`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ export default function EditProgramClient({
         try {
             const csrfToken = getCsrfToken();
 
-            const response = await fetch(`/api/ced-portal/programs/${initialData.id}/detail`, {
+            const response = await fetch(`/cedweb/api/ced-portal/programs/${initialData.id}/detail`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -40,7 +40,7 @@ export default function FacilitiesListPage() {
 
     const fetchFacilities = async () => {
         try {
-            const res = await fetch('/api/ced-portal/facilities');
+            const res = await fetch('/cedweb/api/ced-portal/facilities');
             if (res.ok) {
                 const data = await res.json();
                 setFacilities(data);
@@ -80,7 +80,7 @@ export default function FacilitiesListPage() {
             try {
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/facilities/${encodeURIComponent(id)}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/facilities/${encodeURIComponent(id)}`, {
                     method: 'DELETE',
                     headers: {
                         'x-csrf-token': csrfToken || ""

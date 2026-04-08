@@ -33,7 +33,7 @@ export default function EditFormRequestClient({ initialData }: Props) {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch(`/api/ced-portal/forms/${initialData._id}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/forms/${initialData._id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

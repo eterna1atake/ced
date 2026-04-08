@@ -44,7 +44,7 @@ export default function NewsListPage() {
         setIsLoading(true);
         try {
             // Add cache: 'no-store' and a timestamp to prevent stale data
-            const res = await fetch(`/api/ced-portal/news?t=${Date.now()}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/news?t=${Date.now()}`, {
                 cache: 'no-store'
             });
             if (!res.ok) throw new Error("Failed to fetch news");
@@ -112,7 +112,7 @@ export default function NewsListPage() {
             const csrfToken = getCsrfToken();
 
             console.log(`[DEBUG] handleTogglePin for item: ${item.id}, current isPinned: ${item.isPinned}`);
-            const res = await fetch(`/api/ced-portal/news/${item.id}/pin`, {
+            const res = await fetch(`/cedweb/api/ced-portal/news/${item.id}/pin`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
@@ -173,7 +173,7 @@ export default function NewsListPage() {
             try {
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/news/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/news/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",
@@ -213,7 +213,7 @@ export default function NewsListPage() {
 
             const csrfToken = getCsrfToken();
 
-            const res = await fetch(`/api/ced-portal/news/${item.id}`, {
+            const res = await fetch(`/cedweb/api/ced-portal/news/${item.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

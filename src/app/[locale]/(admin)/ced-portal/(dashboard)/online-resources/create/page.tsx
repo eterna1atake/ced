@@ -18,7 +18,7 @@ export default function CreateResourcePage() {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/online-resources", {
+            const res = await fetch("/cedweb/api/ced-portal/online-resources", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

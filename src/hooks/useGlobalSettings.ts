@@ -43,7 +43,7 @@ export function useGlobalSettings() {
 
         const fetchSettings = async () => {
             try {
-                const res = await fetch('/api/public/settings', {
+                const res = await fetch('/cedweb/api/public/settings', {
                     next: { revalidate: 60 },
                     cache: 'no-store'
                 });

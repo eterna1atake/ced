@@ -19,7 +19,7 @@ export default function CreateFacilityPage() {
         try {
             const csrfToken = getCsrfToken();
 
-            const res = await fetch('/api/ced-portal/facilities', {
+            const res = await fetch('/cedweb/api/ced-portal/facilities', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

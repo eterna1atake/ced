@@ -67,9 +67,9 @@ export async function generateMetadata(
     ...parentMetadata,
     title: parentMetadata.title ?? tMeta("homeTitle"),
     icons: {
-      icon: "/images/logo/logo_2.png",
-      shortcut: "/images/logo/logo_2.png",
-      apple: "/images/logo/logo_2.png",
+      icon: "/cedweb/images/logo/logo_2.png",
+      shortcut: "/cedweb/images/logo/logo_2.png",
+      apple: "/cedweb/images/logo/logo_2.png",
     },
     formatDetection: {
       telephone: false,

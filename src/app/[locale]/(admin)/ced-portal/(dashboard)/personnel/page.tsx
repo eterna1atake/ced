@@ -30,7 +30,7 @@ export default function PersonnelListPage() {
     const fetchPersonnel = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch("/api/ced-portal/personnel");
+            const res = await fetch("/cedweb/api/ced-portal/personnel");
             if (!res.ok) throw new Error("Failed to fetch personnel");
             const data = await res.json();
             // Helper to determine position weight (lower is higher priority)
@@ -101,7 +101,7 @@ export default function PersonnelListPage() {
         if (result.isConfirmed) {
             try {
                 const csrfToken = getCsrfToken();
-                const res = await fetch(`/api/ced-portal/personnel/${id}`, {
+                const res = await fetch(`/cedweb/api/ced-portal/personnel/${id}`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || "",

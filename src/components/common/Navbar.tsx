@@ -68,7 +68,7 @@ export default function Navbar() {
       if (searchQuery.length >= 2) {
         setIsSearching(true);
         try {
-          const res = await fetch(`/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
+          const res = await fetch(`/cedweb/api/public/search?q=${encodeURIComponent(searchQuery)}&locale=${locale}`, {
             signal: controller.signal
           });
           if (res.ok) {
@@ -160,7 +160,7 @@ export default function Navbar() {
         <Link href="/" className="relative flex items-center">
           <div className="relative w-40 md:w-48 lg:w-[200px] h-[38px] md:h-[48px] transition-all duration-300">
             <Image
-              src="/images/logo/logo_1.png"
+              src="/cedweb/images/logo/logo_1.png"
               alt="CED Logo"
               fill
               sizes="(max-width: 768px) 160px, (max-width: 1024px) 192px, 200px"
@@ -362,7 +362,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between border-b border-slate-900/50 px-5 py-2">
           <div>
             <Image
-              src="/images/logo/logo_2.png"
+              src="/cedweb/images/logo/logo_2.png"
               alt="CED Logo"
               width={60}
               height={30}

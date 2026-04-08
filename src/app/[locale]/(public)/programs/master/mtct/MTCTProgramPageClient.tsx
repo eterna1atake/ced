@@ -13,7 +13,7 @@ export default function MTCTProgramPageClient() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch("/api/public/programs/mtct")
+        fetch("/cedweb/api/public/programs/mtct")
             .then(res => res.json())
             .then(data => {
                 setProgramData(data.detail);

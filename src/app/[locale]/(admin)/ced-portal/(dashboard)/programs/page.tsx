@@ -20,7 +20,7 @@ export default function ProgramsListPage() {
 
     const fetchPrograms = async () => {
         try {
-            const res = await fetch("/api/ced-portal/programs");
+            const res = await fetch("/cedweb/api/ced-portal/programs");
             if (res.ok) {
                 const data = await res.json();
 
@@ -71,7 +71,7 @@ export default function ProgramsListPage() {
             try {
                 const csrfToken = getCsrfToken();
 
-                const res = await fetch(`/api/ced-portal/programs/${id}/general`, {
+                const res = await fetch(`/cedweb/api/ced-portal/programs/${id}/general`, {
                     method: "DELETE",
                     headers: {
                         "x-csrf-token": csrfToken || ""

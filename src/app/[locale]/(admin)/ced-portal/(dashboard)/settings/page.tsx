@@ -35,7 +35,7 @@ export default function SettingsPage() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const res = await fetch('/api/ced-portal/settings');
+                const res = await fetch('/cedweb/api/ced-portal/settings');
                 if (res.ok) {
                     const data = await res.json();
                     setSettings(prev => ({ ...prev, ...data }));
@@ -95,7 +95,7 @@ export default function SettingsPage() {
                 throw new Error("CSRF Token not found");
             }
 
-            const res = await fetch('/api/ced-portal/settings', {
+            const res = await fetch('/cedweb/api/ced-portal/settings', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

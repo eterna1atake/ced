@@ -20,7 +20,7 @@ export default function CreateHeroPage() {
             // [Fix] Add CSRF Token to headers
             const csrfToken = getCsrfToken();
 
-            const res = await fetch("/api/ced-portal/hero", {
+            const res = await fetch("/cedweb/api/ced-portal/hero", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
