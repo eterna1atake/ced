@@ -22,7 +22,8 @@ export const GET = async (req: Request) => {
                     'contactDepartmentTh', 'contactDepartmentEn',
                     'contactEmail', 'phoneNumber', 'addressTh', 'addressEn',
                     'facebook', 'youtube', 'tiktok', 'googlePlus',
-                    'training_embed_1', 'training_embed_2', 'training_embed_3'
+                    'training_embed_1', 'training_embed_2', 'training_embed_3',
+                    'training_og_1', 'training_og_2', 'training_og_3'
                 ]
             }
         });
@@ -76,7 +77,10 @@ export const GET = async (req: Request) => {
             training: {
                 embed1: getVal('training_embed_1') || '',
                 embed2: getVal('training_embed_2') || '',
-                embed3: getVal('training_embed_3') || ''
+                embed3: getVal('training_embed_3') || '',
+                og1: getVal('training_og_1') || null,
+                og2: getVal('training_og_2') || null,
+                og3: getVal('training_og_3') || null,
             }
         });
     } catch (error) {

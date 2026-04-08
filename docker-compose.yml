@@ -9,12 +9,9 @@ services:
     # The application runs on 3006 internally (defined in Dockerfile)
     # We do NOT expose it directly to the host for better security
     env_file:
-      - .env.local
+      - .env
     networks:
       - ced-network
-    # Wait for other services if needed (e.g. mongodb)
-    # depends_on:
-    #   - mongodb
 
   # Nginx Reverse Proxy (Gateway)
   ced-nginx:

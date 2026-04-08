@@ -70,6 +70,12 @@ export default async function Home() {
     settings.training.embed3
   ].filter(Boolean) : [];
 
+  const embedOgData = settings?.training ? [
+    settings.training.og1,
+    settings.training.og2,
+    settings.training.og3
+  ] : [];
+
 
   return (
     <div className="relative bg-white w-full">
@@ -154,6 +160,7 @@ export default async function Home() {
           emptyLabel={tTraining("empty")}
           seeAllLabel={tTraining("seeAll")}
           embedUrls={embedUrls}
+          embedOgData={embedOgData}
         />
 
         <ServicesSection />

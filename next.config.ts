@@ -11,6 +11,22 @@ const nextConfig: NextConfig = {
                 hostname: 'res.cloudinary.com',
                 pathname: '/**',
             },
+            // Facebook CDN domains for og:image thumbnails
+            {
+                protocol: 'https',
+                hostname: '**.fbcdn.net',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: '**.facebook.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: '**.fbsbx.com',
+                pathname: '/**',
+            },
         ],
     },
     output: 'standalone',

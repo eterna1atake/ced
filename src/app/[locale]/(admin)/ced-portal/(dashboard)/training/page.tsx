@@ -8,46 +8,57 @@ import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 
-const FACEBOOK_EMBED_DEFAULT_WIDTH = 350;
-const FACEBOOK_EMBED_DEFAULT_HEIGHT = 620; // Matches public site dimensions
 
-function FacebookPostEmbedPreview({ embedUrl }: { embedUrl: string }) {
+function OGPreviewCard({ embedUrl }: { embedUrl: string }) {
+    const [og, setOg] = useState<{ title: string; description: string; image: string } | null>(null);
+    const [status, setStatus] = useState<'loading' | 'done' | 'error'>('loading');
+
+    useEffect(() => {
+        if (!embedUrl) return;
+        setStatus('loading');
+        setOg(null);
+        const controller = new AbortController();
+        fetch(`/api/public/og-preview?url=${encodeURIComponent(embedUrl)}`, { signal: controller.signal })
+            .then(r => r.ok ? r.json() : Promise.reject())
+            .then(data => { setOg(data); setStatus('done'); })
+            .catch((err) => { if (err?.name !== 'AbortError') setStatus('error'); });
+        return () => controller.abort();
+    }, [embedUrl]);
+
     if (!embedUrl) return null;
 
-    let resolvedUrl = embedUrl;
-    const width = FACEBOOK_EMBED_DEFAULT_WIDTH;
-    const height = FACEBOOK_EMBED_DEFAULT_HEIGHT;
-
-    try {
-        let normalizedEmbedUrl = embedUrl;
-        if (embedUrl.includes("web.facebook.com")) {
-            normalizedEmbedUrl = embedUrl.replace("web.facebook.com", "www.facebook.com");
-        }
-
-        const url = new URL(normalizedEmbedUrl);
-
-        if (url.pathname.includes("plugins/post.php")) {
-            if (!url.searchParams.has("width")) url.searchParams.set("width", String(width));
-            if (!url.searchParams.has("show_text")) url.searchParams.set("show_text", "true");
-            resolvedUrl = url.toString();
-        } else {
-            const pluginUrl = new URL("https://www.facebook.com/plugins/post.php");
-            pluginUrl.searchParams.set("href", normalizedEmbedUrl);
-            pluginUrl.searchParams.set("width", String(width));
-            pluginUrl.searchParams.set("show_text", "true");
-            resolvedUrl = pluginUrl.toString();
-        }
-    } catch { return null; }
-
     return (
-        <iframe
-            title="Facebook Preview"
-            src={resolvedUrl}
-            width={width}
-            height={height}
-            style={{ border: "none", overflow: "hidden", maxWidth: '100%' }}
-            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
-        />
+        <div className="mt-2 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
+            {status === 'loading' && (
+                <div className="flex items-center gap-3 p-4 animate-pulse">
+                    <div className="h-16 w-16 rounded-lg bg-slate-200 dark:bg-slate-700 shrink-0" />
+                    <div className="flex-1 space-y-2">
+                        <div className="h-4 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
+                        <div className="h-3 w-full rounded bg-slate-200 dark:bg-slate-700" />
+                        <div className="h-3 w-2/3 rounded bg-slate-200 dark:bg-slate-700" />
+                    </div>
+                </div>
+            )}
+            {status === 'error' && (
+                <div className="flex items-center gap-2 p-4 text-sm text-slate-400">
+                    <span>⚠️</span>
+                    <span>ไม่สามารถโหลด Preview ได้ แต่ลิงก์จะยังคงทำงานบนหน้าเว็บครับ</span>
+                </div>
+            )}
+            {status === 'done' && og && (
+                <a href={embedUrl} target="_blank" rel="noopener noreferrer" className="flex gap-3 p-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    {og.image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={`/api/public/og-image?url=${encodeURIComponent(og.image)}`} alt={og.title} className="h-20 w-20 shrink-0 rounded-lg object-cover bg-slate-100" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-[#1877F2] uppercase tracking-wide mb-1">Facebook</p>
+                        <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 line-clamp-2">{og.title}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{og.description}</p>
+                    </div>
+                </a>
+            )}
+        </div>
     );
 }
 
@@ -209,15 +220,11 @@ export default function TrainingPage() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all"
                                     placeholder="https://www.facebook.com/..."
                                 />
-                                <div className={`mt-2 rounded-xl overflow-hidden flex items-center justify-center min-h-[200px] transition-all ${embeds.embed1 ? 'bg-transparent' : 'bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700'}`}>
-                                    {embeds.embed1 ? (
-                                        <div className="w-full flex justify-center">
-                                            <FacebookPostEmbedPreview embedUrl={embeds.embed1} />
-                                        </div>
-                                    ) : (
+                                {embeds.embed1 ? <OGPreviewCard embedUrl={embeds.embed1} /> : (
+                                    <div className="mt-2 flex items-center justify-center min-h-[80px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                                         <span className="text-sm text-slate-400">{t("previewArea")}</span>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Embed 2 */}
@@ -233,15 +240,11 @@ export default function TrainingPage() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all"
                                     placeholder="https://www.facebook.com/..."
                                 />
-                                <div className={`mt-2 rounded-xl overflow-hidden flex items-center justify-center min-h-[200px] transition-all ${embeds.embed2 ? 'bg-transparent' : 'bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700'}`}>
-                                    {embeds.embed2 ? (
-                                        <div className="w-full flex justify-center">
-                                            <FacebookPostEmbedPreview embedUrl={embeds.embed2} />
-                                        </div>
-                                    ) : (
+                                {embeds.embed2 ? <OGPreviewCard embedUrl={embeds.embed2} /> : (
+                                    <div className="mt-2 flex items-center justify-center min-h-[80px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                                         <span className="text-sm text-slate-400">{t("previewArea")}</span>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Embed 3 */}
@@ -257,15 +260,11 @@ export default function TrainingPage() {
                                     className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-main/20 focus:border-primary-main transition-all"
                                     placeholder="https://www.facebook.com/..."
                                 />
-                                <div className={`mt-2 rounded-xl overflow-hidden flex items-center justify-center min-h-[200px] transition-all ${embeds.embed3 ? 'bg-transparent' : 'bg-slate-50 dark:bg-slate-800/50 border-2 border-dashed border-slate-200 dark:border-slate-700'}`}>
-                                    {embeds.embed3 ? (
-                                        <div className="w-full flex justify-center">
-                                            <FacebookPostEmbedPreview embedUrl={embeds.embed3} />
-                                        </div>
-                                    ) : (
+                                {embeds.embed3 ? <OGPreviewCard embedUrl={embeds.embed3} /> : (
+                                    <div className="mt-2 flex items-center justify-center min-h-[80px] rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700">
                                         <span className="text-sm text-slate-400">{t("previewArea")}</span>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </section>
