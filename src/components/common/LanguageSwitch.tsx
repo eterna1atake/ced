@@ -1,7 +1,7 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useState, useRef, useEffect } from "react";
 import { US, TH } from 'country-flag-icons/react/3x2';
 
@@ -23,11 +23,14 @@ export default function LanguageSwitch() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleChange = (newLocale: string) => {
-    // Construct new path: replace /en or /th prefix with new locale
-    const pathWithoutLocale = pathname.replace(/^\/(en|th)/, "");
-    const newPath = `/${newLocale}${pathWithoutLocale}`;
-    router.push(newPath);
+  const handleChange = (newLocale: "en" | "th") => {
+    // 1. กำหนด Cookie ภาษาใหม่
+    document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    
+    // 2. บังคับโหลดหน้าใหม่ทั้งหมด (Nuclear Option) เพื่อให้ Middleware ทำงานใหม่ 100%
+    // วิธีนี้เสถียรที่สุดสำหรับโหมด localePrefix: 'never'
+    window.location.reload();
+    
     setIsOpen(false);
   };
 

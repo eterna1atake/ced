@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import ServicesPageClient from "./ServicesPageClient";
 import { getApiBaseUrl } from "@/lib/api-config";
@@ -13,7 +13,7 @@ type PageParams = {
 export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -21,10 +21,10 @@ export async function generateMetadata({
   };
 }
 
-async function getServices() {
+async function getServices(locale: string) {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/public/student-services`, { cache: 'no-store' });
+    const res = await fetch(`${baseUrl}/api/public/student-services?locale=${locale}`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch (error) {
@@ -33,8 +33,9 @@ async function getServices() {
   }
 }
 
-export default async function ServicesPage() {
-  const services = await getServices();
+export default async function ServicesPage({ params }: PageParams) {
+  const { locale } = await params;
+  const services = await getServices(locale);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return <ServicesPageClient initialServices={services as any} />;

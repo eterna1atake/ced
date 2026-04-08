@@ -77,9 +77,10 @@ export default function NewsCard({
   const coverImage = imageSrc ?? galleryImages?.[0];
 
   let targetHref = href;
-  if (href && locale && href.startsWith("/")) {
-    targetHref = href.startsWith(`/${locale}`) ? href : `/${locale}${href}`;
-  }
+  // REMOVED: In 'never' mode, we don't want /en or /th in the URL
+  // if (href && locale && href.startsWith("/")) {
+  //   targetHref = href.startsWith(`/${locale}`) ? href : `/${locale}${href}`;
+  // }
 
   const cardContent = (
     <article

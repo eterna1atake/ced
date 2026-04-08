@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 
 import SitemapPageClient from "./SitemapPageClient";
 
@@ -10,7 +10,7 @@ type PageParams = {
 };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-    const locale = await getLocale();
+    const { locale } = await params;
     const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
     return {
@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
     };
 }
 
-export default function SitemapPage() {
+export default async function SitemapPage({ params }: PageParams) {
+    const { locale } = await params;
     return <SitemapPageClient />;
 }

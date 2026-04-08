@@ -9,7 +9,7 @@ const { auth } = NextAuth(authConfig);
 
 const intlMiddleware = createMiddleware({
   ...routing,
-  localeDetection: false,
+  localeDetection: true,
 });
 
 // function isAuthApiPath(pathname: string) {

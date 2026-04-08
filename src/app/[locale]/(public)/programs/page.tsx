@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import dbConnect from "@/lib/mongoose";
 import Program from "@/collections/Program";
 import ProgramsPageClient from "./ProgramsPageClient";
@@ -15,7 +15,7 @@ type PageParams = {
 export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -24,7 +24,7 @@ export async function generateMetadata({
 }
 
 export default async function ProgramsPage({ params }: PageParams) {
-  const locale = await getLocale();
+  const { locale } = await params;
   await dbConnect();
   const programs = await Program.find({}).sort({ level: 1 }).lean();
 
@@ -35,15 +35,18 @@ export default async function ProgramsPage({ params }: PageParams) {
     const rawLink = p.link || "";
     const cleanLink = rawLink.startsWith('/') ? rawLink : `/${rawLink}`;
 
+    // เลือกใช้ข้อมูลตามภาษาที่ได้จาก params
+    const langData = p[locale === 'en' ? 'en' : 'th'] || p.th || p.en || {};
+
     return {
       level: p.level,
       imageSrc: p.imageSrc,
       imageAlt: p.imageAlt,
       buttonLink: cleanLink,
-      degree: p[locale === 'th' ? 'th' : 'en'].degree,
-      title: p[locale === 'th' ? 'th' : 'en'].title,
-      subtitle: p[locale === 'th' ? 'th' : 'en'].subtitle,
-      description: p[locale === 'th' ? 'th' : 'en'].description,
+      degree: langData.degree || "",
+      title: langData.title || "",
+      subtitle: langData.subtitle || "",
+      description: langData.description || "",
     };
   });
 

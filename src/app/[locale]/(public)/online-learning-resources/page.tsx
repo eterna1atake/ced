@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import OnlineLearningPageClient from "./OnlineLearningPageClient";
 import { getApiBaseUrl } from "@/lib/api-config";
 
@@ -10,7 +10,7 @@ type PageParams = {
 };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -18,10 +18,10 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   };
 }
 
-async function getResources() {
+async function getResources(locale: string) {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/public/online-resources`, { cache: 'no-store' });
+    const res = await fetch(`${baseUrl}/api/public/online-resources?locale=${locale}`, { cache: 'no-store' });
     if (!res.ok) return [];
     return res.json();
   } catch (error) {
@@ -31,8 +31,8 @@ async function getResources() {
 }
 
 export default async function OnlineLearningPage({ params }: PageParams) {
-  await params;
-  const initialResources = await getResources();
+  const { locale } = await params;
+  const initialResources = await getResources(locale);
 
   return <OnlineLearningPageClient initialResources={initialResources} />;
 }

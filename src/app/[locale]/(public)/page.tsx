@@ -14,10 +14,11 @@ import { getApiBaseUrl } from "@/lib/api-config";
 import PipeIcon from "@/components/icons/PipeIcon";
 import { getTrainingItems } from "@/data/training";
 
-async function getLatestNews() {
+async function getLatestNews(locale: string) {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/public/news`, { cache: 'no-store' }); // Disable cache for real-time updates
+    // Send locale as query param to ensure API (or any intermediary cache) can distinguish languages
+    const res = await fetch(`${baseUrl}/api/public/news?locale=${locale}`, { cache: 'no-store' }); 
     if (!res.ok) return [];
     return res.json();
   } catch (error) {
@@ -38,12 +39,11 @@ async function getPublicSettings() {
   }
 }
 
-export default async function Home() {
-  const locale = await getLocale();
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Hero" });
   const tNews = await getTranslations({ locale, namespace: "News" });
   const tTraining = await getTranslations({ locale, namespace: "Training" });
-  // const locale = useLocale(); // We get locale from params in server component
 
   const itemsA = [
     { id: "admissions", label: t("admissions"), href: `/apply` },
@@ -60,7 +60,7 @@ export default async function Home() {
     { id: "Form Requests", label: t("formRequests"), href: `/form-requests` },
   ];
 
-  const newsItems = await getLatestNews();
+  const newsItems = await getLatestNews(locale);
   const settings = await getPublicSettings();
   const trainingItems = getTrainingItems();
 

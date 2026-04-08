@@ -1,6 +1,6 @@
 'use client';
-
-import { useRouter, usePathname, useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { useRouter, usePathname } from '@/i18n/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
@@ -8,13 +8,12 @@ import { useEffect, useState } from 'react';
 export default function FloatingBackButton() {
     const router = useRouter();
     const pathname = usePathname();
-    const params = useParams();
-    const locale = (params?.locale as string) || 'en';
+    const locale = useLocale();
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
         // Hide on home page (e.g., /en, /th, /, etc.)
-        const isHomePage = pathname === '/en' || pathname === '/th' || pathname === '/' || pathname === '/en/' || pathname === '/th/';
+        const isHomePage = pathname === '/';
         setIsVisible(!isHomePage);
     }, [pathname]);
 

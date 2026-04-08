@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import PersonnelPageClient from "./PersonnelPageClient";
 import { getApiBaseUrl } from "@/lib/api-config";
 
@@ -10,7 +10,7 @@ type PageParams = {
 };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -30,7 +30,8 @@ async function getPersonnel() {
   }
 }
 
-export default async function StaffPage() {
+export default async function StaffPage({ params }: PageParams) {
+  const { locale } = await params;
   const allPersonnel = await getPersonnel();
 
   return <PersonnelPageClient allPersonnel={allPersonnel} />;

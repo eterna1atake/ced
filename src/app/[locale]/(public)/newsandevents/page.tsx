@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import { getApiBaseUrl } from "@/lib/api-config";
 
 import NewsAndEventsClient from "./NewsAndEventsClient";
@@ -11,7 +11,7 @@ type PageParams = {
 };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -19,11 +19,11 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   };
 }
 
-async function getNews() {
+async function getNews(locale: string) {
   const baseUrl = getApiBaseUrl();
   try {
-    const res = await fetch(`${baseUrl}/api/public/news`, {
-      cache: 'no-store' // Ensure fresh data on every request, or use revalidate if preferred
+    const res = await fetch(`${baseUrl}/api/public/news?locale=${locale}`, {
+      cache: 'no-store' 
     });
     if (!res.ok) return [];
     return res.json();
@@ -33,8 +33,9 @@ async function getNews() {
   }
 }
 
-export default async function NewsAndEventsPage() {
-  const news = await getNews();
+export default async function NewsAndEventsPage({ params }: PageParams) {
+  const { locale } = await params;
+  const news = await getNews(locale);
 
   return <NewsAndEventsClient initialNews={news} />;
 }

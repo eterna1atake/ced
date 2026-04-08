@@ -5,7 +5,7 @@ import Breadcrumbs from "@/components/common/Breadcrumbs";
 import FloatingBackButton from "@/components/common/FloatingBackButton";
 import NewsGallery from "@/components/news/NewsGallery";
 // import { getNewsBySlug } from "@/data/newsData"; // Removed
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import HeroBanner from "@/components/common/HeroBanner";
 import { getApiBaseUrl } from "@/lib/api-config";
 import React from "react";
@@ -13,6 +13,7 @@ import React from "react";
 type NewsDetailPageProps = {
   params: Promise<{
     slug: string;
+    locale: string;
   }>;
 };
 
@@ -31,8 +32,7 @@ async function getNewsItem(slug: string) {
 }
 
 export async function generateMetadata({ params }: NewsDetailPageProps): Promise<Metadata> {
-  const { slug } = await params;
-  const locale = await getLocale();
+  const { slug, locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
   const baseTitle = tMeta("newsDetailTitle");
   const newsItem = await getNewsItem(slug);
@@ -89,8 +89,7 @@ const parseLinksAndTags = (text: string) => {
 };
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
-  const { slug } = await params;
-  const locale = await getLocale();
+  const { slug, locale } = await params;
   const t = await getTranslations({ locale, namespace: "News" });
   const breadcrumb = await getTranslations({ locale, namespace: "Breadcrumbs" });
   const newsItem = await getNewsItem(slug);

@@ -10,7 +10,7 @@ type PageParams = {
 };
 
 export async function generateMetadata({ params }: PageParams): Promise<Metadata> {
-  const locale = await getLocale();
+  const { locale } = await params;
   const tMeta = await getTranslations({ locale, namespace: "Meta" });
 
   return {
@@ -18,6 +18,7 @@ export async function generateMetadata({ params }: PageParams): Promise<Metadata
   };
 }
 
-export default function AboutPage() {
+export default async function AboutPage({ params }: PageParams) {
+  await params;
   return <AboutPageClient />;
 }

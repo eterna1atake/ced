@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import { useParams } from 'next/navigation';
+import { useLocale } from 'next-intl';
 
 import type { HeroCarouselImage } from "@/types/hero";
 
@@ -17,8 +17,7 @@ export default function HeroCarousel({
   intervalMs = 5000,
   className,
 }: HeroCarouselProps) {
-  const params = useParams();
-  const locale = (params?.locale as "en" | "th") || "th";
+  const locale = useLocale() as "en" | "th";
 
   // กรองรูปที่ไม่สมบูรณ์
   const slides = useMemo(
